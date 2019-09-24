@@ -60,7 +60,7 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o json
 ## Using secret for Kubeconfig or Service Account
 Now add the values as [a secret](https://developer.github.com/actions/managing-workflows/storing-secrets/) in the GitHub repository. In the example below the secret name is `KUBE_CONFIG` and it can be used in the workflow by using the following syntax:
 ```yaml
- - uses: azure/k8s-actions/k8s-set-context@master
+ - uses: azure/k8s-set-context@v1
       with:
         kubeconfig: ${{ secrets.KUBE_CONFIG }}
 ```
