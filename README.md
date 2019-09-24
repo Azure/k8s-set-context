@@ -1,6 +1,6 @@
 # Kubernetes set context
 
-Used for setting the target K8s cluster context which will be used by other actions like [`azure/k8s-deploy`](https://github.com/Azure/k8s-actions/tree/master/k8s-deploy), [`azure/k8s-create-secret`](https://github.com/Azure/k8s-actions/tree/master/k8s-create-secret) etc. or run any kubectl commands.
+Used for setting the target K8s cluster context which will be used by other actions like [`azure/k8s-deploy`](https://github.com/Azure/k8s-deploy/tree/master), [`azure/k8s-create-secret`](https://github.com/Azure/k8s-create-secret/tree/master) etc. or run any kubectl commands.
 
 ```yaml
 - uses: azure/k8s-set-context@v1
@@ -18,11 +18,11 @@ Used for setting the target K8s cluster context which will be used by other acti
   id: login
 ```
 
-[Use secrets](https://developer.github.com/actions/managing-workflows/storing-secrets/) in workflow for using kubeconfig or k8s-values.
+Use secret (https://developer.github.com/actions/managing-workflows/storing-secrets/) in workflow for kubeconfig or k8s-values.
 
 PS: `kubeconfig` takes precedence (i.e. kubeconfig would be created using the value supplied in kubeconfig)
 
-Refer to the action metadata file for details about all the inputs https://github.com/Azure/k8s-actions/blob/master/k8s-set-context/action.yml
+Refer to the action metadata file for details about all the inputs https://github.com/Azure/k8s-set-context/blob/master/action.yml
 
 ## Steps to get Kubeconfig of a K8s cluster: 
 
@@ -60,7 +60,7 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o json
 ## Using secret for Kubeconfig or Service Account
 Now add the values as [a secret](https://developer.github.com/actions/managing-workflows/storing-secrets/) in the GitHub repository. In the example below the secret name is `KUBE_CONFIG` and it can be used in the workflow by using the following syntax:
 ```yaml
- - uses: azure/k8s-set-context@v1
+ - uses: azure/k8s-actions/k8s-set-context@master
       with:
         kubeconfig: ${{ secrets.KUBE_CONFIG }}
 ```
