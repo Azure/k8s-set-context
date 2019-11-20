@@ -1,32 +1,60 @@
 # Kubernetes set context
 
-Used for setting the target K8s cluster context which will be used by other actions like [`azure/k8s-deploy`](https://github.com/Azure/k8s-deploy/tree/master), [`azure/k8s-create-secret`](https://github.com/Azure/k8s-create-secret/tree/master) etc. or run any kubectl commands.
+This action can be used to set cluster context before other actions like [`azure/k8s-deploy`](https://github.com/Azure/k8s-deploy/tree/master), [`azure/k8s-create-secret`](https://github.com/Azure/k8s-create-secret/tree/master) or any kubectl commands (in script) can be run subsequently in the workflow.
+
+There are two approaches for specifying the deployment target:
+
+- Kubeconfig file provided as input to the action
+- Service account approach where the secret associated with the service account is provided as input to the action
+
+If inputs related to both these approaches are provided, kubeconfig approach related inputs are given precedence.
+
+In both these approaches it is recommended to store these contents (kubeconfig file content or secret content) in a [secret](https://developer.github.com/actions/managing-workflows/storing-secrets/) which could be referenced later in the action.
+
+## Action inputs
+
+<table>
+  <thead>
+    <tr>
+      <th>Action inputs</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+
+  <tr>
+    <td><code>kubeconfig</code><br/>Kubectl config</td>
+    <td>(Relevant for kubeconfig approach) Configuration file to be used with kubectl</td>
+  </tr>
+  <tr>
+    <td><code>context</code><br/>Context</td>
+    <td>(Relevant for kubeconfig approach) Context to be used within the provided kubeconfig file</td>
+  </tr>
+  <tr>
+    <td><code>k8s-url</code><br/>API server URL</td>
+    <td>(Relevant for service account approach) API Server URL for the K8s cluster</td>
+  </tr>
+  <tr>
+    <td><code>k8s-secret</code><br/>Secret</td>
+    <td>(Relevant for service account approach) Secret associated with the service account to be used for deployments</td>
+  </tr>
+</table>
+
+## Example usage
+
+### Kubeconfig approach
 
 ```yaml
 - uses: azure/k8s-set-context@v1
   with:
-    kubeconfig: '<your kubeconfig>'v# Use secret (https://developer.github.com/actions/managing-workflows/storing-secrets/)
-    context: '<context name>'  # Optional, uses the current-context from kubeconfig by default
-  id: login
+    kubeconfig: '<your kubeconfig>' # Use secret (https://developer.github.com/actions/managing-workflows/storing-secrets/)
+    context: '<context name>'  #If left unspecified, current-context from kubeconfig is used as default
+  id: setcontext
 ```
 
-```yaml
-- uses: azure/k8s-set-context@v1
-  with:
-    k8s-url: '<your kubernetes cluster url>'
-    k8s-secret: '<service account token>' # token value from the result of the below script
-  id: login
-```
+Following are the ways to fetch kubeconfig file onto your local development machine so that the same can be used in the action input shown above:
 
-Use secret (https://developer.github.com/actions/managing-workflows/storing-secrets/) in workflow for kubeconfig or k8s-values.
+#### For Azure Kubernetes Service cluster
 
-PS: `kubeconfig` takes precedence (i.e. kubeconfig would be created using the value supplied in kubeconfig)
-
-Refer to the action metadata file for details about all the inputs https://github.com/Azure/k8s-set-context/blob/master/action.yml
-
-## Steps to get Kubeconfig of a K8s cluster: 
-
-### For AKS
 ```sh
 az aks get-credentials --name
                        --resource-group
@@ -35,37 +63,36 @@ az aks get-credentials --name
                        [--overwrite-existing]
                        [--subscription]
 ```
-Refer to https://docs.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-get-credentials
 
-### For any K8s cluster
-Please refer to https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/
+Further details can be found in [az aks get-credentials documentation](https://docs.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-get-credentials).
 
+#### For any generic Kubernetes cluster
 
-## Steps to get Service account: 
+Please refer to documentation on fetching [kubeconfig for any generic K8s cluster](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/)
 
-#### k8s-url: Run in your local shell to get server K8s URL
-```sh
-kubectl config view --minify -o jsonpath={.clusters[0].cluster.server}
+### Service account approach
+
+```yaml
+- uses: azure/k8s-set-context@v1
+  with:
+    k8s-url: '<URL of the clsuter's API server >'
+    k8s-secret: '<secret associated with the service account>'
+  id: setcontext
 ```
-#### k8s-secret: Run following sequential commands to get the secret value:
-Get service account secret names by running
+
+For fetching Server URL, execute the following command on your shell:
+
 ```sh
-kubectl get sa <service-account-name> -n <namespace> -o=jsonpath={.secrets[*].name}
+kubectl config view --minify -o 'jsonpath={.clusters[0].cluster.server}'
 ```
 
-Use the output of the above command 
+For fetching Secret object required to connect and authenticate with the cluster, the following sequence of commands need to be run:
+
 ```sh
 kubectl get secret <service-account-secret-name> -n <namespace> -o json
 ```
-## Using secret for Kubeconfig or Service Account
-Now add the values as [a secret](https://developer.github.com/actions/managing-workflows/storing-secrets/) in the GitHub repository. In the example below the secret name is `KUBE_CONFIG` and it can be used in the workflow by using the following syntax:
-```yaml
- - uses: azure/k8s-set-context@v1
-      with:
-        kubeconfig: ${{ secrets.KUBE_CONFIG }}
-```
 
-# Contributing
+## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
