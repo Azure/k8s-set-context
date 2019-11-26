@@ -6,36 +6,65 @@ import * as io from '@actions/io';
 import * as toolCache from '@actions/tool-cache';
 import * as os from 'os';
 import { ToolRunner } from "@actions/exec/lib/toolrunner";
+import * as jsyaml from 'js-yaml';
+import * as util from 'util';
 
 function getKubeconfig(): string {
-    const kubeconfig = core.getInput('kubeconfig');
-    if (kubeconfig) {
+    const method =  core.getInput('method', {required: true});
+    if (method == 'kubeconfig') {
+        const kubeconfig = core.getInput('kubeconfig', {required : true});
         core.debug("Setting context using kubeconfig");
         return kubeconfig;
     }
-    const clusterUrl = core.getInput('k8s-url', { required: true });
-    core.debug("Found clusterUrl, creating kubeconfig using certificate and token");
-    let token = Buffer.from(core.getInput('k8s-secret'), 'base64').toString();
-    const kubeconfigObject = {
-        "apiVersion": "v1",
-        "kind": "Config",
-        "clusters": [
-            {
-                "cluster": {
-                    "server": clusterUrl
-                }
-            }
-        ],
-        "users": [
-            {
-                "user": {
-                    "token": token
-                }
-            }
-        ]
-    };
+    else if (method == 'service-account') {
+        const clusterUrl = core.getInput('k8s-url', { required: true });
+        core.debug("Found clusterUrl, creating kubeconfig using certificate and token");
+        let k8sSecret = core.getInput('k8s-secret', {required : true});
+        var parsedk8sSecret = jsyaml.safeLoad(k8sSecret);
+        let kubernetesServiceAccountSecretFieldNotPresent = 'The service acount secret yaml does not contain %s; field. Make sure that its present and try again.';
+        if (!parsedk8sSecret) {
+            throw Error("The service account secret yaml specified is invalid. Make sure that its a valid yaml and try again.");
+        }
 
-    return JSON.stringify(kubeconfigObject);
+        if (!parsedk8sSecret.data) {
+            throw Error(util.format(kubernetesServiceAccountSecretFieldNotPresent, "data"));
+        }
+
+        if (!parsedk8sSecret.data.token) {
+            throw Error(util.format(kubernetesServiceAccountSecretFieldNotPresent, "data.token"));
+        }
+
+        if (!parsedk8sSecret.data["ca.crt"]) {
+            throw Error(util.format(kubernetesServiceAccountSecretFieldNotPresent, "data[ca.crt]"));
+        }
+
+        const certAuth = parsedk8sSecret.data["ca.crt"];
+        const token = Buffer.from(parsedk8sSecret.data.token, 'base64').toString();
+        const kubeconfigObject = {
+            "apiVersion": "v1",
+            "kind": "Config",
+            "clusters": [
+                {
+                    "cluster": {
+                        "certificate-authority-data": certAuth,
+                        "server": clusterUrl
+                    }
+                }
+            ],
+            "users": [
+                {
+                    "user": {
+                        "token": token
+                    }
+                }
+            ]
+        };
+
+        return JSON.stringify(kubeconfigObject);
+    }
+    else {
+        throw Error("Invalid method specified. Acceptable values are kubeconfig and service-account.");
+    }
 }
 
 function getExecutableExtension(): string {
