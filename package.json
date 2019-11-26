@@ -16,9 +16,11 @@
     "dependencies": {
         "@actions/core": "^1.0.0",
         "@actions/exec": "^1.0.0",
-        "@actions/tool-cache": "^1.0.0"
+        "@actions/tool-cache": "^1.0.0",
+        "js-yaml": "^3.13.1"
     },
     "devDependencies": {
-        "@types/node": "^12.0.4"
+        "@types/node": "^12.0.4",
+        "typescript": "^3.5.2"
     }
 }
