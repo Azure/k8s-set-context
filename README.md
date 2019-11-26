@@ -20,7 +20,10 @@ In both these approaches it is recommended to store these contents (kubeconfig f
       <th>Description</th>
     </tr>
   </thead>
-
+  <tr>
+    <td><code>method</code><br/>Method</td>
+    <td>(Optional) Acceptable values: kubeconfig/service-account. Default value: kubeconfig</td>
+  </tr>
   <tr>
     <td><code>kubeconfig</code><br/>Kubectl config</td>
     <td>(Relevant for kubeconfig approach) Configuration file to be used with kubectl</td>
@@ -46,8 +49,9 @@ In both these approaches it is recommended to store these contents (kubeconfig f
 ```yaml
 - uses: azure/k8s-set-context@v1
   with:
-    kubeconfig: '<your kubeconfig>' # Use secret (https://developer.github.com/actions/managing-workflows/storing-secrets/)
-    context: '<context name>'  #If left unspecified, current-context from kubeconfig is used as default
+    method: kubeconfig
+    kubeconfig: <your kubeconfig> # Use secret (https://developer.github.com/actions/managing-workflows/storing-secrets/)
+    context: <context name>  #If left unspecified, current-context from kubeconfig is used as default
   id: setcontext
 ```
 
@@ -75,8 +79,9 @@ Please refer to documentation on fetching [kubeconfig for any generic K8s cluste
 ```yaml
 - uses: azure/k8s-set-context@v1
   with:
-    k8s-url: '<URL of the clsuter's API server >'
-    k8s-secret: '<secret associated with the service account>'
+    method: service-account
+    k8s-url: <URL of the clsuter's API server>
+    k8s-secret: <secret associated with the service account>
   id: setcontext
 ```
 
@@ -89,7 +94,11 @@ kubectl config view --minify -o 'jsonpath={.clusters[0].cluster.server}'
 For fetching Secret object required to connect and authenticate with the cluster, the following sequence of commands need to be run:
 
 ```sh
-kubectl get secret <service-account-secret-name> -n <namespace> -o json
+kubectl get serviceAccounts <service-account-name> -n <namespace> -o 'jsonpath={.secrets[*].name}'
+```
+
+```sh
+kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 ```
 
 ## Contributing
