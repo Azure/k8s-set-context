@@ -26,7 +26,7 @@ In both these approaches it is recommended to store these contents (kubeconfig f
   </tr>
   <tr>
     <td><code>kubeconfig</code><br/>Kubectl config</td>
-    <td>(Relevant for kubeconfig approach) Configuration file to be used with kubectl</td>
+    <td>(Relevant for kubeconfig approach) Contents of the configuration file to be used with kubectl (e.g. can be pulled from a secret)</td>
   </tr>
   <tr>
     <td><code>context</code><br/>Context</td>
@@ -54,6 +54,8 @@ In both these approaches it is recommended to store these contents (kubeconfig f
     context: <context name>  #If left unspecified, current-context from kubeconfig is used as default
   id: setcontext
 ```
+
+**Please note** that the input requires the _contents_ of the kubeconfig file, and not its path.
 
 Following are the ways to fetch kubeconfig file onto your local development machine so that the same can be used in the action input shown above:
 
