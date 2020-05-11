@@ -7,7 +7,7 @@ inputs:
     required: true
     default: 'kubeconfig'
   kubeconfig:
-    description: 'Kubernetes Config'
+    description: 'Contents of kubeconfig file'
     required: false
     default: ''
   context:
