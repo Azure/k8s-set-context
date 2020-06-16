@@ -17,9 +17,13 @@ jobs:
     - name: 'Checking out repo code'
       uses: actions/checkout@v1
 
+    - name: Extract branch name
+      id: extract_branch
+      run: |
+        echo "##[set-output name=branch;]$(echo ${GITHUB_REF##*/})"
+
     - name: 'Validate build'
-      env:
-        branch: ${GITHUB_REF##*/}
+      if: steps.extract_branch.outputs.branch == 'master'
       run: |
         echo ${env:branch}
         npm install
