@@ -26,13 +26,11 @@ jobs:
       if: github.event.pull_request.base.ref == 'master' || steps.extract_branch.outputs.branchname == 'master'
       run: |
         npm install
-        npm build
     
     - name: 'Install dependency for releases'
       if: github.event.pull_request.base.ref == 'releases/v1' || steps.extract_branch.outputs.branchname == 'releases/v1'
       run: |
         npm install --only=dev
-        npm build
         
     - name: 'Run L0 tests'
       run: |
