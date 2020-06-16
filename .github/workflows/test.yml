@@ -18,6 +18,7 @@ jobs:
       uses: actions/checkout@v1
 
     - name: 'Validate build'
+      if: ${{ ${GITHUB_REF##*/} == 'master' }}
       run: |
         npm install
         npm build
@@ -65,4 +66,5 @@ jobs:
         $headers = @{
           "Authorization" = "token ${env:GITHUB_TOKEN}"
         }
-        Invoke-RestMethod -Method POST -Uri $url -Headers $headers -Body "{ `"body`": `"${comment}`" }"
+        $body = "{ `"body`": `"${comment}`" }"
+        Invoke-RestMethod -Method POST -Uri $url -Headers $headers -Body $body
