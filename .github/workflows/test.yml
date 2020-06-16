@@ -23,9 +23,8 @@ jobs:
         echo "##[set-output name=branch;]$(echo ${GITHUB_REF##*/})"
 
     - name: 'Validate build'
-      if: steps.extract_branch.outputs.branch == 'master'
       run: |
-        echo ${env:branch}
+        echo ${{steps.extract_branch.outputs.branch}}
         npm install
         npm build
     - name: 'Run L0 tests'
