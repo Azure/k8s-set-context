@@ -18,7 +18,9 @@ jobs:
       uses: actions/checkout@v1
 
     - name: 'Validate build'
-      if: ${GITHUB_REF##*/} == 'master'
+      env:
+        branch: ${GITHUB_REF##*/}
+      if: ${{ env:branch == 'master'}}
       run: |
         npm install
         npm build
