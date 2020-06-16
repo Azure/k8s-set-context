@@ -20,8 +20,8 @@ jobs:
     - name: 'Validate build'
       env:
         branch: ${GITHUB_REF##*/}
-      if: env.branch == 'master'
       run: |
+        echo ${env:branch}
         npm install
         npm build
     - name: 'Run L0 tests'
