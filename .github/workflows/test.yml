@@ -20,7 +20,7 @@ jobs:
     - name: 'Validate build'
       env:
         branch: ${GITHUB_REF##*/}
-      if: ${{ env:branch == 'master'}}
+      if: env:branch == 'master'
       run: |
         npm install
         npm build
