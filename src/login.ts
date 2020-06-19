@@ -100,7 +100,7 @@ async function setContext() {
     }
 }
 
-async function run() {
+export async function run() {
     let kubeconfig = getKubeconfig();
     const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
     const kubeconfigPath = path.join(runnerTempDirectory, `kubeconfig_${Date.now()}`);
