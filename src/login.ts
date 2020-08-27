@@ -89,9 +89,11 @@ async function getKubectlPath() {
     return kubectlPath;
 }
 
-async function setContext() {
+async function setContext(kubeconfigPath: string) {
     let context = core.getInput('context');
     if (context) {
+        //To use kubectl commands, the environment variable KUBECONFIG needs to be set for this step 
+        process.env['KUBECONFIG'] = kubeconfigPath;
         const kubectlPath = await getKubectlPath();
         let toolRunner = new ToolRunner(kubectlPath, ['config', 'use-context', context]);
         await toolRunner.exec();
@@ -108,7 +110,7 @@ async function run() {
     fs.writeFileSync(kubeconfigPath, kubeconfig);
     issueCommand('set-env', { name: 'KUBECONFIG' }, kubeconfigPath);
     console.log('KUBECONFIG environment variable is set');
-    await setContext();
+    await setContext(kubeconfigPath);
 }
 
 run().catch(core.setFailed);
