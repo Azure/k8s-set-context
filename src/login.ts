@@ -8,18 +8,19 @@ import * as os from 'os';
 import { ToolRunner } from "@actions/exec/lib/toolrunner";
 import * as jsyaml from 'js-yaml';
 import * as util from 'util';
+import { getArcKubeconfig } from './arc-login';
 
 function getKubeconfig(): string {
-    const method =  core.getInput('method', {required: true});
+    const method = core.getInput('method', { required: true });
     if (method == 'kubeconfig') {
-        const kubeconfig = core.getInput('kubeconfig', {required : true});
+        const kubeconfig = core.getInput('kubeconfig', { required: true });
         core.debug("Setting context using kubeconfig");
         return kubeconfig;
     }
     else if (method == 'service-account') {
         const clusterUrl = core.getInput('k8s-url', { required: true });
         core.debug("Found clusterUrl, creating kubeconfig using certificate and token");
-        let k8sSecret = core.getInput('k8s-secret', {required : true});
+        let k8sSecret = core.getInput('k8s-secret', { required: true });
         var parsedk8sSecret = jsyaml.safeLoad(k8sSecret);
         let kubernetesServiceAccountSecretFieldNotPresent = 'The service acount secret yaml does not contain %s; field. Make sure that its present and try again.';
         if (!parsedk8sSecret) {
@@ -103,14 +104,27 @@ async function setContext(kubeconfigPath: string) {
 }
 
 async function run() {
-    let kubeconfig = getKubeconfig();
-    const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
-    const kubeconfigPath = path.join(runnerTempDirectory, `kubeconfig_${Date.now()}`);
-    core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`);
-    fs.writeFileSync(kubeconfigPath, kubeconfig);
-    issueCommand('set-env', { name: 'KUBECONFIG' }, kubeconfigPath);
-    console.log('KUBECONFIG environment variable is set');
-    await setContext(kubeconfigPath);
+    try {
+        let kubeconfig = '';
+        const cluster_type = core.getInput('cluster-type', { required: true });
+        if (cluster_type == 'arc') {
+            kubeconfig = await getArcKubeconfig().catch(ex => {
+                throw new Error('Error: Could not get the KUBECONFIG for arc cluster: ' + ex);
+            });
+        }
+        else {
+            kubeconfig = getKubeconfig();
+        }
+        const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
+        const kubeconfigPath = path.join(runnerTempDirectory, `kubeconfig_${Date.now()}`);
+        core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`);
+        fs.writeFileSync(kubeconfigPath, kubeconfig);
+        issueCommand('set-env', { name: 'KUBECONFIG' }, kubeconfigPath);
+        console.log('KUBECONFIG environment variable is set');
+        await setContext(kubeconfigPath);
+    } catch (ex) {
+        return Promise.reject(ex);
+    }
 }
 
 run().catch(core.setFailed);
