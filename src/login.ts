@@ -108,6 +108,7 @@ export async function run() {
     const kubeconfigPath = path.join(runnerTempDirectory, `kubeconfig_${Date.now()}`);
     core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`);
     fs.writeFileSync(kubeconfigPath, kubeconfig);
+    fs.chmodSync(kubeconfigPath, '600');
     issueCommand('set-env', { name: 'KUBECONFIG' }, kubeconfigPath);
     console.log('KUBECONFIG environment variable is set');
     await setContext(kubeconfigPath);
