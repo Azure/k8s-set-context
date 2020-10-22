@@ -1,5 +1,4 @@
 import * as core from '@actions/core';
-import { issueCommand } from '@actions/core/lib/command';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as io from '@actions/io';
@@ -120,7 +119,7 @@ async function run() {
         core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`);
         fs.writeFileSync(kubeconfigPath, kubeconfig);
         fs.chmodSync(kubeconfigPath, '600');
-        issueCommand('set-env', { name: 'KUBECONFIG' }, kubeconfigPath);
+        core.exportVariable('KUBECONFIG', kubeconfigPath);
         console.log('KUBECONFIG environment variable is set');
         await setContext(kubeconfigPath);
     } catch (ex) {
