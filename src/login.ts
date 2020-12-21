@@ -20,7 +20,7 @@ function getKubeconfig(): string {
         core.debug("Found clusterUrl, creating kubeconfig using certificate and token");
         let k8sSecret = core.getInput('k8s-secret', {required : true});
         var parsedk8sSecret = jsyaml.safeLoad(k8sSecret);
-        let kubernetesServiceAccountSecretFieldNotPresent = 'The service acount secret yaml does not contain %s; field. Make sure that its present and try again.';
+        let kubernetesServiceAccountSecretFieldNotPresent = 'The service account secret yaml does not contain %s; field. Make sure that its present and try again.';
         if (!parsedk8sSecret) {
             throw Error("The service account secret yaml specified is invalid. Make sure that its a valid yaml and try again.");
         }
