@@ -8,7 +8,7 @@ import { ToolRunner } from "@actions/exec/lib/toolrunner";
 import * as jsyaml from 'js-yaml';
 import * as util from 'util';
 
-function getKubeconfig(): string {
+export function getKubeconfig(): string {
     const method =  core.getInput('method', {required: true});
     if (method == 'kubeconfig') {
         const kubeconfig = core.getInput('kubeconfig', {required : true});
@@ -66,7 +66,7 @@ function getKubeconfig(): string {
     }
 }
 
-function getExecutableExtension(): string {
+export function getExecutableExtension(): string {
     if (os.type().match(/^Win/)) {
         return '.exe';
     }
@@ -74,7 +74,7 @@ function getExecutableExtension(): string {
     return '';
 }
 
-async function getKubectlPath() {
+export async function getKubectlPath() {
     let kubectlPath = await io.which('kubectl', false);
     if (!kubectlPath) {
         const allVersions = toolCache.findAllVersions('kubectl');
@@ -88,7 +88,7 @@ async function getKubectlPath() {
     return kubectlPath;
 }
 
-async function setContext(kubeconfigPath: string) {
+export async function setContext(kubeconfigPath: string) {
     let context = core.getInput('context');
     if (context) {
         //To use kubectl commands, the environment variable KUBECONFIG needs to be set for this step 
