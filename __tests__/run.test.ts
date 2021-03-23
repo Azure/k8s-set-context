@@ -60,7 +60,7 @@ describe('Testing all functions.', () => {
         expect(await run.getKubectlPath()).toBe(path.join('pathToTool', 'kubectl.exe'));
         expect(io.which).toBeCalled();         
         expect(toolCache.findAllVersions).toBeCalled();         
-        expect(toolCache.find).toBeCalled();         
+        expect(toolCache.find).toBeCalledWith('kubectl', 'v1.15.0');         
     });
     
     test('getKubeconfig() - throw error on invalid input', () => {
