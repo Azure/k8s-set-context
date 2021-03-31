@@ -1,4 +1,4 @@
-# Kubernetes set context
+# Kubernetes set context 
 
 This action can be used to set cluster context before other actions like [`azure/k8s-deploy`](https://github.com/Azure/k8s-deploy/tree/master), [`azure/k8s-create-secret`](https://github.com/Azure/k8s-create-secret/tree/master) or any kubectl commands (in script) can be run subsequently in the workflow.
 
