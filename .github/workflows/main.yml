@@ -6,7 +6,7 @@ name: k8s-set-context
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ cluster-connect-2 ]
+    branches: [ cluster-connect ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
