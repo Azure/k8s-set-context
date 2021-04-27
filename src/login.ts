@@ -107,21 +107,21 @@ async function run() {
         let kubeconfig = '';
         const cluster_type = core.getInput('cluster-type', { required: true });
         if (cluster_type == 'arc') {
-            kubeconfig = await getArcKubeconfig().catch(ex => {
+            await getArcKubeconfig().catch(ex => {
                 throw new Error('Error: Could not get the KUBECONFIG for arc cluster: ' + ex);
             });
         }
         else {
+            const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
+            const kubeconfigPath = path.join(runnerTempDirectory, `kubeconfig_${Date.now()}`);
             kubeconfig = getKubeconfig();
+            core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`);
+            fs.writeFileSync(kubeconfigPath, kubeconfig);
+            fs.chmodSync(kubeconfigPath, '600');
+            core.exportVariable('KUBECONFIG', kubeconfigPath);
+            console.log('KUBECONFIG environment variable is set');
+            await setContext(kubeconfigPath);
         }
-        const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
-        const kubeconfigPath = path.join(runnerTempDirectory, `kubeconfig_${Date.now()}`);
-        core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`);
-        fs.writeFileSync(kubeconfigPath, kubeconfig);
-        fs.chmodSync(kubeconfigPath, '600');
-        core.exportVariable('KUBECONFIG', kubeconfigPath);
-        console.log('KUBECONFIG environment variable is set');
-        await setContext(kubeconfigPath);
     } catch (ex) {
         return Promise.reject(ex);
     }

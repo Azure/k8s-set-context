@@ -2,6 +2,10 @@ import * as core from '@actions/core';
 import { rejects } from 'assert';
 import { WebRequest, WebRequestOptions, WebResponse, sendRequest } from './client';
 import * as querystring from 'querystring';
+import * as az_login from './main';
+import * as path from 'path';
+import {spawn} from 'child_process';
+import * as fs from 'fs';
 
 async function getAzureAccessToken(servicePrincipalId, servicePrincipalKey, tenantId, authorityUrl, managementEndpointUrl: string): Promise<string> {
 
@@ -47,52 +51,52 @@ async function getAzureAccessToken(servicePrincipalId, servicePrincipalKey, tena
 
 export async function getArcKubeconfig(): Promise<string> {
     try {
-        let creds = core.getInput('creds');
-        let credsObject: { [key: string]: string; };
-        try {
-            credsObject = JSON.parse(creds);
-        } catch (ex) {
-            throw new Error('Credentials object is not a valid JSON: ' + ex);
-        }
-
-        let servicePrincipalId = credsObject["clientId"];
-        let servicePrincipalKey = credsObject["clientSecret"];
-        let tenantId = credsObject["tenantId"];
-        let authorityUrl = credsObject["activeDirectoryEndpointUrl"] || "https://login.microsoftonline.com";
-        let managementEndpointUrl = credsObject["resourceManagerEndpointUrl"] || "https://management.azure.com/";
-        let subscriptionId = credsObject["subscriptionId"];
-
-        let azureSessionToken = await getAzureAccessToken(servicePrincipalId, servicePrincipalKey, tenantId, authorityUrl, managementEndpointUrl).catch(ex => {
-            throw new Error('Could not fetch the azure access token: ' + ex);
-        });
+        let method = core.getInput('method');
+        if (method != 'service-account' && method != 'spn'){
+            throw Error("Supported methods for arc cluster are 'service-account' and 'spn'.");
+        }        
+        
         let resourceGroupName = core.getInput('resource-group');
         let clusterName = core.getInput('cluster-name');
-        let saToken = core.getInput('token');
-        return new Promise<string>((resolve, reject) => {
-            var webRequest = new WebRequest();
-            webRequest.method = 'POST';
-            webRequest.uri = `${managementEndpointUrl}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Kubernetes/connectedClusters/${clusterName}/listClusterUserCredentials?api-version=2020-01-01-preview`;
-            webRequest.headers = {
-                'Authorization': 'Bearer ' + azureSessionToken,
-                'Content-Type': 'application/json; charset=utf-8'
+        if(!resourceGroupName){
+            throw Error("'resourceGroupName' is not passed for arc cluster.")
+        }
+        if(!clusterName){
+            throw Error("'clusterName' is not passed for arc cluster.")
+        }
+        await az_login.main();
+        await az_login.executeAzCliCommand(`account show`, false);
+        await az_login.executeAzCliCommand(`extension add -n connectedk8s`, false);
+        await az_login.executeAzCliCommand(`extension list`, false);
+        const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
+        const kubeconfigPath = path.join(runnerTempDirectory, `kubeconfig_${Date.now()}`);
+        if (method == 'service-account'){
+            let saToken = core.getInput('token');
+            if(!saToken){
+                throw Error("'saToken' is not passed for 'service-account' method.")
             }
-            webRequest.body = JSON.stringify({
-                authenticationMethod: "Token",
-                value: {
-                    token: saToken
-                }
-            });
-            sendRequest(webRequest).then((response: WebResponse) => {
-                let kubeconfigs = response.body.kubeconfigs;
-                if (kubeconfigs && kubeconfigs.length > 0) {
-                    var kubeconfig = Buffer.from(kubeconfigs[0].value, 'base64');
-                    resolve(kubeconfig.toString());
-                } else {
-                    reject(JSON.stringify(response.body));
-                }
-            }).catch(reject);
-        });
+            console.log('using service account method for authenticating to arc cluster.')
+            spawn('az',['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath,'--token',saToken], {
+                detached: true,
+                stdio: 'ignore'
+            }).unref();
+        } else{
+            console.log('using spn method for authenticating to arc cluster.')
+            spawn('az',['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath], {
+                detached: true,
+                stdio: 'ignore'
+            }).unref();
+        }
+        console.log('started proxy')
+        await sleep(120000) //sleeping for a minute to allow kubeconfig to be merged
+        fs.chmodSync(kubeconfigPath, '600');
+        core.exportVariable('KUBECONFIG', kubeconfigPath);
+        console.log('KUBECONFIG environment variable is set');
     } catch (ex) {
         return Promise.reject(ex);
     }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
