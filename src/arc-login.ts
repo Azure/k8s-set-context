@@ -53,7 +53,7 @@ export async function getArcKubeconfig(): Promise<string> {
     try {
         let method = core.getInput('method');
         if (method != 'service-account' && method != 'SPN'){
-            throw Error("Supported methods for arc cluster are 'service-account' and 'spn'.");
+            throw Error("Supported methods for arc cluster are 'service-account' and 'SPN'.");
         }        
         
         let resourceGroupName = core.getInput('resource-group');
