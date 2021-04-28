@@ -7,7 +7,7 @@ inputs:
     required: true
     default: 'generic'
   method:
-    description: 'Acceptable values: kubeconfig or service-account or spn'
+    description: 'Acceptable values: kubeconfig or service-account or SPN'
     required: true
     default: 'kubeconfig'
   kubeconfig:
