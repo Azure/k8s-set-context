@@ -46,18 +46,18 @@ inputs:
     default: ''
   
   # inputs for az login
-  enable-AzPSSession: 
-    description: 'Set this value to true to enable Azure PowerShell Login in addition to Az CLI login'
-    required: false
-    default: false
+  # enable-AzPSSession: 
+  #   description: 'Set this value to true to enable Azure PowerShell Login in addition to Az CLI login'
+  #   required: false
+  #   default: false
   environment:
     description: 'Name of the environment. Supported values are azurecloud, azurestack, azureusgovernment, azurechinacloud, azuregermancloud. Default being azurecloud'
     required: false
     default: AzureCloud
-  allow-no-subscriptions:
-    description: 'Set this value to true to enable support for accessing tenants without subscriptions'
-    required: false
-    default: false
+  # allow-no-subscriptions:
+  #   description: 'Set this value to true to enable support for accessing tenants without subscriptions'
+  #   required: false
+  #   default: false
 branding:
   color: 'green' # optional, decorates the entry in the GitHub Marketplace
 runs:

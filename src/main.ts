@@ -47,14 +47,14 @@ export async function main() {
         let subscriptionId = secrets.getSecret("$.subscriptionId", false);
         let resourceManagerEndpointUrl = secrets.getSecret("$.resourceManagerEndpointUrl", false);
         let environment = core.getInput("environment").toLowerCase();
-        const enableAzPSSession = core.getInput('enable-AzPSSession').toLowerCase() === "true";
-        const allowNoSubscriptionsLogin = core.getInput('allow-no-subscriptions').toLowerCase() === "true";
+        // const enableAzPSSession = core.getInput('enable-AzPSSession').toLowerCase() === "true";
+        // const allowNoSubscriptionsLogin = core.getInput('allow-no-subscriptions').toLowerCase() === "true";
 
         if (!servicePrincipalId || !servicePrincipalKey || !tenantId) {
             throw new Error("Not all values are present in the creds object. Ensure clientId, clientSecret and tenantId are supplied.");
         }
 
-        if (!subscriptionId && !allowNoSubscriptionsLogin) {
+        if (!subscriptionId) {
             throw new Error("Not all values are present in the creds object. Ensure subscriptionId is supplied.");
         }
         
@@ -99,46 +99,47 @@ export async function main() {
         console.log(`Done setting cloud: "${environment}"`);
 
         // Attempting Az cli login
-        if (allowNoSubscriptionsLogin) {
-            let args = [
-                "--allow-no-subscriptions",
-                "--service-principal",
-                "-u", servicePrincipalId,
-                "-p", servicePrincipalKey,
-                "--tenant", tenantId
-            ];
-            await executeAzCliCommand(`login`, true, {}, args);
-        }
-        else {
-            let args = [
-                "--service-principal",
-                "-u", servicePrincipalId,
-                "-p", servicePrincipalKey,
-                "--tenant", tenantId
-            ];
-            await executeAzCliCommand(`login`, true, {}, args);
-            args = [
-                "--subscription",
-                subscriptionId
-            ];
-            await executeAzCliCommand(`account set`, true, {}, args);
-        }
+        // if (allowNoSubscriptionsLogin) {
+        //     let args = [
+        //         "--allow-no-subscriptions",
+        //         "--service-principal",
+        //         "-u", servicePrincipalId,
+        //         "-p", servicePrincipalKey,
+        //         "--tenant", tenantId
+        //     ];
+        //     await executeAzCliCommand(`login`, true, {}, args);
+        // }
+        // else {
+            
+        // }
+        let args = [
+            "--service-principal",
+            "-u", servicePrincipalId,
+            "-p", servicePrincipalKey,
+            "--tenant", tenantId
+        ];
+        await executeAzCliCommand(`login`, true, {}, args);
+        args = [
+            "--subscription",
+            subscriptionId
+        ];
+        await executeAzCliCommand(`account set`, true, {}, args);
 
         isAzCLISuccess = true;
-        if (enableAzPSSession) {
-            // Attempting Az PS login
-            console.log(`Running Azure PS Login`);
-            const spnlogin: ServicePrincipalLogin = new ServicePrincipalLogin(
-                servicePrincipalId, 
-                servicePrincipalKey, 
-                tenantId, 
-                subscriptionId, 
-                allowNoSubscriptionsLogin,
-                environment, 
-                resourceManagerEndpointUrl);
-            await spnlogin.initialize();
-            await spnlogin.login();
-        }
+        // if (enableAzPSSession) {
+        //     // Attempting Az PS login
+        //     console.log(`Running Azure PS Login`);
+        //     const spnlogin: ServicePrincipalLogin = new ServicePrincipalLogin(
+        //         servicePrincipalId, 
+        //         servicePrincipalKey, 
+        //         tenantId, 
+        //         subscriptionId, 
+        //         allowNoSubscriptionsLogin,
+        //         environment, 
+        //         resourceManagerEndpointUrl);
+        //     await spnlogin.initialize();
+        //     await spnlogin.login();
+        // }
 
         console.log("Login successful.");    
     }
@@ -146,9 +147,9 @@ export async function main() {
         if (!isAzCLISuccess) {
             core.error("Az CLI Login failed. Please check the credentials. For more information refer https://aka.ms/create-secrets-for-GitHub-workflows");
         } 
-        else {
-            core.error(`Azure PowerShell Login failed. Please check the credentials. For more information refer https://aka.ms/create-secrets-for-GitHub-workflows"`);
-        }
+        // else {
+        //     core.error(`Azure PowerShell Login failed. Please check the credentials. For more information refer https://aka.ms/create-secrets-for-GitHub-workflows"`);
+        // }
         core.setFailed(error);
     }
     finally {
@@ -173,4 +174,4 @@ export async function executeAzCliCommand(
     }
 }
 
-main();
+//main();
