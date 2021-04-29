@@ -67,7 +67,12 @@ export async function getArcKubeconfig(): Promise<string> {
         }
         await az_login.main();
         await az_login.executeAzCliCommand(`account show`, false);
-        await az_login.executeAzCliCommand(`extension remove -n connectedk8s`, false);
+        try{
+            await az_login.executeAzCliCommand(`extension remove -n connectedk8s`, false);
+        }
+        catch{
+            //ignore if this causes an error
+        }
         await az_login.executeAzCliCommand(`extension add -n connectedk8s`, false);
         await az_login.executeAzCliCommand(`extension list`, false);
         const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
