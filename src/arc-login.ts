@@ -89,7 +89,7 @@ export async function getArcKubeconfig(): Promise<string> {
         }
         console.log('Waiting for 2 minutes for kubeconfig to be merged....')
         await sleep(120000) //sleeping for 2 minutes to allow kubeconfig to be merged
-        fs.chmodSync(kubeconfigPath, '600');
+        //fs.chmodSync(kubeconfigPath, '600');
         core.exportVariable('KUBECONFIG', kubeconfigPath);
         console.log('KUBECONFIG environment variable is set');
     } catch (ex) {
