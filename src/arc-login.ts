@@ -6,6 +6,7 @@ import * as az_login from './main';
 import * as path from 'path';
 import {spawn} from 'child_process';
 import * as fs from 'fs';
+import * as io from '@actions/io';
 
 async function getAzureAccessToken(servicePrincipalId, servicePrincipalKey, tenantId, authorityUrl, managementEndpointUrl: string): Promise<string> {
 
@@ -68,22 +69,22 @@ export async function getArcKubeconfig(): Promise<string> {
         await az_login.executeAzCliCommand(`account show`, false);
         await az_login.executeAzCliCommand(`extension add -n connectedk8s`, false);
         await az_login.executeAzCliCommand(`extension list`, false);
-        await az_login.executeAzCliCommand(`connectedk8s --help`, false);
         const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
         const kubeconfigPath = path.join(runnerTempDirectory, `kubeconfig_${Date.now()}`);
+        let azPath = await io.which("az", true);
         if (method == 'service-account'){
             let saToken = core.getInput('token');
             if(!saToken){
                 throw Error("'saToken' is not passed for 'service-account' method.")
             }
             console.log('using service account method for authenticating to arc cluster.')
-            spawn('az',['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath,'--token',saToken], {
+            spawn(azPath,['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath,'--token',saToken], {
                 detached: true,
                 stdio: 'ignore'
             }).unref();
         } else{
             console.log('using spn method for authenticating to arc cluster.')
-            spawn('az.cmd',['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath], {
+            spawn(azPath,['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath], {
                 detached: true,
                 stdio: 'ignore'
             }).unref();
