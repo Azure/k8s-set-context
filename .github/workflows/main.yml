@@ -34,23 +34,11 @@ jobs:
           token: '${{ secrets.SA_TOKEN }}'
       - run: |
           kubectl get pods -A
-  build-2:
-    # The type of runner that the job will run on
-    #runs-on: ubuntu-latest
-    runs-on: self-hosted
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - uses: atharvamulmuley/k8s-set-context@cluster-connect-2
-        with:
-          method: 'SPN'
-          cluster-type: 'arc'
-          creds: '${{ secrets.AZURE_CREDS }}'
-          cluster-name: arcaction
-          resource-group: atharvatest2
-          token: '${{ secrets.SA_TOKEN }}'
+          ls
+          pwd
+          echo 'hello world' > temp.txt
+          ls
       - run: |
           kubectl get pods -A
+          ls
+          pwd
