@@ -78,6 +78,8 @@ export async function getArcKubeconfig(): Promise<string> {
         const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
         const kubeconfigPath = path.join(runnerTempDirectory, `kubeconfig_${Date.now()}`);
         let azPath = await io.which("az", true);
+        let out = fs.openSync('./out.log', 'a');
+        let err = fs.openSync('./out.log', 'a');
         if (method == 'service-account'){
             let saToken = core.getInput('token');
             if(!saToken){
@@ -86,13 +88,13 @@ export async function getArcKubeconfig(): Promise<string> {
             console.log('using service account method for authenticating to arc cluster.')
             spawn(azPath,['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath,'--token',saToken], {
                 detached: true,
-                stdio: 'ignore'
+                stdio: [ 'ignore', out, err ]
             }).unref();
         } else{
             console.log('using spn method for authenticating to arc cluster.')
             spawn(azPath,['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath], {
                 detached: true,
-                stdio: 'ignore'
+                stdio: [ 'ignore', out, err ]
             }).unref();
         }
         console.log('Waiting for 2 minutes for kubeconfig to be merged....')
