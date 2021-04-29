@@ -83,7 +83,7 @@ export async function getArcKubeconfig(): Promise<string> {
             }).unref();
         } else{
             console.log('using spn method for authenticating to arc cluster.')
-            spawn('az',['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath], {
+            spawn('az.cmd',['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath], {
                 detached: true,
                 stdio: 'ignore'
             }).unref();
