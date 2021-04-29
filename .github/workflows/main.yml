@@ -38,7 +38,9 @@ jobs:
           pwd
           echo 'hello world' > temp.txt
           ls
+          cat out.log
       - run: |
           kubectl get pods -A
           ls
           pwd
+          cat out.log
