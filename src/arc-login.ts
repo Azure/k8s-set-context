@@ -68,6 +68,7 @@ export async function getArcKubeconfig(): Promise<string> {
         await az_login.executeAzCliCommand(`account show`, false);
         await az_login.executeAzCliCommand(`extension add -n connectedk8s`, false);
         await az_login.executeAzCliCommand(`extension list`, false);
+        await az_login.executeAzCliCommand(`connectedk8s --help`, false);
         const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
         const kubeconfigPath = path.join(runnerTempDirectory, `kubeconfig_${Date.now()}`);
         if (method == 'service-account'){
@@ -89,7 +90,7 @@ export async function getArcKubeconfig(): Promise<string> {
         }
         console.log('Waiting for 2 minutes for kubeconfig to be merged....')
         await sleep(120000) //sleeping for 2 minutes to allow kubeconfig to be merged
-        //fs.chmodSync(kubeconfigPath, '600');
+        fs.chmodSync(kubeconfigPath, '600');
         core.exportVariable('KUBECONFIG', kubeconfigPath);
         console.log('KUBECONFIG environment variable is set');
     } catch (ex) {
