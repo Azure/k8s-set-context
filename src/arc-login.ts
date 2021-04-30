@@ -7,7 +7,7 @@ import * as path from 'path';
 import {spawn} from 'child_process';
 import * as fs from 'fs';
 import * as io from '@actions/io';
-
+const kubeconfig_timeout = 120;//timeout in seconds
 async function getAzureAccessToken(servicePrincipalId, servicePrincipalKey, tenantId, authorityUrl, managementEndpointUrl: string): Promise<string> {
 
     if (!servicePrincipalId || !servicePrincipalKey || !tenantId || !authorityUrl) {
@@ -78,8 +78,6 @@ export async function getArcKubeconfig(): Promise<string> {
         const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
         const kubeconfigPath = path.join(runnerTempDirectory, `kubeconfig_${Date.now()}`);
         let azPath = await io.which("az", true);
-        const out = fs.openSync('./out.log', 'a');
-        const err = fs.openSync('./out.log', 'a');
         if (method == 'service-account'){
             let saToken = core.getInput('token');
             if(!saToken){
@@ -88,19 +86,19 @@ export async function getArcKubeconfig(): Promise<string> {
             console.log('using service account method for authenticating to arc cluster.')
             const proc=spawn(azPath,['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath,'--token',saToken], {
                 detached: true,
-                stdio: [ 'ignore', out, err ]
+                stdio: 'ignore'
             });
             proc.unref();
         } else{
             console.log('using spn method for authenticating to arc cluster.')
             const proc=spawn(azPath,['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath], {
                 detached: true,
-                stdio: [ 'ignore', out, err ]
+                stdio: 'ignore'
             });
             proc.unref();
         }
-        console.log('Waiting for 2 minutes for kubeconfig to be merged....')
-        await sleep(120000) //sleeping for 2 minutes to allow kubeconfig to be merged
+        console.log(`Waiting for ${kubeconfig_timeout} seconds for kubeconfig to be merged....`)
+        await sleep(kubeconfig_timeout*1000) //sleeping for 2 minutes to allow kubeconfig to be merged
         fs.chmodSync(kubeconfigPath, '600');
         core.exportVariable('KUBECONFIG', kubeconfigPath);
         console.log('KUBECONFIG environment variable is set');

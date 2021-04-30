@@ -16,8 +16,8 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    #runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    #runs-on: self-hosted
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -32,15 +32,3 @@ jobs:
           cluster-name: arcaction
           resource-group: atharvatest2
           token: '${{ secrets.SA_TOKEN }}'
-      - run: |
-          kubectl get pods -A
-          ls
-          pwd
-          echo 'hello world' > temp.txt
-          ls
-          cat out.log
-      - run: |
-          kubectl get pods -A
-          ls
-          pwd
-          cat out.log
