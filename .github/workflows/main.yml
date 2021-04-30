@@ -32,3 +32,5 @@ jobs:
           cluster-name: arcaction
           resource-group: atharvatest2
           token: '${{ secrets.SA_TOKEN }}'
+      - run: |
+          kubectl get pods -A
