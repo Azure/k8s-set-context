@@ -26,7 +26,7 @@ jobs:
 
       - uses: atharvamulmuley/k8s-set-context@cluster-connect-2
         with:
-          method: 'SPN'
+          method: 'service-account'
           cluster-type: 'arc'
           creds: '${{ secrets.AZURE_CREDS }}'
           cluster-name: arcaction
