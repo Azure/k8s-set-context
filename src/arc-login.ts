@@ -2,11 +2,13 @@ import * as core from '@actions/core';
 import { rejects } from 'assert';
 import { WebRequest, WebRequestOptions, WebResponse, sendRequest } from './client';
 import * as querystring from 'querystring';
-import * as az_login from './main';
 import * as path from 'path';
 import {spawn} from 'child_process';
 import * as fs from 'fs';
 import * as io from '@actions/io';
+import * as exec from '@actions/exec';
+var azPath: string;
+    
 const kubeconfig_timeout = 120;//timeout in seconds
 async function getAzureAccessToken(servicePrincipalId, servicePrincipalKey, tenantId, authorityUrl, managementEndpointUrl: string): Promise<string> {
 
@@ -65,19 +67,18 @@ export async function getArcKubeconfig(): Promise<string> {
         if(!clusterName){
             throw Error("'clusterName' is not passed for arc cluster.")
         }
-        //await az_login.main();
-        await az_login.executeAzCliCommand(`account show`, false);
+        azPath = await io.which("az", true);
+        await executeAzCliCommand(`account show`, false);
         try{
-            await az_login.executeAzCliCommand(`extension remove -n connectedk8s`, false);
+            await executeAzCliCommand(`extension remove -n connectedk8s`, false);
         }
         catch{
             //ignore if this causes an error
         }
-        await az_login.executeAzCliCommand(`extension add -n connectedk8s`, false);
-        await az_login.executeAzCliCommand(`extension list`, false);
+        await executeAzCliCommand(`extension add -n connectedk8s`, false);
+        await executeAzCliCommand(`extension list`, false);
         const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
         const kubeconfigPath = path.join(runnerTempDirectory, `kubeconfig_${Date.now()}`);
-        let azPath = await io.which("az", true);
         if (method == 'service-account'){
             let saToken = core.getInput('token');
             if(!saToken){
@@ -109,4 +110,18 @@ export async function getArcKubeconfig(): Promise<string> {
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function executeAzCliCommand(
+    command: string, 
+    silent?: boolean, 
+    execOptions: any = {}, 
+    args: any = []) {
+    execOptions.silent = !!silent;
+    try {
+        await exec.exec(`"${azPath}" ${command}`, args,  execOptions); 
+    }
+    catch (error) {
+        throw new Error(error);
+    }
 }
