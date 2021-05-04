@@ -133,7 +133,7 @@ export async function executeAzCliCommand(
     silent?: boolean, 
     execOptions: any = {}, 
     args: any = []) {
-    
+    azPath = await io.which("az", true);
     execOptions.silent = !!silent;
     try {
         await exec.exec(`"${azPath}" ${command}`, args,  execOptions); 

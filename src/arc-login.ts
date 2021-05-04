@@ -65,7 +65,7 @@ export async function getArcKubeconfig(): Promise<string> {
         if(!clusterName){
             throw Error("'clusterName' is not passed for arc cluster.")
         }
-        await az_login.main();
+        //await az_login.main();
         await az_login.executeAzCliCommand(`account show`, false);
         try{
             await az_login.executeAzCliCommand(`extension remove -n connectedk8s`, false);
