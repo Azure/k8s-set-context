@@ -56,7 +56,8 @@ In both these approaches it is recommended to store these contents (kubeconfig f
   </tr>
   <tr>
     <td><code>resource-group</code><br/>resource group</td>
-    <td>Provide name of resource group that contains the arc cluster.Applicable for cluster-type of 'arc'.</td>
+    <td>Resource group containing the Azure Arc enabled Kubernetes cluster. Required only if cluster-type is 'arc'.</td>
+
   </tr>
   <tr>
     <td><code>token</code><br/>Service account token</td>
