@@ -25,7 +25,7 @@ In all these approaches it is recommended to store these contents (kubeconfig fi
   </thead>
   <tr>
     <td><code>method</code><br/>Method</td>
-    <td>(Optional) Acceptable values: kubeconfig/service-account/SPN. Default value: kubeconfig</td>
+    <td>(Optional) Acceptable values: kubeconfig/service-account/service-principal. Default value: kubeconfig</td>
   </tr>
   <tr>
     <td><code>kubeconfig</code><br/>Kubectl config</td>
