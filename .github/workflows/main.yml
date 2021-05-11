@@ -29,7 +29,7 @@ jobs:
 
       - uses: atharvamulmuley/k8s-set-context@cluster-connect-2
         with:
-          method: 'service-principal'
+          method: 'service-account'
           cluster-type: 'arc'
           cluster-name: arcaction
           resource-group: atharvatest2

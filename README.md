@@ -2,15 +2,17 @@
 
 This action can be used to set cluster context before other actions like [`azure/k8s-deploy`](https://github.com/Azure/k8s-deploy/tree/master), [`azure/k8s-create-secret`](https://github.com/Azure/k8s-create-secret/tree/master) or any kubectl commands (in script) can be run subsequently in the workflow.
 
-There are two approaches for specifying the deployment target:
+It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/master) in your workflow before using this action. 
+
+There are three approaches for specifying the deployment target:
 
 - Kubeconfig file provided as input to the action
 - Service account approach where the secret associated with the service account is provided as input to the action
 - Service principal approach(only applicable for arc cluster) where service principal provided with 'creds' is used as input to action 
 
-If inputs related to both these approaches are provided, kubeconfig approach related inputs are given precedence.
+If inputs related to all these approaches are provided, kubeconfig approach related inputs are given precedence.
 
-In both these approaches it is recommended to store these contents (kubeconfig file content or secret content) in a [secret](https://developer.github.com/actions/managing-workflows/storing-secrets/) which could be referenced later in the action.
+In all these approaches it is recommended to store these contents (kubeconfig file content or secret content) in a [secret](https://developer.github.com/actions/managing-workflows/storing-secrets/) which could be referenced later in the action.
 
 ## Action inputs
 
@@ -131,7 +133,6 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
   with:
     method: service-account
     cluster-type: 'arc'
-    creds: '${{ secrets.AZURE_CREDS }}'
     cluster-name: <cluster-name>
     resource-group: <resource-group>
     token: '${{ secrets.SA_TOKEN }}'
@@ -143,9 +144,8 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 ```yaml
 - uses: azure/k8s-set-context@v1
   with:
-    method: spn
+    method: service-principal
     cluster-type: 'arc'
-    creds: '${{ secrets.AZURE_CREDS }}'
     cluster-name: <cluster-name>
     resource-group: <resource-group>
   id: setcontext
