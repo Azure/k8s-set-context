@@ -11,8 +11,8 @@ const kubeconfig_timeout = 120;//timeout in seconds
 export async function getArcKubeconfig(): Promise<string> {
     try {
         let method = core.getInput('method');
-        if (method != 'service-account' && method != 'SPN'){
-            throw Error("Supported methods for arc cluster are 'service-account' and 'SPN'.");
+        if (method != 'service-account' && method != 'service-principal'){
+            throw Error("Supported methods for arc cluster are 'service-account' and 'service-principal'.");
         }        
         
         let resourceGroupName = core.getInput('resource-group');
@@ -40,14 +40,14 @@ export async function getArcKubeconfig(): Promise<string> {
             if(!saToken){
                 throw Error("'saToken' is not passed for 'service-account' method.")
             }
-            console.log('using service account method for authenticating to arc cluster.')
+            console.log("using 'service-account' method for authenticating to arc cluster.")
             const proc=spawn(azPath,['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath,'--token',saToken], {
                 detached: true,
                 stdio: 'ignore'
             });
             proc.unref();
         } else{
-            console.log('using spn method for authenticating to arc cluster.')
+            console.log("using 'service-principal' method for authenticating to arc cluster.")
             const proc=spawn(azPath,['connectedk8s','proxy','-n',clusterName,'-g',resourceGroupName,'-f',kubeconfigPath], {
                 detached: true,
                 stdio: 'ignore'
