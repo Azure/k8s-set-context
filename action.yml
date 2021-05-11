@@ -7,7 +7,7 @@ inputs:
     required: true
     default: 'generic'
   method:
-    description: 'Acceptable values: kubeconfig or service-account'
+    description: 'Acceptable values: kubeconfig or service-account or service-principal'
     required: true
     default: 'kubeconfig'
   kubeconfig:
@@ -27,11 +27,6 @@ inputs:
     description: 'Service account secret. Run kubectl get serviceaccounts <service-account-name> -o yaml and copy the service-account-secret-name. Copy the ouptut of kubectl get secret <service-account-secret-name> -o yaml'
     required: false
     default: ''
-  
-  creds:
-    description: 'Azure credentials i.e. output of `az ad sp create-for-rbac --sdk-auth`'
-    required: false
-    default: ''
   token:
     description: 'Token extracted from the secret of service account (should be base 64 decoded)'
     required: false
@@ -44,6 +39,7 @@ inputs:
     description: 'Azure connected cluster name'
     required: false
     default: ''
+  
 branding:
   color: 'green' # optional, decorates the entry in the GitHub Marketplace
 runs:
