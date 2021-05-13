@@ -48,18 +48,12 @@ In all these approaches it is recommended to store these contents (kubeconfig fi
     <td>Type of cluster. Acceptable values: generic/arc</td>
   </tr>
   <tr>
-    <td><code>creds</code><br/>Service principal credentials for az login</td>
-    <td>Provide json output of 'az ad sp create-for-rbac --sdk-auth' command</td>
-  </tr>
-  <tr>
     <td><code>cluster-name</code><br/>Name of arc cluster</td>
     <td>Name of Azure Arc enabled Kubernetes cluster. Required only if cluster-type is 'arc'.</td>
-
   </tr>
   <tr>
     <td><code>resource-group</code><br/>resource group</td>
     <td>Resource group containing the Azure Arc enabled Kubernetes cluster. Required only if cluster-type is 'arc'.</td>
-
   </tr>
   <tr>
     <td><code>token</code><br/>Service account token</td>
