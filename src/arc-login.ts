@@ -8,7 +8,7 @@ var azPath: string;
     
 const kubeconfig_timeout = 120;//timeout in seconds
 
-export async function getArcKubeconfig() {
+export async function getArcKubeconfig(): Promise<string> {
     try {
         let method = core.getInput('method');
         if (method != 'service-account' && method != 'service-principal'){
@@ -59,8 +59,8 @@ export async function getArcKubeconfig() {
         fs.chmodSync(kubeconfigPath, '600');
         core.exportVariable('KUBECONFIG', kubeconfigPath);
         console.log('KUBECONFIG environment variable is set');
-    } catch (error) {
-        throw new Error(error);
+    } catch (ex) {
+        return Promise.reject(ex);
     }
 }
 
