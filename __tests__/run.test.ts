@@ -1,4 +1,5 @@
 import * as run from '../src/login'
+import * as arc from '../src/arc-login'
 import * as os from 'os';
 import * as io from '@actions/io';
 import * as toolCache from '@actions/tool-cache';
@@ -197,4 +198,14 @@ describe('Testing all functions.', () => {
         expect(fs.chmodSync).toHaveBeenCalledWith(path.join('tempDirPath', 'kubeconfig_1234561234567'), '600');
         expect(core.exportVariable).toHaveBeenCalledWith('KUBECONFIG', path.join('tempDirPath', 'kubeconfig_1234561234567'));
     });
+
+    test('run() - check if arc scenario is getting triggered', async () =>{
+        jest.spyOn(arc,'getArcKubeconfig').mockImplementation();
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == 'cluster-type') return 'arc';
+        });
+        expect(run.run());
+        expect(arc.getArcKubeconfig).toBeCalled();
+    });
+    
 });
