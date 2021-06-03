@@ -64,11 +64,11 @@ export async function getArcKubeconfig(): Promise<string> {
     }
 }
 
-function sleep(ms) {
+export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function executeAzCliCommand(
+export async function executeAzCliCommand(
     command: string, 
     silent?: boolean, 
     execOptions: any = {}, 
