@@ -107,9 +107,12 @@ export async function run() {
         let kubeconfig = '';
         const cluster_type = core.getInput('cluster-type', { required: true });
         if (cluster_type == 'arc') {
-            await getArcKubeconfig().catch(ex => {
+            try{
+                await getArcKubeconfig();
+            }
+            catch (ex){
                 throw new Error('Error: Could not get the KUBECONFIG for arc cluster: ' + ex);
-            });
+            }
         }
         else {
             const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
