@@ -187,6 +187,7 @@ describe('Testing all functions.', () => {
             if (inputName == 'method') return 'kubeconfig';
             if (inputName == 'kubeconfig') return '###';
             if (inputName == 'context') return '';
+            if (inputName == 'cluster-type') return 'generic';
         });
         process.env['RUNNER_TEMP'] =  'tempDirPath'
         jest.spyOn(Date, 'now').mockImplementation(() => 1234561234567);
