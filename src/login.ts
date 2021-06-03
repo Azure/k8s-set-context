@@ -9,7 +9,7 @@ import * as jsyaml from 'js-yaml';
 import * as util from 'util';
 import { getArcKubeconfig } from './arc-login';
 
-function getKubeconfig(): string {
+export function getKubeconfig(): string {
     const method = core.getInput('method', { required: true });
     if (method == 'kubeconfig') {
         const kubeconfig = core.getInput('kubeconfig', { required: true });
@@ -102,7 +102,7 @@ export async function setContext(kubeconfigPath: string) {
     }
 }
 
-async function run() {
+export async function run() {
     try {
         let kubeconfig = '';
         const cluster_type = core.getInput('cluster-type', { required: true });
