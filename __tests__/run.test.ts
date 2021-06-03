@@ -223,7 +223,8 @@ describe('Testing all functions.', () => {
         jest.spyOn(arc,'sleep').mockImplementation();
         jest.spyOn(fs, 'chmodSync').mockImplementation(() => {});
         jest.spyOn(core, 'exportVariable').mockImplementation(() => {});
-        await arc.getArcKubeconfig();
+        //await arc.getArcKubeconfig();
+        expect(()=>arc.getArcKubeconfig());
         expect(core.getInput).toBeCalledTimes(4);
         expect(io.which).toHaveBeenCalledWith("az",true);
         expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(1,`account show`, false);
