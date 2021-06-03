@@ -223,20 +223,20 @@ describe('Testing all functions.', () => {
         jest.spyOn(arc,'sleep').mockImplementation();
         jest.spyOn(fs, 'chmodSync').mockImplementation(() => {});
         jest.spyOn(core, 'exportVariable').mockImplementation(() => {});
-        const getArcKubeconfigMock = jest.fn(arc.getArcKubeconfig);
-        getArcKubeconfigMock();
-        expect(core.getInput).toBeCalledTimes(4);
-        expect(io.which).toHaveBeenCalledWith("az",true);
-        expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(1,`account show`, false);
-        expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(2,`extension remove -n connectedk8s`, false);
-        expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(3,`extension add -n connectedk8s`, false);
-        expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(4,`extension list`, false);
-        expect(child_process.spawn).toHaveBeenCalledWith('az',['connectedk8s','proxy','-n','testcluster','-g','testrg','-f',path.join('tempDirPath', 'kubeconfig_1234561234567'),'--token','token'], {
-            detached: true,
-            stdio: 'ignore'
+        return arc.getArcKubeconfig().then(()=>{
+            expect(core.getInput).toBeCalledTimes(4);
+            expect(io.which).toHaveBeenCalledWith("az",true);
+            expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(1,`account show`, false);
+            expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(2,`extension remove -n connectedk8s`, false);
+            expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(3,`extension add -n connectedk8s`, false);
+            expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(4,`extension list`, false);
+            expect(child_process.spawn).toHaveBeenCalledWith('az',['connectedk8s','proxy','-n','testcluster','-g','testrg','-f',path.join('tempDirPath', 'kubeconfig_1234561234567'),'--token','token'], {
+                detached: true,
+                stdio: 'ignore'
+            });
+            expect(arc.sleep).toBeCalled();
+            expect(fs.chmodSync).toHaveBeenCalledWith(path.join('tempDirPath', 'kubeconfig_1234561234567'), '600');
+            expect(core.exportVariable).toHaveBeenCalledWith('KUBECONFIG', path.join('tempDirPath', 'kubeconfig_1234561234567'));
         });
-        expect(arc.sleep).toBeCalled();
-        expect(fs.chmodSync).toHaveBeenCalledWith(path.join('tempDirPath', 'kubeconfig_1234561234567'), '600');
-        expect(core.exportVariable).toHaveBeenCalledWith('KUBECONFIG', path.join('tempDirPath', 'kubeconfig_1234561234567'));
     })
 });
