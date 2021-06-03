@@ -7,7 +7,7 @@ import * as core from '@actions/core';
 import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
 import * as path from 'path';
-
+import * as child_process from 'child_process';
 var mockStatusCode;
 const mockExecFn = jest.fn().mockImplementation(() => mockStatusCode);
 jest.mock('@actions/exec/lib/toolrunner', () => {
@@ -207,5 +207,35 @@ describe('Testing all functions.', () => {
         expect(run.run());
         expect(arc.getArcKubeconfig).toBeCalled();
     });
-    
+
+    test('getArcKubeconfig() - checking successful execution of service-account scenario',async () =>{
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == 'method') return 'service-account';
+            if (inputName == 'resource-group') return 'testrg';
+            if (inputName == 'cluster-name') return 'testcluster';
+            if (inputName == 'token') return 'token';
+        });
+        jest.spyOn(io, 'which').mockResolvedValue('az');
+        jest.spyOn(arc,'executeAzCliCommand').mockImplementation();
+        process.env['RUNNER_TEMP'] = 'tempDirPath'
+        jest.spyOn(Date, 'now').mockImplementation(() => 1234561234567);
+        jest.spyOn(child_process,'spawn').mockImplementation();
+        jest.spyOn(arc,'sleep').mockImplementation();
+        jest.spyOn(fs, 'chmodSync').mockImplementation(() => {});
+        jest.spyOn(core, 'exportVariable').mockImplementation(() => {});
+        expect(arc.getArcKubeconfig());
+        expect(core.getInput).toBeCalledTimes(4);
+        expect(io.which).toHaveBeenCalledWith("az",true);
+        expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(1,`account show`, false);
+        expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(2,`extension remove -n connectedk8s`, false);
+        expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(3,`extension add -n connectedk8s`, false);
+        expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(4,`extension list`, false);
+        expect(child_process.spawn).toHaveBeenCalledWith('az',['connectedk8s','proxy','-n','testcluster','-g','testrg','-f',path.join('tempDirPath', 'kubeconfig_1234561234567'),'--token','token'], {
+            detached: true,
+            stdio: 'ignore'
+        });
+        expect(arc.sleep).toBeCalled();
+        expect(fs.chmodSync).toHaveBeenCalledWith(path.join('tempDirPath', 'kubeconfig_1234561234567'), '600');
+        expect(core.exportVariable).toHaveBeenCalledWith('KUBECONFIG', path.join('tempDirPath', 'kubeconfig_1234561234567'));
+    })
 });
