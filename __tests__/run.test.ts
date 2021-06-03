@@ -204,7 +204,7 @@ describe('Testing all functions.', () => {
         jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
             if (inputName == 'cluster-type') return 'arc';
         });
-        expect(run.run());
+        expect(await run.run());
         expect(arc.getArcKubeconfig).toBeCalled();
     });
 
@@ -223,7 +223,7 @@ describe('Testing all functions.', () => {
         jest.spyOn(arc,'sleep').mockImplementation();
         jest.spyOn(fs, 'chmodSync').mockImplementation(() => {});
         jest.spyOn(core, 'exportVariable').mockImplementation(() => {});
-        expect(arc.getArcKubeconfig());
+        expect(await arc.getArcKubeconfig());
         expect(core.getInput).toBeCalledTimes(4);
         expect(io.which).toHaveBeenCalledWith("az",true);
         expect(arc.executeAzCliCommand).toHaveBeenNthCalledWith(1,`account show`, false);
