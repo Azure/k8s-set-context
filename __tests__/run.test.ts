@@ -114,6 +114,30 @@ describe('Testing all functions.', () => {
         expect(core.getInput).toBeCalledTimes(3);
     });
 
+    test('getArcKubeconfig() - token not passed',async ()=>{
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == 'method') return 'service-account';
+            if (inputName == 'resource-group') return 'testrg';
+            if (inputName == 'cluster-name') return 'testcluster';
+            if (inputName == 'token') return '';
+        });
+        jest.spyOn(io, 'which').mockResolvedValue('az');
+        jest.spyOn(exec,'exec').mockImplementation();
+        process.env['RUNNER_TEMP'] = 'tempDirPath';
+        jest.spyOn(Date, 'now').mockImplementation(() => 1234561234567);
+
+        await expect(arc.getArcKubeconfig()).rejects.toThrow("'saToken' is not passed for 'service-account' method.");
+        expect(core.getInput).toBeCalledTimes(4);
+        expect(io.which).toBeCalled();
+    });
+
+    test('executeAzCliCommand() - testing execution of function',()=>{
+        jest.spyOn(exec,'exec').mockImplementation();
+        var azPath = "az";
+        expect(arc.executeAzCliCommand("some command",false));
+        expect(exec.exec).toBeCalled();
+    });
+
     test('getExecutableExtension() - return .exe when os is Windows', () => {
         jest.spyOn(os, 'type').mockReturnValue('Windows_NT');
     
