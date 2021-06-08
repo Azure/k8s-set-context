@@ -8,7 +8,6 @@ on: # rebuild any PRs and main branch changes
     branches:
       - master
       - 'releases/*'
-      - atharvam/cluster-connect-master
 
 jobs:
   build: # make sure build/ci works properly
