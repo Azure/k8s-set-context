@@ -1,4 +1,5 @@
 import * as run from '../src/login'
+import * as arc from '../src/arc-login'
 import * as os from 'os';
 import * as io from '@actions/io';
 import * as toolCache from '@actions/tool-cache';
@@ -6,7 +7,8 @@ import * as core from '@actions/core';
 import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
 import * as path from 'path';
-
+import * as child_process from 'child_process';
+import * as exec from '@actions/exec';
 var mockStatusCode;
 const mockExecFn = jest.fn().mockImplementation(() => mockStatusCode);
 jest.mock('@actions/exec/lib/toolrunner', () => {
@@ -21,6 +23,121 @@ jest.mock('@actions/exec/lib/toolrunner', () => {
 
 
 describe('Testing all functions.', () => {
+
+    test('getArcKubeconfig() - checking execution of service-account scenario',async () =>{
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == 'method') return 'service-account';
+            if (inputName == 'resource-group') return 'testrg';
+            if (inputName == 'cluster-name') return 'testcluster';
+            if (inputName == 'token') return 'token';
+        });
+        jest.spyOn(io, 'which').mockResolvedValue('az');
+        process.env['RUNNER_TEMP'] = 'tempDirPath';
+        jest.spyOn(Date, 'now').mockImplementation(() => 1234561234567);
+        const dummy_process=await child_process.spawn('ls',[]);
+        const dummy_sleep_promise = new Promise(resolve => setTimeout(resolve, 0));
+        jest.spyOn(child_process,'spawn').mockImplementation((commands, arg, option)=>{
+            return dummy_process; 
+        });
+        jest.spyOn(arc,'sleep').mockImplementation((ms)=>{
+            return dummy_sleep_promise;
+        });
+        jest.spyOn(fs, 'chmodSync').mockImplementation();
+        jest.spyOn(core, 'exportVariable').mockImplementation();
+        jest.spyOn(exec,'exec').mockImplementation();
+        await arc.getArcKubeconfig();
+        expect(core.getInput).toBeCalledTimes(4);
+        expect(io.which).toHaveBeenCalledWith("az",true);
+        expect(child_process.spawn).toHaveBeenCalledWith('az',['connectedk8s','proxy','-n','testcluster','-g','testrg','-f',path.join('tempDirPath', 'kubeconfig_1234561234567'),'--token','token'], {
+            detached: true,
+            stdio: 'ignore'
+        });
+        expect(fs.chmodSync).toHaveBeenCalledWith(path.join('tempDirPath', 'kubeconfig_1234561234567'), '600');
+        expect(core.exportVariable).toHaveBeenCalledWith('KUBECONFIG', path.join('tempDirPath', 'kubeconfig_1234561234567'));
+    },180000);
+
+    test('getArcKubeconfig() - checking execution of service-principal scenario',async () =>{
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == 'method') return 'service-principal';
+            if (inputName == 'resource-group') return 'testrg';
+            if (inputName == 'cluster-name') return 'testcluster';
+        });
+        jest.spyOn(io, 'which').mockResolvedValue('az');
+        process.env['RUNNER_TEMP'] = 'tempDirPath';
+        jest.spyOn(Date, 'now').mockImplementation(() => 1234561234567);
+        const dummy_process=await child_process.spawn('ls',[]);
+        const dummy_sleep_promise = new Promise(resolve => setTimeout(resolve, 0));
+        jest.spyOn(child_process,'spawn').mockImplementation((commands, arg, option)=>{
+            return dummy_process; 
+        });
+        jest.spyOn(arc,'sleep').mockImplementation((ms)=>{
+            return dummy_sleep_promise;
+        });
+        jest.spyOn(fs, 'chmodSync').mockImplementation();
+        jest.spyOn(core, 'exportVariable').mockImplementation();
+        jest.spyOn(exec,'exec').mockImplementation();
+        await arc.getArcKubeconfig();
+        expect(core.getInput).toBeCalledTimes(3);
+        expect(io.which).toHaveBeenCalledWith("az",true);
+        expect(child_process.spawn).toHaveBeenCalledWith('az',['connectedk8s','proxy','-n','testcluster','-g','testrg','-f',path.join('tempDirPath', 'kubeconfig_1234561234567')], {
+            detached: true,
+            stdio: 'ignore'
+        });
+        expect(fs.chmodSync).toHaveBeenCalledWith(path.join('tempDirPath', 'kubeconfig_1234561234567'), '600');
+        expect(core.exportVariable).toHaveBeenCalledWith('KUBECONFIG', path.join('tempDirPath', 'kubeconfig_1234561234567'));
+    },180000);
+
+    test('getArcKubeconfig() - wrong method passed',async ()=>{
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == 'method') return 'someMethod';
+        });
+        await expect(arc.getArcKubeconfig()).rejects.toThrow("Supported methods for arc cluster are 'service-account' and 'service-principal'.");
+        expect(core.getInput).toBeCalledTimes(1);
+    });
+
+    test('getArcKubeconfig() - resource group not passed',async ()=>{
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == 'method') return 'service-account';
+            if (inputName == 'resource-group') return '';
+        });
+        await expect(arc.getArcKubeconfig()).rejects.toThrow("'resourceGroupName' is not passed for arc cluster.");
+        expect(core.getInput).toBeCalledTimes(3);
+    });
+
+    test('getArcKubeconfig() - cluster name not passed',async ()=>{
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == 'method') return 'service-account';
+            if (inputName == 'resource-group') return 'testrg';
+            if (inputName == 'cluster-name') return '';
+        });
+        await expect(arc.getArcKubeconfig()).rejects.toThrow("'clusterName' is not passed for arc cluster.");
+        expect(core.getInput).toBeCalledTimes(3);
+    });
+
+    test('getArcKubeconfig() - token not passed',async ()=>{
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == 'method') return 'service-account';
+            if (inputName == 'resource-group') return 'testrg';
+            if (inputName == 'cluster-name') return 'testcluster';
+            if (inputName == 'token') return '';
+        });
+        jest.spyOn(io, 'which').mockResolvedValue('az');
+        jest.spyOn(exec,'exec').mockImplementation();
+        process.env['RUNNER_TEMP'] = 'tempDirPath';
+        jest.spyOn(Date, 'now').mockImplementation(() => 1234561234567);
+
+        await expect(arc.getArcKubeconfig()).rejects.toThrow("'saToken' is not passed for 'service-account' method.");
+        expect(core.getInput).toBeCalledTimes(4);
+        expect(io.which).toBeCalled();
+    });
+
+    test('executeAzCliCommand() - testing execution of function',()=>{
+        jest.spyOn(exec,'exec').mockImplementation();
+        var azPath = "az";
+        expect(arc.executeAzCliCommand("some command",false));
+        expect(exec.exec).toBeCalled();
+    });
+
     test('getExecutableExtension() - return .exe when os is Windows', () => {
         jest.spyOn(os, 'type').mockReturnValue('Windows_NT');
     
@@ -187,6 +304,7 @@ describe('Testing all functions.', () => {
             if (inputName == 'method') return 'kubeconfig';
             if (inputName == 'kubeconfig') return '###';
             if (inputName == 'context') return '';
+            if (inputName == 'cluster-type') return 'generic';
         });
         process.env['RUNNER_TEMP'] =  'tempDirPath'
         jest.spyOn(Date, 'now').mockImplementation(() => 1234561234567);
@@ -196,4 +314,15 @@ describe('Testing all functions.', () => {
         expect(fs.chmodSync).toHaveBeenCalledWith(path.join('tempDirPath', 'kubeconfig_1234561234567'), '600');
         expect(core.exportVariable).toHaveBeenCalledWith('KUBECONFIG', path.join('tempDirPath', 'kubeconfig_1234561234567'));
     });
+
+    test('run() - check if arc scenario is getting triggered', async () =>{
+        jest.spyOn(arc,'getArcKubeconfig').mockImplementation();
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == 'cluster-type') return 'arc';
+        });
+        expect(run.run());
+        expect(arc.getArcKubeconfig).toBeCalled();
+    });
+
+    
 });
