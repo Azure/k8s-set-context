@@ -102,6 +102,17 @@ export async function setContext(kubeconfigPath: string) {
     }
 }
 
+export async function setContext(kubeconfigPath: string) {
+  let namespace = core.getInput('namespace');
+  if (namespace) {
+      //To use kubectl commands, the environment variable KUBECONFIG needs to be set for this step 
+      process.env['KUBECONFIG'] = kubeconfigPath;
+      const kubectlPath = await getKubectlPath();
+      var toolRunner = new ToolRunner(kubectlPath, ['config', 'set-context', '--current', `--namespace="${namespace}"`]);
+      await toolRunner.exec();
+  }
+}
+
 export async function run() {
     try {
         let kubeconfig = '';
@@ -123,6 +134,7 @@ export async function run() {
             fs.chmodSync(kubeconfigPath, '600');
             core.exportVariable('KUBECONFIG', kubeconfigPath);
             console.log('KUBECONFIG environment variable is set');
+            await setContext(kubeconfigPath);
             await setContext(kubeconfigPath);
         }
     } catch (ex) {
