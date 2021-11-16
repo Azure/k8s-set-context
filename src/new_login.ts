@@ -2,9 +2,7 @@ import * as core from "@actions/core";
 import * as path from "path";
 import * as fs from "fs";
 import * as io from "@actions/io";
-import * as toolCache from "@actions/tool-cache";
 import * as os from "os";
-import { ToolRunner } from "@actions/exec/lib/toolrunner";
 import * as jsyaml from "js-yaml";
 import * as util from "util";
 import {
@@ -16,7 +14,7 @@ import {
   parseK8sSecret,
   createKubeconfig,
 } from "./constants";
-import { CoreV1Api, KubeConfig } from "@kubernetes/client-node";
+import { KubeConfig } from "@kubernetes/client-node";
 
 async function run() {
   // get inputs
@@ -25,12 +23,12 @@ async function run() {
       required: true,
     })
   );
-  const kubeconfig: string = getKubeconfig(clusterType);
   const runnerTempDirectory: string = process.env["RUNNER_TEMP"]; // Using process.env until the core libs are updated
   const kubeconfigPath: string = path.join(
     runnerTempDirectory,
     `kubeconfig_${Date.now()}`
   );
+  const kubeconfig: string = getKubeconfig(clusterType);
 
   // output kubeconfig
   core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`);
@@ -63,13 +61,6 @@ function getDefaultKubeconfig(): string {
   );
 
   switch (method) {
-    case undefined: {
-      core.warning("Method not recognized. Defaulting to kubeconfig");
-    }
-    case Method.KUBECONFIG: {
-      core.debug("Setting context using kubeconfig");
-      return core.getInput("kubeconfig", { required: true });
-    }
     case Method.SERVICE_ACCOUNT: {
       const clusterUrl = core.getInput("k8s-url", { required: true });
       core.debug(
@@ -88,7 +79,14 @@ function getDefaultKubeconfig(): string {
         "base64"
       ).toString();
 
-      return JSON.stringify(createKubeconfig(certAuth, token, clusterUrl));
+      return createKubeconfig(certAuth, token, clusterUrl);
+    }
+    case undefined: {
+      core.warning("Method not recognized. Defaulting to kubeconfig");
+    }
+    default: {
+      core.debug("Setting context using kubeconfig");
+      return core.getInput("kubeconfig", { required: true });
     }
   }
 }
@@ -100,9 +98,17 @@ function setContext(kubeconfigPath: string) {
     return;
   }
 
+  // load current kubeconfig
   const kc = new KubeConfig();
+
+  // update kubeconfig
   kc.loadFromFile(kubeconfigPath);
   kc.setCurrentContext(context);
+
+  // write updated kubeconfig
+  core.debug(`Writing updated kubeconfig contents to ${kubeconfigPath}`);
+  fs.writeFileSync(kubeconfigPath, kc.exportConfig());
+  fs.chmodSync(kubeconfigPath, "600");
 }
 
 // run the application

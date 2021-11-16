@@ -1,4 +1,5 @@
 import * as util from "util";
+import { KubeConfig } from "@kubernetes/client-node";
 
 export enum ClusterType {
   ARC = "arc",
@@ -40,24 +41,11 @@ export function createKubeconfig(
   certAuth: string,
   token: string,
   clusterUrl: string
-) {
-  return {
-    apiVersion: "v1",
-    kind: "Config",
-    clusters: [
-      {
-        cluster: {
-          "certificate-authority-data": certAuth,
-          server: clusterUrl,
-        },
-      },
-    ],
-    users: [
-      {
-        user: {
-          token: token,
-        },
-      },
-    ],
-  };
+): string {
+  const kc = new KubeConfig();
+
+  // TODO: check what defaults should be here
+  kc.addCluster({ name: certAuth, server: clusterUrl, skipTLSVerify: false });
+  kc.addUser({ name: "token", token: token });
+  return kc.exportConfig();
 }
