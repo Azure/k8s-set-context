@@ -16,6 +16,7 @@ import {
   parseK8sSecret,
   createKubeconfig,
 } from "./constants";
+import { CoreV1Api, KubeConfig } from "@kubernetes/client-node";
 
 async function run() {
   // get inputs
@@ -94,6 +95,14 @@ function getDefaultKubeconfig(): string {
 
 function setContext(kubeconfigPath: string) {
   const context: string = core.getInput("context");
+  if (!context) {
+    core.debug("Can't set context because context is unspecified.");
+    return;
+  }
+
+  const kc = new KubeConfig();
+  kc.loadFromFile(kubeconfigPath);
+  kc.setCurrentContext(context);
 }
 
 // run the application
