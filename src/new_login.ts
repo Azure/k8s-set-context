@@ -7,7 +7,15 @@ import * as os from "os";
 import { ToolRunner } from "@actions/exec/lib/toolrunner";
 import * as jsyaml from "js-yaml";
 import * as util from "util";
-import { ClusterType, parseClusterType } from "./constants";
+import {
+  ClusterType,
+  Method,
+  parseClusterType,
+  parseMethod,
+  K8sSecret,
+  parseK8sSecret,
+  createKubeconfig,
+} from "./constants";
 
 async function run() {
   // get inputs
@@ -17,8 +25,8 @@ async function run() {
     })
   );
   const kubeconfig: string = getKubeconfig(clusterType);
-  const runnerTempDirectory = process.env["RUNNER_TEMP"]; // Using process.env until the core libs are updated
-  const kubeconfigPath = path.join(
+  const runnerTempDirectory: string = process.env["RUNNER_TEMP"]; // Using process.env until the core libs are updated
+  const kubeconfigPath: string = path.join(
     runnerTempDirectory,
     `kubeconfig_${Date.now()}`
   );
@@ -31,6 +39,7 @@ async function run() {
   core.exportVariable("KUBECONFIG", kubeconfigPath);
 
   // set context
+  setContext(kubeconfigPath);
 }
 
 function getKubeconfig(type: ClusterType): string {
@@ -42,9 +51,49 @@ function getKubeconfig(type: ClusterType): string {
       core.warning("Cluster type not recognized. Defaulting to generic.");
     }
     default: {
-      return "GENERIC";
+      return getDefaultKubeconfig();
     }
   }
+}
+
+function getDefaultKubeconfig(): string {
+  const method: Method | undefined = parseMethod(
+    core.getInput("Method", { required: true })
+  );
+
+  switch (method) {
+    case undefined: {
+      core.warning("Method not recognized. Defaulting to kubeconfig");
+    }
+    case Method.KUBECONFIG: {
+      core.debug("Setting context using kubeconfig");
+      return core.getInput("kubeconfig", { required: true });
+    }
+    case Method.SERVICE_ACCOUNT: {
+      const clusterUrl = core.getInput("k8s-url", { required: true });
+      core.debug(
+        "Found clusterUrl. Creating kubeconfig using certificate and token"
+      );
+
+      const k8sSecret: string = core.getInput("k8s-secret", {
+        required: true,
+      });
+      const parsedK8sSecret: K8sSecret = parseK8sSecret(
+        jsyaml.safeLoad(k8sSecret)
+      );
+      const certAuth: string = parsedK8sSecret.data["ca.crt"];
+      const token: string = Buffer.from(
+        parsedK8sSecret.data.token,
+        "base64"
+      ).toString();
+
+      return JSON.stringify(createKubeconfig(certAuth, token, clusterUrl));
+    }
+  }
+}
+
+function setContext(kubeconfigPath: string) {
+  const context: string = core.getInput("context");
 }
 
 // run the application
