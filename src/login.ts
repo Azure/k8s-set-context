@@ -1,133 +1,168 @@
-import * as core from '@actions/core';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as io from '@actions/io';
-import * as toolCache from '@actions/tool-cache';
-import * as os from 'os';
-import { ToolRunner } from "@actions/exec/lib/toolrunner";
-import * as jsyaml from 'js-yaml';
-import * as util from 'util';
-import { getArcKubeconfig } from './arc-login';
+import * as core from "@actions/core";
+import * as path from "path";
+import * as fs from "fs";
+import * as io from "@actions/io";
+import * as jsyaml from "js-yaml";
+import {
+  ClusterType,
+  Method,
+  parseClusterType,
+  parseMethod,
+  K8sSecret,
+  parseK8sSecret,
+  createKubeconfig,
+  runAzCliCommand,
+} from "./constants";
+import { KubeConfig } from "@kubernetes/client-node";
+import { ExecOptions } from "@actions/exec/lib/interfaces";
 
-export function getKubeconfig(): string {
-    const method = core.getInput('method', { required: true });
-    if (method == 'kubeconfig') {
-        const kubeconfig = core.getInput('kubeconfig', { required: true });
-        core.debug("Setting context using kubeconfig");
-        return kubeconfig;
-    }
-    else if (method == 'service-account') {
-        const clusterUrl = core.getInput('k8s-url', { required: true });
-        core.debug("Found clusterUrl, creating kubeconfig using certificate and token");
-        let k8sSecret = core.getInput('k8s-secret', { required: true });
-        var parsedk8sSecret = jsyaml.safeLoad(k8sSecret);
-        let kubernetesServiceAccountSecretFieldNotPresent = 'The service account secret yaml does not contain %s; field. Make sure that its present and try again.';
-        if (!parsedk8sSecret) {
-            throw Error("The service account secret yaml specified is invalid. Make sure that its a valid yaml and try again.");
-        }
+async function run() {
+  // get inputs
+  const clusterType: ClusterType | undefined = parseClusterType(
+    core.getInput("cluster-type", {
+      required: true,
+    })
+  );
+  const runnerTempDirectory: string = process.env["RUNNER_TEMP"]; // Using process.env until the core libs are updated
+  const kubeconfigPath: string = path.join(
+    runnerTempDirectory,
+    `kubeconfig_${Date.now()}`
+  );
+  const kubeconfig: string = await getKubeconfig(clusterType);
 
-        if (!parsedk8sSecret.data) {
-            throw Error(util.format(kubernetesServiceAccountSecretFieldNotPresent, "data"));
-        }
+  // output kubeconfig
+  core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`);
+  fs.writeFileSync(kubeconfigPath, kubeconfig);
+  fs.chmodSync(kubeconfigPath, "600");
+  core.debug("Setting KUBECONFIG environment variable");
+  core.exportVariable("KUBECONFIG", kubeconfigPath);
 
-        if (!parsedk8sSecret.data.token) {
-            throw Error(util.format(kubernetesServiceAccountSecretFieldNotPresent, "data.token"));
-        }
-
-        if (!parsedk8sSecret.data["ca.crt"]) {
-            throw Error(util.format(kubernetesServiceAccountSecretFieldNotPresent, "data[ca.crt]"));
-        }
-
-        const certAuth = parsedk8sSecret.data["ca.crt"];
-        const token = Buffer.from(parsedk8sSecret.data.token, 'base64').toString();
-        const kubeconfigObject = {
-            "apiVersion": "v1",
-            "kind": "Config",
-            "clusters": [
-                {
-                    "cluster": {
-                        "certificate-authority-data": certAuth,
-                        "server": clusterUrl
-                    }
-                }
-            ],
-            "users": [
-                {
-                    "user": {
-                        "token": token
-                    }
-                }
-            ]
-        };
-
-        return JSON.stringify(kubeconfigObject);
-    }
-    else {
-        throw Error("Invalid method specified. Acceptable values are kubeconfig and service-account.");
-    }
+  // set context
+  setContext(kubeconfigPath);
 }
 
-export function getExecutableExtension(): string {
-    if (os.type().match(/^Win/)) {
-        return '.exe';
+async function getKubeconfig(type: ClusterType): Promise<string> {
+  switch (type) {
+    case ClusterType.ARC: {
+      return await getArcKubeconfig();
     }
-
-    return '';
+    case undefined: {
+      core.warning("Cluster type not recognized. Defaulting to generic.");
+    }
+    default: {
+      return getDefaultKubeconfig();
+    }
+  }
 }
 
-export async function getKubectlPath() {
-    let kubectlPath = await io.which('kubectl', false);
-    if (!kubectlPath) {
-        const allVersions = toolCache.findAllVersions('kubectl');
-        kubectlPath = allVersions.length > 0 ? toolCache.find('kubectl', allVersions[0]) : '';
-        if (!kubectlPath) {
-            throw new Error('Kubectl is not installed');
-        }
+function getDefaultKubeconfig(): string {
+  const method: Method | undefined = parseMethod(
+    core.getInput("Method", { required: true })
+  );
 
-        kubectlPath = path.join(kubectlPath, `kubectl${getExecutableExtension()}`);
+  switch (method) {
+    case Method.SERVICE_ACCOUNT: {
+      const clusterUrl = core.getInput("k8s-url", { required: true });
+      core.debug(
+        "Found clusterUrl. Creating kubeconfig using certificate and token"
+      );
+
+      const k8sSecret: string = core.getInput("k8s-secret", {
+        required: true,
+      });
+      const parsedK8sSecret: K8sSecret = parseK8sSecret(jsyaml.load(k8sSecret));
+      const certAuth: string = parsedK8sSecret.data["ca.crt"];
+      const token: string = Buffer.from(
+        parsedK8sSecret.data.token,
+        "base64"
+      ).toString();
+
+      return createKubeconfig(certAuth, token, clusterUrl);
     }
-    return kubectlPath;
+    case Method.SERVICE_PRINCIPAL: {
+      core.warning(
+        "Service Principal method not supported for default cluster type"
+      );
+    }
+    case undefined: {
+      core.warning("Defaulting to kubeconfig method");
+    }
+    default: {
+      core.debug("Setting context using kubeconfig");
+      return core.getInput("kubeconfig", { required: true });
+    }
+  }
 }
 
-export async function setContext(kubeconfigPath: string) {
-    let context = core.getInput('context');
-    if (context) {
-        //To use kubectl commands, the environment variable KUBECONFIG needs to be set for this step 
-        process.env['KUBECONFIG'] = kubeconfigPath;
-        const kubectlPath = await getKubectlPath();
-        let toolRunner = new ToolRunner(kubectlPath, ['config', 'use-context', context]);
-        await toolRunner.exec();
-        toolRunner = new ToolRunner(kubectlPath, ['config', 'current-context']);
-        await toolRunner.exec();
-    }
+function setContext(kubeconfigPath: string) {
+  const context: string = core.getInput("context");
+  if (!context) {
+    core.debug("Can't set context because context is unspecified.");
+    return;
+  }
+
+  // load current kubeconfig
+  const kc = new KubeConfig();
+
+  // update kubeconfig
+  kc.loadFromFile(kubeconfigPath);
+  kc.setCurrentContext(context);
+
+  // write updated kubeconfig
+  core.debug(`Writing updated kubeconfig contents to ${kubeconfigPath}`);
+  fs.writeFileSync(kubeconfigPath, kc.exportConfig());
+  fs.chmodSync(kubeconfigPath, "600");
 }
 
-export async function run() {
-    try {
-        let kubeconfig = '';
-        const cluster_type = core.getInput('cluster-type', { required: true });
-        if (cluster_type == 'arc') {
-            try{
-                await getArcKubeconfig();
-            }
-            catch (ex){
-                throw new Error('Error: Could not get the KUBECONFIG for arc cluster: ' + ex);
-            }
-        }
-        else {
-            const runnerTempDirectory = process.env['RUNNER_TEMP']; // Using process.env until the core libs are updated
-            const kubeconfigPath = path.join(runnerTempDirectory, `kubeconfig_${Date.now()}`);
-            kubeconfig = getKubeconfig();
-            core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`);
-            fs.writeFileSync(kubeconfigPath, kubeconfig);
-            fs.chmodSync(kubeconfigPath, '600');
-            core.exportVariable('KUBECONFIG', kubeconfigPath);
-            console.log('KUBECONFIG environment variable is set');
-            await setContext(kubeconfigPath);
-        }
-    } catch (ex) {
-        return Promise.reject(ex);
-    }
+async function getArcKubeconfig(): Promise<string> {
+  const resourceGroupName = core.getInput("resource-group", { required: true });
+  const clusterName = core.getInput("cluster-name", { required: true });
+  const azPath = await io.which("az", true);
+
+  await runAzCliCommand(azPath, "account show");
+
+  try {
+    await runAzCliCommand(azPath, "extension remove -n connectedk8s");
+  } catch {
+    // expected when it is the first time running the action
+    core.debug("Failed to remove connectedk8s");
+  }
+
+  await runAzCliCommand(azPath, "extension add -n konnectedk8s");
+  await runAzCliCommand(azPath, "extension list");
+
+  const method: Method | undefined = parseMethod(
+    core.getInput("Method", { required: true })
+  );
+
+  let kubeconfig = "";
+  const runAzCliOptions: ExecOptions = {
+    listeners: {
+      stdout: (b: Buffer) => (kubeconfig += b.toString()),
+    },
+  };
+  switch (method) {
+    case Method.SERVICE_ACCOUNT:
+      const saToken = core.getInput("token", { required: true });
+
+      await runAzCliCommand(
+        azPath,
+        `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} --token ${saToken} -f`,
+        runAzCliOptions
+      );
+    case Method.SERVICE_PRINCIPAL:
+      await runAzCliCommand(
+        azPath,
+        `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} -f`,
+        runAzCliOptions
+      );
+    case undefined:
+      core.warning("Defaulting to kubeconfig method");
+    case Method.KUBECONFIG:
+    default:
+      throw Error("Kubeconfig method not supported for Arc cluste");
+  }
 }
 
+// run the application
 run().catch(core.setFailed);

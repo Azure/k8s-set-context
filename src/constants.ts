@@ -1,5 +1,7 @@
 import * as util from "util";
 import { KubeConfig } from "@kubernetes/client-node";
+import { exec } from "@actions/exec";
+import { ExecOptions } from "@actions/exec/lib/interfaces";
 
 export enum ClusterType {
   ARC = "arc",
@@ -45,7 +47,18 @@ export function createKubeconfig(
   const kc = new KubeConfig();
 
   // TODO: check what defaults should be here
+  // TODO: make these options
   kc.addCluster({ name: certAuth, server: clusterUrl, skipTLSVerify: false });
   kc.addUser({ name: "token", token: token });
   return kc.exportConfig();
+}
+
+export async function runAzCliCommand(
+  azPath: string,
+  command: string,
+  options: ExecOptions = {},
+  silent: boolean = false
+) {
+  options.silent = silent;
+  await exec(`"${azPath}" ${command}`, [], options);
 }
