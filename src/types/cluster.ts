@@ -8,5 +8,9 @@ export enum Cluster {
  * @param str The cluster type (case insensitive)
  * @returns The Cluster enum or undefined if it can't be parsed
  */
-export const parseClusterType = (str: string): Cluster | undefined =>
-  Cluster[str.toLowerCase() as keyof typeof Cluster];
+export const parseCluster = (str: string): Cluster | undefined =>
+  Cluster[
+    Object.keys(Cluster).filter(
+      (k) => Cluster[k].toString().toLowerCase() === str.toLowerCase()
+    )[0] as keyof typeof Cluster
+  ];

@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import * as path from "path";
 import * as fs from "fs";
-import { Cluster, parseClusterType } from "./types/cluster";
+import { Cluster, parseCluster } from "./types/cluster";
 import { KubeConfig } from "@kubernetes/client-node";
 import { getDefaultKubeconfig } from "./kubeconfigs/default";
 import { getArcKubeconfig } from "./kubeconfigs/arc";
@@ -11,7 +11,7 @@ import { getArcKubeconfig } from "./kubeconfigs/arc";
  */
 async function run() {
   // get inputs
-  const clusterType: Cluster | undefined = parseClusterType(
+  const clusterType: Cluster | undefined = parseCluster(
     core.getInput("cluster-type", {
       required: true,
     })
