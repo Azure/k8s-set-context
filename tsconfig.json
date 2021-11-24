@@ -4,5 +4,5 @@
     "module": "commonjs",
     "esModuleInterop": true
   },
-  "exclude": ["node_modules", "__tests__"]
+  "exclude": ["node_modules", "tests"]
 }
