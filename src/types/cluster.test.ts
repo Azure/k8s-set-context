@@ -1,7 +1,7 @@
 import { Cluster, parseCluster } from "./cluster";
 
 describe("Cluster type", () => {
-  test("it has ARC and GENERIC values", () => {
+  test("it has required values", () => {
     const vals = <any>Object.values(Cluster);
     expect(vals.includes("arc")).toBe(true);
     expect(vals.includes("generic")).toBe(true);
