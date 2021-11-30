@@ -2,7 +2,6 @@ import * as core from "@actions/core";
 import * as jsyaml from "js-yaml";
 import { K8sSecret, parseK8sSecret } from "../types/k8sSecret";
 import { Method, parseMethod } from "../types/method";
-import { KubeConfig } from "@kubernetes/client-node";
 
 /**
  * Gets the kubeconfig based on provided method for a default Kubernetes cluster
@@ -59,11 +58,25 @@ export function createKubeconfig(
   token: string,
   clusterUrl: string
 ): string {
-  const kc = new KubeConfig();
+  const kubeconfig = {
+    apiVersion: "v1",
+    kind: "Config",
+    clusters: [
+      {
+        cluster: {
+          "certificate-authority-data": certAuth,
+          server: clusterUrl,
+        },
+      },
+    ],
+    users: [
+      {
+        user: {
+          token: token,
+        },
+      },
+    ],
+  };
 
-  // TODO: check what defaults should be here
-  // TODO: make these options
-  kc.addCluster({ name: certAuth, server: clusterUrl, skipTLSVerify: false });
-  kc.addUser({ name: "token", token: token });
-  return kc.exportConfig();
+  return JSON.stringify(kubeconfig);
 }

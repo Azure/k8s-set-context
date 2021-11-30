@@ -21,4 +21,9 @@ describe("Method type", () => {
     expect(parseMethod("Service-Principal")).toBe(Method.SERVICE_PRINCIPAL);
     expect(parseMethod("SERVICE-PRINCIPAL")).toBe(Method.SERVICE_PRINCIPAL);
   });
+
+  test("it will return undefined if it can't parse values from a string", () => {
+    expect(parseMethod("invalid")).toBe(undefined);
+    expect(parseMethod("unsupportedType")).toBe(undefined);
+  });
 });
