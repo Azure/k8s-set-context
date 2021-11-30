@@ -11,7 +11,7 @@ describe("Arc kubeconfig", () => {
     jest.spyOn(actions, "exec").mockImplementation(async () => 0);
 
     expect(await runAzCliCommand(path, command));
-    expect(actions.exec).toBeCalledWith(`"${path}" ${command}`, [], {});
+    expect(actions.exec).toBeCalledWith(`${path} ${command}`, [], {});
   });
 
   test("it throws error without resource group", async () => {
@@ -63,21 +63,78 @@ describe("Arc kubeconfig", () => {
         const token = "token";
         process.env["INPUT_TOKEN"] = token;
 
-        expect(await getArcKubeconfig());
+        expect(await getArcKubeconfig()).toBe("");
 
-        expect(actions.exec).toBeCalledWith(path, "account show");
-        expect(actions.exec).toBeCalledWith(
-          path,
-          "extension remove -n connectedk8s"
+        expect(actions.exec).toHaveBeenNthCalledWith(
+          1,
+          `${path} account show`,
+          [],
+          {}
         );
-        expect(actions.exec).toBeCalledWith(
-          path,
-          "extension add -n connectedk8s"
+        expect(actions.exec).toHaveBeenNthCalledWith(
+          2,
+          `${path} extension remove -n connectedk8s`,
+          [],
+          {}
         );
-        expect(actions.exec).toBeCalledWith(path, "extension list");
-        expect(actions.exec).toBeCalledWith(
-          path,
-          `connectedk8s proxy -n ${name} -g ${group} --token ${token} -f`
+        expect(actions.exec).toHaveBeenNthCalledWith(
+          3,
+          `${path} extension add -n connectedk8s`,
+          [],
+          {}
+        );
+        expect(actions.exec).toHaveBeenNthCalledWith(
+          4,
+          `${path} extension list`,
+          [],
+          {}
+        );
+        expect(actions.exec).toHaveBeenNthCalledWith(
+          5,
+          `${path} connectedk8s proxy -n ${name} -g ${group} --token ${token} -f`,
+          [],
+          expect.objectContaining({})
+        );
+      });
+    });
+
+    describe("service principal method", () => {
+      beforeEach(() => {
+        process.env["INPUT_METHOD"] = "service-principal";
+      });
+
+      it("gets the kubeconfig with service principal method", async () => {
+        expect(await getArcKubeconfig()).toBe("");
+
+        expect(actions.exec).toHaveBeenNthCalledWith(
+          1,
+          `${path} account show`,
+          [],
+          {}
+        );
+        expect(actions.exec).toHaveBeenNthCalledWith(
+          2,
+          `${path} extension remove -n connectedk8s`,
+          [],
+          {}
+        );
+        expect(actions.exec).toHaveBeenNthCalledWith(
+          3,
+          `${path} extension add -n connectedk8s`,
+          [],
+          {}
+        );
+        expect(actions.exec).toHaveBeenNthCalledWith(
+          4,
+          `${path} extension list`,
+          [],
+          {}
+        );
+        expect(actions.exec).toHaveBeenNthCalledWith(
+          5,
+          `${path} connectedk8s proxy -n ${name} -g ${group} -f`,
+          [],
+          expect.objectContaining({})
         );
       });
     });

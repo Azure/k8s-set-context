@@ -71,5 +71,5 @@ export async function runAzCliCommand(
   command: string,
   options: ExecOptions = {}
 ) {
-  await exec(`"${azPath}" ${command}`, [], options);
+  await exec(`${azPath} ${command}`, [], options);
 }
