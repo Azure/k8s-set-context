@@ -22,11 +22,11 @@ export async function getArcKubeconfig(): Promise<string> {
     core.debug("Failed to remove connectedk8s");
   }
 
-  await runAzCliCommand(azPath, "extension add -n konnectedk8s");
+  await runAzCliCommand(azPath, "extension add -n connectedk8s");
   await runAzCliCommand(azPath, "extension list");
 
   const method: Method | undefined = parseMethod(
-    core.getInput("Method", { required: true })
+    core.getInput("method", { required: true })
   );
 
   let kubeconfig = "";
@@ -44,12 +44,14 @@ export async function getArcKubeconfig(): Promise<string> {
         `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} --token ${saToken} -f`,
         runAzCliOptions
       );
+      return kubeconfig;
     case Method.SERVICE_PRINCIPAL:
       await runAzCliCommand(
         azPath,
         `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} -f`,
         runAzCliOptions
       );
+      return kubeconfig;
     case undefined:
       core.warning("Defaulting to kubeconfig method");
     case Method.KUBECONFIG:

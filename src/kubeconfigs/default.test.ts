@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { getRequiredInputError } from "../../tests/util";
 import { createKubeconfig, getDefaultKubeconfig } from "./default";
 
 describe("Default kubeconfig", () => {
@@ -33,7 +34,7 @@ describe("Default kubeconfig", () => {
 
   test("it throws error without method", () => {
     expect(() => getDefaultKubeconfig()).toThrow(
-      Error("Input required and not supplied: Method")
+      getRequiredInputError("method")
     );
   });
 
@@ -44,7 +45,7 @@ describe("Default kubeconfig", () => {
 
     test("it throws error without kubeconfig", () => {
       expect(() => getDefaultKubeconfig()).toThrow(
-        Error("Input required and not supplied: kubeconfig")
+        getRequiredInputError("kubeconfig")
       );
     });
 
@@ -81,7 +82,7 @@ describe("Default kubeconfig", () => {
 
     test("it throws error without cluster url", () => {
       expect(() => getDefaultKubeconfig()).toThrow(
-        Error("Input required and not supplied: k8s-url")
+        getRequiredInputError("k8s-url")
       );
     });
 
@@ -89,7 +90,7 @@ describe("Default kubeconfig", () => {
       process.env["INPUT_K8S-URL"] = "url";
 
       expect(() => getDefaultKubeconfig()).toThrow(
-        Error("Input required and not supplied: k8s-secret")
+        getRequiredInputError("k8s-secret")
       );
     });
 

@@ -9,7 +9,7 @@ import { Method, parseMethod } from "../types/method";
  */
 export function getDefaultKubeconfig(): string {
   const method: Method | undefined = parseMethod(
-    core.getInput("Method", { required: true })
+    core.getInput("method", { required: true })
   );
 
   switch (method) {
