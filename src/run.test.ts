@@ -1,25 +1,30 @@
 import { getRequiredInputError } from "../tests/util";
-import { setContext } from "./run";
+import { run } from "./run";
 import fs from "fs";
+import * as utils from "./utils";
 
 describe("Run", () => {
-  describe("set context", () => {
-    beforeEach(() => {
-      jest.spyOn(fs, "writeFileSync").mockImplementation(() => {});
-      jest.spyOn(fs, "chmodSync").mockImplementation(() => {});
-    });
+  it("throws error without cluster type", async () => {
+    await expect(run()).rejects.toThrow(getRequiredInputError("cluster-type"));
+  });
 
-    test("it returns early without context", () => {
-      expect(() => setContext("path")).not.toThrow();
-      expect(fs.writeFileSync).not.toHaveBeenCalled();
-      expect(fs.chmodSync).not.toHaveBeenCalled();
-    });
+  it("writes kubeconfig and sets context", async () => {
+    const kubeconfig = "kubeconfig";
 
-    test("it writes the context to a path", () => {
-      process.env["INPUT_CONTEXT"] = "context";
-      expect(() => setContext("tests/sample-kubeconfig.yml")).not.toThrow();
-      expect(fs.writeFileSync).toHaveBeenCalled();
-      expect(fs.chmodSync).toHaveBeenCalled();
-    });
+    process.env["INPUT_CLUSTER-TYPE"] = "default";
+    process.env["RUNNER_TEMP"] = "/sample/path";
+
+    jest
+      .spyOn(utils, "getKubeconfig")
+      .mockImplementation(async () => kubeconfig);
+    jest.spyOn(fs, "writeFileSync").mockImplementation(() => {});
+    jest.spyOn(fs, "chmodSync").mockImplementation(() => {});
+    jest.spyOn(utils, "setContext").mockImplementation(() => {});
+
+    expect(await run());
+    expect(utils.getKubeconfig).toHaveBeenCalled();
+    expect(fs.writeFileSync).toHaveBeenCalled();
+    expect(fs.chmodSync).toHaveBeenCalled();
+    expect(utils.setContext).toHaveBeenCalled();
   });
 });
