@@ -9,7 +9,7 @@ import { getArcKubeconfig } from "./kubeconfigs/arc";
 /**
  * Sets the Kubernetes context based on supplied action inputs
  */
-async function run() {
+export async function run() {
   // get inputs
   const clusterType: Cluster | undefined = parseCluster(
     core.getInput("cluster-type", {
@@ -39,7 +39,9 @@ async function run() {
  * @param type The cluster type for the kubeconfig (defaults to generic)
  * @returns A promise of the kubeconfig
  */
-async function getKubeconfig(type: Cluster | undefined): Promise<string> {
+export async function getKubeconfig(
+  type: Cluster | undefined
+): Promise<string> {
   switch (type) {
     case Cluster.ARC: {
       return await getArcKubeconfig();
@@ -57,7 +59,7 @@ async function getKubeconfig(type: Cluster | undefined): Promise<string> {
  * Sets the context by writing to the kubeconfig
  * @param kubeconfigPath The path to the kubeconfig
  */
-function setContext(kubeconfigPath: string) {
+export function setContext(kubeconfigPath: string) {
   const context: string = core.getInput("context");
   if (!context) {
     core.debug("Can't set context because context is unspecified.");
