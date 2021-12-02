@@ -66,4 +66,72 @@ jobs:
                   password: some-password
                   username: exp
       - name: Vertify Results
-        run: echo $(cat $KUBECONFIG)
+        run: |
+          echo "$(cat $KUBECONFIG)"
+          if [ "$KUBECONFIG" != "$EXPECTED_KC"]; then exit 1; fi
+        env:
+          EXPECTED_KC: |
+            {
+              "kind": "Config",
+              "apiVersion": "v1",
+              "preferences": {},
+              "clusters": [
+                  {
+                      "name": "development",
+                      "cluster": {
+                          "server": "https://1.2.3.4",
+                          "certificate-authority": "fake-ca-file"
+                      }
+                  },
+                  {
+                      "name": "scratch",
+                      "cluster": {
+                          "server": "https://5.6.7.8",
+                          "insecure-skip-tls-verify": true
+                      }
+                  }
+              ],
+              "users": [
+                  {
+                      "name": "developer",
+                      "user": {
+                          "client-certificate": "fake-cert-file",
+                          "client-key": "fake-key-file"
+                      }
+                  },
+                  {
+                      "name": "experimenter",
+                      "user": {
+                          "username": "exp",
+                          "password": "some-password"
+                      }
+                  }
+              ],
+              "contexts": [
+                  {
+                      "name": "dev-frontend",
+                      "context": {
+                          "cluster": "development",
+                          "user": "developer",
+                          "namespace": "frontend"
+                      }
+                  },
+                  {
+                      "name": "dev-storage",
+                      "context": {
+                          "cluster": "development",
+                          "user": "developer",
+                          "namespace": "storage"
+                      }
+                  },
+                  {
+                      "name": "exp-scratch",
+                      "context": {
+                          "cluster": "scratch",
+                          "user": "experimenter",
+                          "namespace": "default"
+                      }
+                  }
+              ],
+              "current-context": "dev-frontend"
+            }
