@@ -26,13 +26,12 @@ jobs:
         run:
           # need to escape spaces for kubeconfig https://github.community/t/set-output-truncates-multiline-strings/16852/3
 
-          echo "::set-output name=input::$(cat $GITHUB_WORKSPACE/tests/integration/input-kubeconfig.yml | python3 -c 'import sys; print(sys.stdin.read().replace("\\","\\\\").replace("\"","\\\"").replace("\n","\\n"))' )\n"
-          # echo "::set-output name=input::$(cat $GITHUB_WORKSPACE/tests/integration/input-kubeconfig.yml | sed "s/'\n'/'%0A'/g")"
+          echo "KC=$(cat $GITHUB_WORKSPACE/tests/integration/input-kubeconfig.yml)" >> $GITHUB_ENV
       - name: Set Context
         uses: ./
         with:
           method: kubeconfig
-          kubeconfig: ${{ steps.set-input-output.outputs.input }}
+          kubeconfig: $KC
           context: exp-scratch
       - name: Vertify Results
         run: echo $(cat $KUBECONFIG)
