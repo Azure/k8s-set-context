@@ -22,7 +22,7 @@ jobs:
           echo "::set-output name=input::$(cat $GITHUB_WORKSPACE/tests/integration/input-kubeconfig.yml)"
           echo "::set-output name=expected::$(cat $GITHUB_WORKSPACE/tests/integration/expected-kubeconfig.yml)"
       - name: Set Context
-        uses: OliverMKing/k8s-set-context@v2.1
+        uses: ./
         with:
           method: kubeconfig
           kubeconfig: ${{ steps.set-input-output.outputs.input }}
