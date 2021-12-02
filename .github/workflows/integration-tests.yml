@@ -70,6 +70,7 @@ jobs:
           echo "$EXPECTED_KC" > /tmp/expected_kc.json
           echo "here"
           DIFF=$(diff <(jq --sort-keys . $KUBECONFIG) <(jq --sort-keys . /tmp/expected_kc.json) -rqiEZbwBd)
+          echo "here2"
           echo $DIFF
           if [ "$DIFF" != "" ]; then exit 1; else echo -e "Kubeconfig matches expected"; fi
         env:
