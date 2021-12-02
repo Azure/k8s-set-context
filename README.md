@@ -10,7 +10,7 @@ There are three approaches for specifying the deployment target:
 - Service account approach where the secret associated with the service account is provided as input to the action
 - Service principal approach (only applicable for arc cluster) where service principal provided with 'creds' is used as input to action
 
-In all these approaches it is recommended to store these contents (kubeconfig file content or secret content) in a [secret](https://developer.github.com/actions/managing-workflows/storing-secrets/).
+In all these approaches it is recommended to store these contents (kubeconfig file content or secret content) in a [secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets/).
 
 Refer to the [action metadata file](./action.yml) for details about inputs. Note that different inputs are required for different method and cluster types. Use the below examples as a reference.
 
