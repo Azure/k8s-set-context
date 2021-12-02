@@ -25,8 +25,8 @@ jobs:
         id: set-input-output
         run:
           input=$(cat $GITHUB_WORKSPACE/tests/integration/input-kubeconfig.yml)
-          input="$(input//$'\n'/'%0A')"
-          echo "::set-output name=input::$(input)"
+          input="${input//$'\n'/'%0A'}"
+          echo "::set-output name=input::$input"
       - name: Set Context
         uses: ./
         with:
