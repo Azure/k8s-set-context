@@ -68,6 +68,7 @@ jobs:
       - name: Vertify Results
         run: |
           echo "$(cat $KUBECONFIG)"
+          echo "$(cat $EXPECTED_KC)"
           if [ "$KUBECONFIG" != "$EXPECTED_KC" ]; then exit 1; fi
         env:
           EXPECTED_KC: |
