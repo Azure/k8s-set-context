@@ -69,6 +69,7 @@ jobs:
         run: |
           echo "$EXPECTED_KC" > /tmp/expected_kc.json
           echo "here"
+          echo "cat /tmp/expected_kc.json"
           DIFF=$(diff <(jq --sort-keys . $KUBECONFIG) <(jq --sort-keys . /tmp/expected_kc.json))
           echo "here2"
           echo $DIFF
