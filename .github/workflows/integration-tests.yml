@@ -1,0 +1,31 @@
+name: Run Integration Tests
+on:
+  pull_request:
+    branches:
+      - master
+      - "releases/*"
+  push:
+    branches:
+      - master
+      - "releases/*"
+
+jobs:
+  kubeconfig-method-integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        id: checkout-code
+        uses: actions/checkout@v2
+      - name: Set Input and Output Kubeconfig
+        id: set-input-output
+        run:
+          echo "::set-output name=input::$(cat $GITHUB_WORKSPACE/tests/integration/input-kubeconfig.yml)"
+          echo "::set-output name=expected::$(cat $GITHUB_WORKSPACE/tests/integration/expected-kubeconfig.yml)"
+      - name: Set Context
+        uses: OliverMKing/k8s-set-context@v2.1
+        with:
+          method: kubeconfig
+          kubeconfig: { { steps.set-input-output.outputs.input } }
+          context: exp-scratch
+      - name: Vertify Results
+        run: echo $(cat $KUBECONFIG)
