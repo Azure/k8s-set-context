@@ -68,7 +68,6 @@ jobs:
       - name: Vertify Results
         run: |
           echo "$EXPECTED_KC" > /tmp/expected_kc.json
-          diff <(jq -S -c . $KUBECONFIG) <(jq -S -c . /tmp/expected_kc.json)
           DIFF=$(diff <(jq -S -c . $KUBECONFIG) <(jq -S -c . /tmp/expected_kc.json))
           if [ "$DIFF" != "" ]; then exit 1; else echo -e "Kubeconfig matches expected"; fi
         env:
@@ -78,7 +77,7 @@ jobs:
                 "clusters": [
                     {
                         "cluster": {
-                            "certificate-authority": "/home/runner/work/_temp/fake-ca-file",
+                            "certificate-authority": "fake-ca-file",
                             "insecure-skip-tls-verify": false,
                             "server": "https://1.2.3.4"
                         },
@@ -129,8 +128,8 @@ jobs:
                     {
                         "name": "developer",
                         "user": {
-                            "client-certificate": "/home/runner/work/_temp/fake-cert-file",
-                            "client-key": "/home/runner/work/_temp/fake-key-file"
+                            "client-certificate": "fake-cert-file",
+                            "client-key": "fake-key-file"
                         }
                     },
                     {
