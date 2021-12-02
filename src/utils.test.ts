@@ -27,22 +27,21 @@ describe("Utils", () => {
   });
 
   describe("set context", () => {
-    beforeEach(() => {
-      jest.spyOn(fs, "writeFileSync").mockImplementation(() => {});
-      jest.spyOn(fs, "chmodSync").mockImplementation(() => {});
+    const kc = fs.readFileSync("tests/sample-kubeconfig.yml").toString();
+
+    test("it doesn't change kubeconfig without context", () => {
+      expect(setContext(kc)).toBe(kc);
     });
 
-    test("it returns early without context", () => {
-      expect(() => setContext("path")).not.toThrow();
-      expect(fs.writeFileSync).not.toHaveBeenCalled();
-      expect(fs.chmodSync).not.toHaveBeenCalled();
-    });
+    test("it writes the context to the kubeconfig", () => {
+      process.env["INPUT_CONTEXT"] = "example";
 
-    test("it writes the context to a path", () => {
-      process.env["INPUT_CONTEXT"] = "context";
-      expect(() => setContext("tests/sample-kubeconfig.yml")).not.toThrow();
-      expect(fs.writeFileSync).toHaveBeenCalled();
-      expect(fs.chmodSync).toHaveBeenCalled();
+      const received = JSON.parse(setContext(kc));
+      const expectedKc = JSON.parse(
+        fs.readFileSync("tests/expected-kubeconfig.json").toString()
+      );
+
+      expect(received).toMatchObject(expectedKc);
     });
   });
 });

@@ -27,25 +27,22 @@ export async function getKubeconfig(
 }
 
 /**
- * Sets the context by writing to the kubeconfig
- * @param kubeconfigPath The path to the kubeconfig
+ * Sets the context by updating the kubeconfig
+ * @param kubeconfig The kubeconfig
+ * @returns Updated kubeconfig with the context
  */
-export function setContext(kubeconfigPath: string) {
+export function setContext(kubeconfig: string): string {
   const context: string = core.getInput("context");
   if (!context) {
     core.debug("Can't set context because context is unspecified.");
-    return;
+    return kubeconfig;
   }
 
   // load current kubeconfig
   const kc = new KubeConfig();
+  kc.loadFromString(kubeconfig);
 
   // update kubeconfig
-  kc.loadFromFile(kubeconfigPath);
   kc.setCurrentContext(context);
-
-  // write updated kubeconfig
-  core.debug(`Writing updated kubeconfig contents to ${kubeconfigPath}`);
-  fs.writeFileSync(kubeconfigPath, kc.exportConfig());
-  fs.chmodSync(kubeconfigPath, "600");
+  return kc.exportConfig();
 }

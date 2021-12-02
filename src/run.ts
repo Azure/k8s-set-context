@@ -19,17 +19,17 @@ export async function run() {
     runnerTempDirectory,
     `kubeconfig_${Date.now()}`
   );
+
+  // get kubeconfig and update context
   const kubeconfig: string = await getKubeconfig(clusterType);
+  const kubeconfigWithContext: string = setContext(kubeconfig);
 
   // output kubeconfig
   core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`);
-  fs.writeFileSync(kubeconfigPath, kubeconfig);
+  fs.writeFileSync(kubeconfigPath, kubeconfigWithContext);
   fs.chmodSync(kubeconfigPath, "600");
   core.debug("Setting KUBECONFIG environment variable");
   core.exportVariable("KUBECONFIG", kubeconfigPath);
-
-  // set context
-  setContext(kubeconfigPath);
 }
 
 // Run the application

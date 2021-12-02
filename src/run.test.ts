@@ -19,7 +19,7 @@ describe("Run", () => {
       .mockImplementation(async () => kubeconfig);
     jest.spyOn(fs, "writeFileSync").mockImplementation(() => {});
     jest.spyOn(fs, "chmodSync").mockImplementation(() => {});
-    jest.spyOn(utils, "setContext").mockImplementation(() => {});
+    jest.spyOn(utils, "setContext").mockImplementation(() => kubeconfig);
 
     expect(await run());
     expect(utils.getKubeconfig).toHaveBeenCalled();
