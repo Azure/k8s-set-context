@@ -1,10 +1,7 @@
 ---
-name: 'Issue: Bug Report / Feature Request'
+name: "Issue: Bug Report / Feature Request"
 about: Create a report to help us improve
-title: ''
+title: ""
 labels: need-to-triage
-assignees: 'shigupt202'
-
+assignees: "kingoliver"
 ---
-
-
