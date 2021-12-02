@@ -2,7 +2,7 @@
 
 This action can be used to set cluster context before other actions like [`azure/k8s-deploy`](https://github.com/Azure/k8s-deploy/tree/master) and [`azure/k8s-create-secret`](https://github.com/Azure/k8s-create-secret/tree/master). It should also be used before `kubectl` commands (in script) are run subsequently in the workflow.
 
-It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/master) in your workflow before using this action.
+It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/master) in your workflow before using this action when using the `service-account` or `service-principal` methods.
 
 There are three approaches for specifying the deployment target:
 
