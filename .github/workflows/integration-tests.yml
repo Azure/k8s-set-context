@@ -67,7 +67,8 @@ jobs:
                   username: exp
       - name: Vertify Results
         run: |
-          DIFF=$(diff <(jq --sort-keys . $KUBECONFIG) <(jq --sort-keys . $EXPECTED_KC) -rqiEZbwBd)
+          echo "$EXPECTED_KC" > /tmp/expected_kc.json
+          DIFF=$(diff <(jq --sort-keys . $KUBECONFIG) <(jq --sort-keys . /tmp/expected_kc.json) -rqiEZbwBd)
           if [ "$DIFF" != "" ]; then exit 1; else echo -e "Kubeconfig matches expected"; fi
         env:
           EXPECTED_KC: |
