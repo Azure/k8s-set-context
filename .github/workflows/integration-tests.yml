@@ -32,7 +32,7 @@ jobs:
         uses: ./
         with:
           method: kubeconfig
-          kubeconfig: ${{ steps.set-input-output.outputs.input//$'\n'/'%0A' }}
+          kubeconfig: ${{ steps.set-input-output.outputs.input }}
           context: exp-scratch
       - name: Vertify Results
         run: echo $(cat $KUBECONFIG)
