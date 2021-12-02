@@ -25,8 +25,7 @@ jobs:
         id: set-input-output
         run:
           # need to escape spaces for kubeconfig https://github.community/t/set-output-truncates-multiline-strings/16852/3
-          INPUTKUBECONFIG="$(cat $GITHUB_WORKSPACE/tests/integration/input-kubeconfig.yml)"
-          echo "::set-output name=input::$(INPUTKUBECONFIG)"
+          echo "::set-output name=input::$(cat $GITHUB_WORKSPACE/tests/integration/input-kubeconfig.yml | sed "s/'\n'/'%0A'/g")"
       - name: Set Context
         uses: ./
         with:
