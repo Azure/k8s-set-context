@@ -24,7 +24,9 @@ jobs:
       - name: Set Input and Output Kubeconfig
         id: set-input-output
         run:
-          echo "::set-output name=input::$(cat $GITHUB_WORKSPACE/tests/integration/input-kubeconfig.yml)"
+          input=$(cat $GITHUB_WORKSPACE/tests/integration/input-kubeconfig.yml)
+          input="$(input//$'\n'/'%0A')"
+          echo "::set-output name=input::$(input)"
           echo "::set-output name=expected::$(cat $GITHUB_WORKSPACE/tests/integration/expected-kubeconfig.yml)"
       - name: Set Context
         uses: ./
