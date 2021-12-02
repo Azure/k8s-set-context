@@ -25,7 +25,7 @@ jobs:
         uses: OliverMKing/k8s-set-context@v2.1
         with:
           method: kubeconfig
-          kubeconfig: { { steps.set-input-output.outputs.input } }
+          kubeconfig: ${{ steps.set-input-output.outputs.input }}
           context: exp-scratch
       - name: Vertify Results
         run: echo $(cat $KUBECONFIG)
