@@ -25,6 +25,7 @@ jobs:
         uses: ./
         with:
           method: kubeconfig
+          context: exp-scratch
           kubeconfig: |
             apiVersion: v1
             clusters:
@@ -64,7 +65,5 @@ jobs:
                 user:
                   password: some-password
                   username: exp
-
-                      context: exp-scratch
       - name: Vertify Results
         run: echo $(cat $KUBECONFIG)
