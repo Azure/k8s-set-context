@@ -36,4 +36,4 @@ branding:
   color: "blue"
 runs:
   using: "node12"
-  main: "lib/login.js"
+  main: "lib/run.js"
