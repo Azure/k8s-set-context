@@ -67,9 +67,9 @@ jobs:
                   username: exp
       - name: Vertify Results
         run: |
-          echo "$(cat $KUBECONFIG)"
-          echo "$(cat $EXPECTED_KC)"
-          if [ "$KUBECONFIG" != "$EXPECTED_KC" ]; then exit 1; fi
+          sudo apt-get install jq
+          DIFF=$(diff <(jq --sort-keys . $KUBECONFIG) <(jq --sort-keys . $EXPECTED_KC) -rqiEZbwBd)
+          if [ "$DIFF" != "" ]; then exit 1; else echo -e "Kubeconfig matches expected"; fi
         env:
           EXPECTED_KC: |
             {
