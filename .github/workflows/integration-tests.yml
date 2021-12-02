@@ -67,7 +67,6 @@ jobs:
                   username: exp
       - name: Vertify Results
         run: |
-          sudo apt-get install jq
           DIFF=$(diff <(jq --sort-keys . $KUBECONFIG) <(jq --sort-keys . $EXPECTED_KC) -rqiEZbwBd)
           if [ "$DIFF" != "" ]; then exit 1; else echo -e "Kubeconfig matches expected"; fi
         env:
