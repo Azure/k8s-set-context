@@ -22,8 +22,8 @@ Refer to the [action metadata file](./action.yml) for details about inputs. Note
 - uses: azure/k8s-set-context@v2
   with:
     method: kubeconfig
-    kubeconfig: <your kubeconfig> # Use secret (https://developer.github.com/actions/managing-workflows/storing-secrets/)
-    context: <context name> #If left unspecified, current-context from kubeconfig is used as default
+    kubeconfig: <your kubeconfig>
+    context: <context name> # current-context from kubeconfig is used as default
 ```
 
 **Please note** that the input requires the _contents_ of the kubeconfig file, and not its path.
@@ -67,9 +67,7 @@ For fetching Secret object required to connect and authenticate with the cluster
 
 ```bash
 kubectl get serviceAccounts <service-account-name> -n <namespace> -o 'jsonpath={.secrets[*].name}'
-```
 
-```bash
 kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 ```
 
