@@ -24,7 +24,6 @@ Refer to the [action metadata file](./action.yml) for details about inputs. Note
     method: kubeconfig
     kubeconfig: <your kubeconfig> # Use secret (https://developer.github.com/actions/managing-workflows/storing-secrets/)
     context: <context name> #If left unspecified, current-context from kubeconfig is used as default
-  id: setcontext
 ```
 
 **Please note** that the input requires the _contents_ of the kubeconfig file, and not its path.
