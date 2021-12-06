@@ -4,8 +4,11 @@ import { Method, parseMethod } from "../types/method";
 import { ExecOptions } from "@actions/exec/lib/interfaces";
 import { exec } from "@actions/exec";
 import { spawn } from "child_process";
+import * as fs from "fs";
+import { KubernetesObjectApi } from "@kubernetes/client-node";
 
 const AZ_TIMEOUT_SECONDS = 120;
+const KUBECONFIG_LOCATION = "~/.kube/config";
 
 /**
  * Gets the kubeconfig based on provided method for an Arc Kubernetes cluster
@@ -34,7 +37,8 @@ export async function getArcKubeconfig(): Promise<string> {
         resourceGroupName,
         "--token",
         saToken,
-        "-f-",
+        "-f",
+        KUBECONFIG_LOCATION,
       ]);
     case Method.SERVICE_PRINCIPAL:
       return await runAzCliCommandBlocking(azPath, [
@@ -44,7 +48,8 @@ export async function getArcKubeconfig(): Promise<string> {
         clusterName,
         "-g",
         resourceGroupName,
-        "-f-",
+        "-f",
+        KUBECONFIG_LOCATION,
       ]);
     case undefined:
       core.warning("Defaulting to kubeconfig method");
@@ -83,13 +88,8 @@ export async function runAzCliCommandBlocking(
   });
   proc.unref();
 
-  let output = "";
-  proc.stdout.on("data", (data) => {
-    output += data.toString();
-  });
-
   await sleep(AZ_TIMEOUT_SECONDS);
-  return output;
+  return fs.readFileSync(KUBECONFIG_LOCATION).toString();
 }
 
 const sleep = (seconds: number) =>
