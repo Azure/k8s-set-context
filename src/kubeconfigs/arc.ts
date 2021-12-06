@@ -5,10 +5,14 @@ import { ExecOptions } from "@actions/exec/lib/interfaces";
 import { exec } from "@actions/exec";
 import { spawn } from "child_process";
 import * as fs from "fs";
-import { KubernetesObjectApi } from "@kubernetes/client-node";
+import * as path from "path";
 
-const AZ_TIMEOUT_SECONDS = 120;
-const KUBECONFIG_LOCATION = "~/.kube/config";
+const AZ_TIMEOUT_SECONDS: number = 120;
+const RUNNER_TEMP: string = process.env["RUNNER_TEMP"] || "";
+const KUBECONFIG_LOCATION: string = path.join(
+  RUNNER_TEMP,
+  `arc_kubeconfig_${Date.now()}`
+);
 
 /**
  * Gets the kubeconfig based on provided method for an Arc Kubernetes cluster
