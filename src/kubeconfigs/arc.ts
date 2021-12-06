@@ -36,7 +36,6 @@ export async function getArcKubeconfig(): Promise<string> {
         `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} --token ${saToken} -f-`,
         runAzCliOptions
       );
-
       return kubeconfig;
     case Method.SERVICE_PRINCIPAL:
       await runAzCliCommand(
@@ -44,7 +43,6 @@ export async function getArcKubeconfig(): Promise<string> {
         `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} -f-`,
         runAzCliOptions
       );
-
       return kubeconfig;
     case undefined:
       core.warning("Defaulting to kubeconfig method");
@@ -55,7 +53,7 @@ export async function getArcKubeconfig(): Promise<string> {
 }
 
 /**
- * Executes an az cli command
+ * Executes an az cli command with a timeout
  * @param azPath The path to the az tool
  * @param command The command that should be invoked
  * @param options Optional options for the command execution
@@ -66,7 +64,7 @@ export async function runAzCliCommand(
   options: ExecOptions = {}
 ) {
   await exec(
-    `timeout ${AZ_TIMEOUT_SECONDS}s ${azPath} ${command}`,
+    `timeout --preserve-status ${AZ_TIMEOUT_SECONDS} ${azPath} ${command}`,
     [],
     options
   );
