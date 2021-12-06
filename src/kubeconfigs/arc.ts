@@ -4,8 +4,7 @@ import { Method, parseMethod } from "../types/method";
 import { ExecOptions } from "@actions/exec/lib/interfaces";
 import { exec } from "@actions/exec";
 
-const AZ_CONNECTED_PROXY_TIMEOUT_SECONDS = 120;
-const AZ_CONNECTED_PROXY_TIMEOUT_MS = AZ_CONNECTED_PROXY_TIMEOUT_SECONDS * 1000;
+const AZ_TIMEOUT_SECONDS = 120;
 
 /**
  * Gets the kubeconfig based on provided method for an Arc Kubernetes cluster
@@ -32,23 +31,19 @@ export async function getArcKubeconfig(): Promise<string> {
     case Method.SERVICE_ACCOUNT:
       const saToken = core.getInput("token", { required: true });
 
-      runAzCliCommand(
+      await runAzCliCommand(
         azPath,
         `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} --token ${saToken} -f-`,
         runAzCliOptions
       );
-      await sleep(AZ_CONNECTED_PROXY_TIMEOUT_MS);
-      await exec("^C"); //  kill the az connectedk8s proxy command so it doesn't block forever
 
       return kubeconfig;
     case Method.SERVICE_PRINCIPAL:
-      runAzCliCommand(
+      await runAzCliCommand(
         azPath,
         `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} -f-`,
         runAzCliOptions
       );
-      await sleep(AZ_CONNECTED_PROXY_TIMEOUT_MS);
-      await exec("^C"); // kill the az connectedk8s proxy command so it doesn't block forever
 
       return kubeconfig;
     case undefined:
@@ -70,7 +65,9 @@ export async function runAzCliCommand(
   command: string,
   options: ExecOptions = {}
 ) {
-  await exec(`${azPath} ${command}`, [], options);
+  await exec(
+    `timeout ${AZ_TIMEOUT_SECONDS}s ${azPath} ${command}`,
+    [],
+    options
+  );
 }
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
