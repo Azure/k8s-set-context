@@ -4,7 +4,6 @@ import { Method, parseMethod } from "../types/method";
 import { ExecOptions } from "@actions/exec/lib/interfaces";
 import { exec } from "@actions/exec";
 import { spawn } from "child_process";
-import process from "process";
 
 const AZ_TIMEOUT_SECONDS = 120;
 
@@ -21,20 +20,32 @@ export async function getArcKubeconfig(): Promise<string> {
     core.getInput("method", { required: true })
   );
 
-  await runAzCliCommand(azPath, "extension add -n connectedk8s");
+  await runAzCliCommand(azPath, ["extension", "add", "-n", "connectedk8s"]);
 
   switch (method) {
     case Method.SERVICE_ACCOUNT:
       const saToken = core.getInput("token", { required: true });
-      return await runAzCliCommandBlocking(
-        azPath,
-        `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} --token ${saToken} -f-`
-      );
+      return await runAzCliCommandBlocking(azPath, [
+        "connectedk8s",
+        "proxy",
+        "-n",
+        clusterName,
+        "-g",
+        resourceGroupName,
+        "--token",
+        saToken,
+        "-f-",
+      ]);
     case Method.SERVICE_PRINCIPAL:
-      return await runAzCliCommandBlocking(
-        azPath,
-        `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} -f-`
-      );
+      return await runAzCliCommandBlocking(azPath, [
+        "connectedk8s",
+        "proxy",
+        "-n",
+        clusterName,
+        "-g",
+        resourceGroupName,
+        "-f-",
+      ]);
     case undefined:
       core.warning("Defaulting to kubeconfig method");
     case Method.KUBECONFIG:
@@ -46,37 +57,37 @@ export async function getArcKubeconfig(): Promise<string> {
 /**
  * Executes an az cli command
  * @param azPath The path to the az tool
- * @param command The command that should be invoked
+ * @param args The arguments to be invoked
  * @param options Optional options for the command execution
  */
 export async function runAzCliCommand(
   azPath: string,
-  command: string,
+  args: string[],
   options: ExecOptions = {}
 ) {
-  await exec(`${azPath} ${command}`, [], options);
+  await exec(azPath, args, options);
 }
 
 /**
  * Executes an az cli command with a timeout then returns stdout
  * @param azPath The path to the az tool
- * @param command The command that should be invoked
+ * @param args The arguments to be be invoked
  * @returns Stdout of the command execution
  */
 export async function runAzCliCommandBlocking(
   azPath: string,
-  command: string
+  args: string[]
 ): Promise<string> {
-  const process = spawn(`${azPath} ${command}`, {
+  const proc = spawn(azPath, args, {
     detached: true,
   });
+  proc.unref();
 
   let output = "";
-  process.stdout.on("data", (data) => {
+  proc.stdout.on("data", (data) => {
     output += data.toString();
   });
 
-  process.unref();
   await sleep(AZ_TIMEOUT_SECONDS);
   return output;
 }
