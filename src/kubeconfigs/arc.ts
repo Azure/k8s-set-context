@@ -28,7 +28,7 @@ export async function getArcKubeconfig(): Promise<string> {
   switch (method) {
     case Method.SERVICE_ACCOUNT:
       const saToken = core.getInput("token", { required: true });
-      return await runAzCliCommandBlocking(azPath, [
+      return await runAzKubeconfigCommandBlocking(azPath, [
         "connectedk8s",
         "proxy",
         "-n",
@@ -41,7 +41,7 @@ export async function getArcKubeconfig(): Promise<string> {
         KUBECONFIG_LOCATION,
       ]);
     case Method.SERVICE_PRINCIPAL:
-      return await runAzCliCommandBlocking(azPath, [
+      return await runAzKubeconfigCommandBlocking(azPath, [
         "connectedk8s",
         "proxy",
         "-n",
@@ -74,17 +74,18 @@ export async function runAzCliCommand(
 }
 
 /**
- * Executes an az cli command with a timeout then returns stdout
+ * Executes an az cli command that will set the kubeconfig
  * @param azPath The path to the az tool
  * @param args The arguments to be be invoked
- * @returns Stdout of the command execution
+ * @returns The contents of the kubeconfig
  */
-export async function runAzCliCommandBlocking(
+export async function runAzKubeconfigCommandBlocking(
   azPath: string,
   args: string[]
 ): Promise<string> {
   const proc = spawn(azPath, args, {
     detached: true,
+    stdio: "ignore",
   });
   proc.unref();
 
