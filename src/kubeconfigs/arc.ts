@@ -37,7 +37,8 @@ export async function getArcKubeconfig(): Promise<string> {
         `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} --token ${saToken} -f-`,
         runAzCliOptions
       );
-      await sleep(AZ_CONNECTED_PROXY_TIMEOUT_MS); // az connectedk8s proxy never returns so we need move on after a set amount of time
+      await sleep(AZ_CONNECTED_PROXY_TIMEOUT_MS);
+      await exec("^C"); //  kill the az connectedk8s proxy command so it doesn't block forever
 
       return kubeconfig;
     case Method.SERVICE_PRINCIPAL:
@@ -46,7 +47,8 @@ export async function getArcKubeconfig(): Promise<string> {
         `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} -f-`,
         runAzCliOptions
       );
-      await sleep(AZ_CONNECTED_PROXY_TIMEOUT_MS); // az connectedk8s proxy never returns so we need move on after a set amount of time
+      await sleep(AZ_CONNECTED_PROXY_TIMEOUT_MS);
+      await exec("^C"); // kill the az connectedk8s proxy command so it doesn't block forever
 
       return kubeconfig;
     case undefined:
@@ -71,6 +73,4 @@ export async function runAzCliCommand(
   await exec(`${azPath} ${command}`, [], options);
 }
 
-export function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
