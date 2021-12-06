@@ -46,7 +46,7 @@ export async function getArcKubeconfig(): Promise<string> {
       core.warning("Defaulting to kubeconfig method");
     case Method.KUBECONFIG:
     default:
-      throw Error("Kubeconfig method not supported for Arc cluste");
+      throw Error("Kubeconfig method not supported for Arc cluster");
   }
 }
 
