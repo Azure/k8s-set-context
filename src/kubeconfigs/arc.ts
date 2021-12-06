@@ -13,21 +13,11 @@ export async function getArcKubeconfig(): Promise<string> {
   const clusterName = core.getInput("cluster-name", { required: true });
   const azPath = await io.which("az", true);
 
-  await runAzCliCommand(azPath, "account show");
-
-  try {
-    await runAzCliCommand(azPath, "extension remove -n connectedk8s");
-  } catch {
-    // expected when it is the first time running the action
-    core.debug("Failed to remove connectedk8s");
-  }
-
-  await runAzCliCommand(azPath, "extension add -n connectedk8s");
-  await runAzCliCommand(azPath, "extension list");
-
   const method: Method | undefined = parseMethod(
     core.getInput("method", { required: true })
   );
+
+  await runAzCliCommand(azPath, "extension add -n connectedk8s");
 
   let kubeconfig = "";
   const runAzCliOptions: ExecOptions = {
@@ -41,14 +31,14 @@ export async function getArcKubeconfig(): Promise<string> {
 
       await runAzCliCommand(
         azPath,
-        `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} --token ${saToken} -f`,
+        `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} --token ${saToken} -f-`,
         runAzCliOptions
       );
       return kubeconfig;
     case Method.SERVICE_PRINCIPAL:
       await runAzCliCommand(
         azPath,
-        `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} -f`,
+        `connectedk8s proxy -n ${clusterName} -g ${resourceGroupName} -f-`,
         runAzCliOptions
       );
       return kubeconfig;
