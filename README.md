@@ -77,7 +77,7 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 - uses: azure/k8s-set-context@v2
   with:
     method: service-account
-    cluster-type: "arc"
+    cluster-type: arc
     cluster-name: <cluster-name>
     resource-group: <resource-group>
     token: "${{ secrets.SA_TOKEN }}"
@@ -89,7 +89,7 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 - uses: azure/k8s-set-context@v2
   with:
     method: service-principal
-    cluster-type: "arc"
+    cluster-type: arc
     cluster-name: <cluster-name>
     resource-group: <resource-group>
 ```
