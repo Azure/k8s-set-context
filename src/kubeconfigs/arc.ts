@@ -23,6 +23,7 @@ export async function getArcKubeconfig(): Promise<string> {
 
   let kubeconfig = "";
   const runAzCliOptions: ExecOptions = {
+    ignoreReturnCode: true, // we kill the connectedk8s proxy command after a certain amount of time
     listeners: {
       stdout: (b: Buffer) => (kubeconfig += b.toString()),
     },
