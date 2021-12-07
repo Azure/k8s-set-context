@@ -53,7 +53,7 @@ Please refer to documentation on fetching [kubeconfig for any generic K8s cluste
 - uses: azure/k8s-set-context@v2
   with:
     method: service-account
-    k8s-url: <URL of the clsuter's API server>
+    k8s-url: <URL of the cluster's API server>
     k8s-secret: <secret associated with the service account>
 ```
 
