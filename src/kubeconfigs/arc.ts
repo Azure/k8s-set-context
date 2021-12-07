@@ -1,15 +1,11 @@
 import * as core from "@actions/core";
 import * as io from "@actions/io";
 import { Method, parseMethod } from "../types/method";
-import { ExecOptions } from "@actions/exec/lib/interfaces";
-import { exec } from "@actions/exec";
-import { spawn } from "child_process";
-import * as fs from "fs";
 import * as path from "path";
+import { runAzCliCommand, runAzKubeconfigCommandBlocking } from "./azCommands";
 
-const AZ_TIMEOUT_SECONDS: number = 120;
 const RUNNER_TEMP: string = process.env["RUNNER_TEMP"] || "";
-const KUBECONFIG_LOCATION: string = path.join(
+export const KUBECONFIG_LOCATION: string = path.join(
   RUNNER_TEMP,
   `arc_kubeconfig_${Date.now()}`
 );
@@ -32,29 +28,37 @@ export async function getArcKubeconfig(): Promise<string> {
   switch (method) {
     case Method.SERVICE_ACCOUNT:
       const saToken = core.getInput("token", { required: true });
-      return await runAzKubeconfigCommandBlocking(azPath, [
-        "connectedk8s",
-        "proxy",
-        "-n",
-        clusterName,
-        "-g",
-        resourceGroupName,
-        "--token",
-        saToken,
-        "-f",
-        KUBECONFIG_LOCATION,
-      ]);
+      return await runAzKubeconfigCommandBlocking(
+        azPath,
+        [
+          "connectedk8s",
+          "proxy",
+          "-n",
+          clusterName,
+          "-g",
+          resourceGroupName,
+          "--token",
+          saToken,
+          "-f",
+          KUBECONFIG_LOCATION,
+        ],
+        KUBECONFIG_LOCATION
+      );
     case Method.SERVICE_PRINCIPAL:
-      return await runAzKubeconfigCommandBlocking(azPath, [
-        "connectedk8s",
-        "proxy",
-        "-n",
-        clusterName,
-        "-g",
-        resourceGroupName,
-        "-f",
-        KUBECONFIG_LOCATION,
-      ]);
+      return await runAzKubeconfigCommandBlocking(
+        azPath,
+        [
+          "connectedk8s",
+          "proxy",
+          "-n",
+          clusterName,
+          "-g",
+          resourceGroupName,
+          "-f",
+          KUBECONFIG_LOCATION,
+        ],
+        KUBECONFIG_LOCATION
+      );
     case undefined:
       core.warning("Defaulting to kubeconfig method");
     case Method.KUBECONFIG:
@@ -62,40 +66,3 @@ export async function getArcKubeconfig(): Promise<string> {
       throw Error("Kubeconfig method not supported for Arc cluster");
   }
 }
-
-/**
- * Executes an az cli command
- * @param azPath The path to the az tool
- * @param args The arguments to be invoked
- * @param options Optional options for the command execution
- */
-export async function runAzCliCommand(
-  azPath: string,
-  args: string[],
-  options: ExecOptions = {}
-) {
-  await exec(azPath, args, options);
-}
-
-/**
- * Executes an az cli command that will set the kubeconfig
- * @param azPath The path to the az tool
- * @param args The arguments to be be invoked
- * @returns The contents of the kubeconfig
- */
-export async function runAzKubeconfigCommandBlocking(
-  azPath: string,
-  args: string[]
-): Promise<string> {
-  const proc = spawn(azPath, args, {
-    detached: true,
-    stdio: "ignore",
-  });
-  proc.unref();
-
-  await sleep(AZ_TIMEOUT_SECONDS);
-  return fs.readFileSync(KUBECONFIG_LOCATION).toString();
-}
-
-const sleep = (seconds: number) =>
-  new Promise((resolve) => setTimeout(resolve, seconds * 1000));
