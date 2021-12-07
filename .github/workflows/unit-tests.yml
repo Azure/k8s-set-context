@@ -1,21 +1,20 @@
-name: "Run L0 tests."
-on: # rebuild any PRs and main branch changes
+name: Run Unit Tests
+on:
   pull_request:
     branches:
       - master
-      - 'releases/*'
+      - "releases/*"
   push:
     branches:
       - master
-      - 'releases/*'
+      - "releases/*"
 
 jobs:
-  build: # make sure build/ci works properly
+  unit-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    
-    - name: Run L0 tests.
-      run: |
-        npm install
-        npm test
+      - uses: actions/checkout@v1
+      - name: Run Unit Tests
+        run: |
+          npm install
+          npm test

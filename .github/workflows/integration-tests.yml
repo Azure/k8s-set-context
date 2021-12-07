@@ -1,19 +1,143 @@
-name: "Trigger Integration tests"
+name: Run Integration Tests
 on:
   pull_request:
     branches:
       - master
-      - 'releases/*'
-jobs: 
-    trigger-integration-tests:
-      name: Trigger Integration tests
-      runs-on: ubuntu-latest
-      steps:
-        - name: Check out repository
-          uses: actions/checkout@v2
-          with:
-              path: IntegrationTests
-            
-        - name: Trigger Test run
-          run: |
-            bash ./IntegrationTests/.github/workflows/TriggerIntegrationTests.sh ${{ secrets.L2_REPO_TOKEN }} ${{ github.event.pull_request.head.sha }} ${{ github.repository }} ${{ github.event.pull_request.number }} ${{ github.event.pull_request.head.ref }} ${{ github.event.pull_request.base.ref }} ${{ secrets.L2_REPO_USER }} 
+      - "releases/*"
+  push:
+    branches:
+      - master
+      - "releases/*"
+
+jobs:
+  kubeconfig-method-integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        id: checkout-code
+        uses: actions/checkout@v2
+      - name: Npm Install and Build
+        id: npm-build
+        run: |
+          npm install
+          npm run build
+      - name: Set Context
+        uses: ./
+        with:
+          method: kubeconfig
+          context: exp-scratch
+          kubeconfig: |
+            apiVersion: v1
+            clusters:
+              - cluster:
+                  certificate-authority: fake-ca-file
+                  server: https://1.2.3.4
+                name: development
+              - cluster:
+                  insecure-skip-tls-verify: true
+                  server: https://5.6.7.8
+                name: scratch
+            contexts:
+              - context:
+                  cluster: development
+                  namespace: frontend
+                  user: developer
+                name: dev-frontend
+              - context:
+                  cluster: development
+                  namespace: storage
+                  user: developer
+                name: dev-storage
+              - context:
+                  cluster: scratch
+                  namespace: default
+                  user: experimenter
+                name: exp-scratch
+            current-context: ""
+            kind: Config
+            preferences: {}
+            users:
+              - name: developer
+                user:
+                  client-certificate: fake-cert-file
+                  client-key: fake-key-file
+              - name: experimenter
+                user:
+                  password: some-password
+                  username: exp
+      - name: Vertify Results
+        run: |
+          echo "$EXPECTED_KC" > /tmp/expected_kc.json
+          DIFF=$(diff <(jq -S -c . $KUBECONFIG) <(jq -S -c . /tmp/expected_kc.json))
+          if [ "$DIFF" != "" ]; then exit 1; else echo -e "Kubeconfig matches expected"; fi
+        env:
+          EXPECTED_KC: |
+            {
+                "apiVersion": "v1",
+                "clusters": [
+                    {
+                        "cluster": {
+                            "certificate-authority": "fake-ca-file",
+                            "insecure-skip-tls-verify": false,
+                            "server": "https://1.2.3.4"
+                        },
+                        "name": "development"
+                    },
+                    {
+                        "cluster": {
+                            "insecure-skip-tls-verify": true,
+                            "server": "https://5.6.7.8"
+                        },
+                        "name": "scratch"
+                    }
+                ],
+                "contexts": [
+                    {
+                        "context": {
+                            "cluster": "development",
+                            "name": "dev-frontend",
+                            "namespace": "frontend",
+                            "user": "developer"
+                        },
+                        "name": "dev-frontend"
+                    },
+                    {
+                        "context": {
+                            "cluster": "development",
+                            "name": "dev-storage",
+                            "namespace": "storage",
+                            "user": "developer"
+                        },
+                        "name": "dev-storage"
+                    },
+                    {
+                        "context": {
+                            "cluster": "scratch",
+                            "name": "exp-scratch",
+                            "namespace": "default",
+                            "user": "experimenter"
+                        },
+                        "name": "exp-scratch"
+                    }
+                ],
+                "current-context": "exp-scratch",
+                "kind": "Config",
+                "preferences": {
+                },
+                "users": [
+                    {
+                        "name": "developer",
+                        "user": {
+                            "client-certificate": "fake-cert-file",
+                            "client-key": "fake-key-file"
+                        }
+                    },
+                    {
+                        "name": "experimenter",
+                        "user": {
+                            "password": "some-password",
+                            "username": "exp"
+                        }
+                    }
+                ]
+            }

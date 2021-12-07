@@ -1,47 +1,39 @@
-name: 'Kubernetes set context'
-description: 'Kubernetes set context'
-inputs: 
-# Used for setting the target K8s cluster context which will be used by other actions like azure/k8s-actions/k8s-deploy or azure/k8s-actions/k8s-create-secret
+name: "Kubernetes Set Context"
+description: "Set the context of a target Kubernetes cluster and export the kubeconfig which will be used by other actions like azure/k8s-deploy"
+inputs:
+  # Please ensure you have used azure/login in the workflow before this action
   cluster-type:
-    description: 'Acceptable values: generic or arc'
+    description: "Acceptable values: generic or arc"
     required: true
-    default: 'generic'
+    default: "generic"
   method:
-    description: 'Acceptable values: kubeconfig or service-account or service-principal'
+    description: "Acceptable values: kubeconfig or service-account or service-principal"
     required: true
-    default: 'kubeconfig'
+    default: "kubeconfig"
   kubeconfig:
-    description: 'Contents of kubeconfig file'
+    description: "Contents of kubeconfig file"
     required: false
-    default: ''
   context:
-    description: 'If your kubeconfig has multiple contexts, use this field to use a specific context, otherwise the default one would be chosen'
+    description: "If your kubeconfig has multiple contexts, use this field to use a specific context, otherwise the default one would be chosen"
     required: false
-    default: ''
-
   k8s-url:
-    description: 'Cluster Url'
+    description: "Cluster Url"
     required: false
-    default: ''
   k8s-secret:
-    description: 'Service account secret. Run kubectl get serviceaccounts <service-account-name> -o yaml and copy the service-account-secret-name. Copy the ouptut of kubectl get secret <service-account-secret-name> -o yaml'
+    description: "Service account secret (run kubectl get serviceaccounts <service-account-name> -o yaml and copy the service-account-secret-name)"
     required: false
-    default: ''
   token:
-    description: 'Token extracted from the secret of service account (should be base 64 decoded)'
+    description: "Token extracted from the secret of service account (should be base 64 decoded)"
     required: false
-    default: ''
   resource-group:
-    description: 'Azure resource group name'
+    description: "Azure resource group name"
     required: false
-    default: ''
   cluster-name:
-    description: 'Azure connected cluster name'
+    description: "Azure connected cluster name"
     required: false
-    default: ''
-  
+
 branding:
-  color: 'green' # optional, decorates the entry in the GitHub Marketplace
+  color: "blue"
 runs:
-  using: 'node12'
-  main: 'lib/login.js'
+  using: "node12"
+  main: "lib/run.js"
