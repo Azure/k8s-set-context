@@ -1,5 +1,5 @@
 name: "Kubernetes Set Context"
-description: "Set the context of a target Kubernetes cluster and export the kubeconfig which will be used by other actions like azure/k8s-deploy"
+description: "Set the context of a target Kubernetes cluster and export the kubeconfig which is used by subsequent actions"
 inputs:
   # Please ensure you have used azure/login in the workflow before this action
   cluster-type:
