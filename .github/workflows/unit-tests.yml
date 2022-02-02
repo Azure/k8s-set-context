@@ -2,11 +2,11 @@ name: Run Unit Tests
 on:
   pull_request:
     branches:
-      - master
+      - main
       - "releases/*"
   push:
     branches:
-      - master
+      - main
       - "releases/*"
 
 jobs:
