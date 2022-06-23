@@ -14,19 +14,27 @@ describe("Default kubeconfig", () => {
       kind: "Config",
       clusters: [
         {
+          name: "default",
           cluster: {
-            "certificate-authority-data": certAuth,
             server: clusterUrl,
+            "certificate-authority-data": certAuth,
+            "insecure-skip-tls-verify": false,
           },
         },
       ],
-      users: [
+      users: [{ name: "default-user", user: { token } }],
+      contexts: [
         {
-          user: {
-            token: token,
+          name: "loaded-context",
+          context: {
+            cluster: "default",
+            user: "default-user",
+            name: "loaded-context",
           },
         },
       ],
+      preferences: {},
+      "current-context": "loaded-context",
     });
 
     expect(kc).toBe(expected);
@@ -108,20 +116,34 @@ describe("Default kubeconfig", () => {
         kind: "Config",
         clusters: [
           {
+            name: "default",
             cluster: {
-              "certificate-authority-data": cert,
               server: k8sUrl,
+              "certificate-authority-data": cert,
+              "insecure-skip-tls-verify": false,
             },
           },
         ],
         users: [
           {
-            user: {
-              token: Buffer.from(token, "base64").toString(),
+            name: "default-user",
+            user: { token: Buffer.from(token, "base64").toString() },
+          },
+        ],
+        contexts: [
+          {
+            name: "loaded-context",
+            context: {
+              cluster: "default",
+              user: "default-user",
+              name: "loaded-context",
             },
           },
         ],
+        preferences: {},
+        "current-context": "loaded-context",
       });
+
       expect(getDefaultKubeconfig()).toBe(expectedConfig);
     });
   });
