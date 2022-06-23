@@ -1,39 +1,39 @@
-name: "Kubernetes Set Context"
-description: "Set the context of a target Kubernetes cluster and export the kubeconfig which is used by subsequent actions"
+name: 'Kubernetes Set Context'
+description: 'Set the context of a target Kubernetes cluster and export the kubeconfig which is used by subsequent actions'
 inputs:
-  # Please ensure you have used azure/login in the workflow before this action
-  cluster-type:
-    description: "Acceptable values: generic or arc"
-    required: true
-    default: "generic"
-  method:
-    description: "Acceptable values: kubeconfig or service-account or service-principal"
-    required: true
-    default: "kubeconfig"
-  kubeconfig:
-    description: "Contents of kubeconfig file"
-    required: false
-  context:
-    description: "If your kubeconfig has multiple contexts, use this field to use a specific context, otherwise the default one would be chosen"
-    required: false
-  k8s-url:
-    description: "Cluster Url"
-    required: false
-  k8s-secret:
-    description: "Service account secret (run kubectl get serviceaccounts <service-account-name> -o yaml and copy the service-account-secret-name)"
-    required: false
-  token:
-    description: "Token extracted from the secret of service account (should be base 64 decoded)"
-    required: false
-  resource-group:
-    description: "Azure resource group name"
-    required: false
-  cluster-name:
-    description: "Azure connected cluster name"
-    required: false
+   # Please ensure you have used azure/login in the workflow before this action
+   cluster-type:
+      description: 'Acceptable values: generic or arc'
+      required: true
+      default: 'generic'
+   method:
+      description: 'Acceptable values: kubeconfig or service-account or service-principal'
+      required: true
+      default: 'kubeconfig'
+   kubeconfig:
+      description: 'Contents of kubeconfig file'
+      required: false
+   context:
+      description: 'If your kubeconfig has multiple contexts, use this field to use a specific context, otherwise the default one would be chosen'
+      required: false
+   k8s-url:
+      description: 'Cluster Url'
+      required: false
+   k8s-secret:
+      description: 'Service account secret (run kubectl get serviceaccounts <service-account-name> -o yaml and copy the service-account-secret-name)'
+      required: false
+   token:
+      description: 'Token extracted from the secret of service account (should be base 64 decoded)'
+      required: false
+   resource-group:
+      description: 'Azure resource group name'
+      required: false
+   cluster-name:
+      description: 'Azure connected cluster name'
+      required: false
 
 branding:
-  color: "blue"
+   color: 'blue'
 runs:
-  using: "node16"
-  main: "lib/run.js"
+   using: 'node16'
+   main: 'lib/run.js'

@@ -6,9 +6,9 @@ It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/m
 
 There are three approaches for specifying the deployment target:
 
-- Kubeconfig file provided as input to the action
-- Service account approach where the secret associated with the service account is provided as input to the action
-- Service principal approach (only applicable for arc cluster) where service principal provided with 'creds' is used as input to action
+-  Kubeconfig file provided as input to the action
+-  Service account approach where the secret associated with the service account is provided as input to the action
+-  Service principal approach (only applicable for arc cluster) where service principal provided with 'creds' is used as input to action
 
 In all these approaches it is recommended to store these contents (kubeconfig file content or secret content) in a [secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets/).
 
@@ -21,9 +21,9 @@ Refer to the [action metadata file](./action.yml) for details about inputs. Note
 ```yaml
 - uses: azure/k8s-set-context@v2
   with:
-    method: kubeconfig
-    kubeconfig: <your kubeconfig>
-    context: <context name> # current-context from kubeconfig is used as default
+     method: kubeconfig
+     kubeconfig: <your kubeconfig>
+     context: <context name> # current-context from kubeconfig is used as default
 ```
 
 **Please note** that the input requires the _contents_ of the kubeconfig file, and not its path.
@@ -52,9 +52,9 @@ Please refer to documentation on fetching [kubeconfig for any generic K8s cluste
 ```yaml
 - uses: azure/k8s-set-context@v2
   with:
-    method: service-account
-    k8s-url: <URL of the cluster's API server>
-    k8s-secret: <secret associated with the service account>
+     method: service-account
+     k8s-url: <URL of the cluster's API server>
+     k8s-secret: <secret associated with the service account>
 ```
 
 For fetching Server URL, execute the following command on your shell:
@@ -76,11 +76,11 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 ```yaml
 - uses: azure/k8s-set-context@v2
   with:
-    method: service-account
-    cluster-type: arc
-    cluster-name: <cluster-name>
-    resource-group: <resource-group>
-    token: "${{ secrets.SA_TOKEN }}"
+     method: service-account
+     cluster-type: arc
+     cluster-name: <cluster-name>
+     resource-group: <resource-group>
+     token: '${{ secrets.SA_TOKEN }}'
 ```
 
 ### Service principal approach for arc cluster
@@ -88,10 +88,10 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 ```yaml
 - uses: azure/k8s-set-context@v2
   with:
-    method: service-principal
-    cluster-type: arc
-    cluster-name: <cluster-name>
-    resource-group: <resource-group>
+     method: service-principal
+     cluster-type: arc
+     cluster-name: <cluster-name>
+     resource-group: <resource-group>
 ```
 
 ## Contributing

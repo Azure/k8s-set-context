@@ -4,4 +4,4 @@
  * @returns Error with explanation message
  */
 export const getRequiredInputError = (inputName) =>
-  Error(`Input required and not supplied: ${inputName}`);
+   Error(`Input required and not supplied: ${inputName}`)

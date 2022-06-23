@@ -1,9 +1,9 @@
-import * as fs from "fs";
-import { ExecOptions } from "@actions/exec/lib/interfaces";
-import { exec } from "@actions/exec";
-import { spawn } from "child_process";
+import * as fs from 'fs'
+import {ExecOptions} from '@actions/exec/lib/interfaces'
+import {exec} from '@actions/exec'
+import {spawn} from 'child_process'
 
-const AZ_TIMEOUT_SECONDS: number = 120;
+const AZ_TIMEOUT_SECONDS: number = 120
 
 /**
  * Executes an az cli command
@@ -12,11 +12,11 @@ const AZ_TIMEOUT_SECONDS: number = 120;
  * @param options Optional options for the command execution
  */
 export async function runAzCliCommand(
-  azPath: string,
-  args: string[],
-  options: ExecOptions = {}
+   azPath: string,
+   args: string[],
+   options: ExecOptions = {}
 ) {
-  await exec(azPath, args, options);
+   await exec(azPath, args, options)
 }
 /**
  * Executes an az cli command that will set the kubeconfig
@@ -26,19 +26,19 @@ export async function runAzCliCommand(
  * @returns The contents of the kubeconfig
  */
 export async function runAzKubeconfigCommandBlocking(
-  azPath: string,
-  args: string[],
-  kubeconfigPath: string
+   azPath: string,
+   args: string[],
+   kubeconfigPath: string
 ): Promise<string> {
-  const proc = spawn(azPath, args, {
-    detached: true,
-    stdio: "ignore",
-  });
-  proc.unref();
+   const proc = spawn(azPath, args, {
+      detached: true,
+      stdio: 'ignore'
+   })
+   proc.unref()
 
-  await sleep(AZ_TIMEOUT_SECONDS);
-  return fs.readFileSync(kubeconfigPath).toString();
+   await sleep(AZ_TIMEOUT_SECONDS)
+   return fs.readFileSync(kubeconfigPath).toString()
 }
 
 const sleep = (seconds: number) =>
-  new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+   new Promise((resolve) => setTimeout(resolve, seconds * 1000))

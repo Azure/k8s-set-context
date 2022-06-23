@@ -1,8 +1,8 @@
 {
-  "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
-    "esModuleInterop": true
-  },
-  "exclude": ["node_modules", "tests", "src/**/*.test.ts"]
+   "compilerOptions": {
+      "target": "ES6",
+      "module": "commonjs",
+      "esModuleInterop": true
+   },
+   "exclude": ["node_modules", "tests", "src/**/*.test.ts"]
 }
