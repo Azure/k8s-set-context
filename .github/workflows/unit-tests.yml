@@ -1,20 +1,20 @@
 name: Run Unit Tests
 on:
-  pull_request:
-    branches:
-      - main
-      - "releases/*"
-  push:
-    branches:
-      - main
-      - "releases/*"
+   pull_request:
+      branches:
+         - main
+         - 'releases/*'
+   push:
+      branches:
+         - main
+         - 'releases/*'
 
 jobs:
-  unit-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Run Unit Tests
-        run: |
-          npm install
-          npm test
+   unit-test:
+      runs-on: ubuntu-latest
+      steps:
+         - uses: actions/checkout@v1
+         - name: Run Unit Tests
+           run: |
+              npm install
+              npm test
