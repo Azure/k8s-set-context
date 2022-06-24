@@ -1,36 +1,36 @@
 {
-  "name": "k8s-set-context-action",
-  "version": "1.0.0",
-  "private": true,
-  "main": "lib/run.js",
-  "scripts": {
-    "build": "tsc --outDir ./lib --rootDir ./src",
-    "test": "jest",
-    "test-coverage": "jest --coverage",
-    "format": "prettier --write .",
-    "format-check": "prettier --check ."
-  },
-  "keywords": [
-    "actions",
-    "node",
-    "setup"
-  ],
-  "author": "GitHub",
-  "license": "MIT",
-  "dependencies": {
-    "@actions/core": "^1.2.6",
-    "@actions/exec": "^1.0.0",
-    "@actions/io": "^1.1.2",
-    "@kubernetes/client-node": "^0.16.0",
-    "js-yaml": "^4.1.0"
-  },
-  "devDependencies": {
-    "@types/jest": "^28.1.2",
-    "@types/js-yaml": "^4.0.4",
-    "@types/node": "^16.0.0",
-    "jest": "^28.1.1",
-    "prettier": "2.7.1",
-    "ts-jest": "^28.0.5",
-    "typescript": "4.7.4"
-  }
+   "name": "k8s-set-context-action",
+   "version": "1.0.0",
+   "private": true,
+   "main": "lib/run.js",
+   "scripts": {
+      "build": "tsc --outDir ./lib --rootDir ./src",
+      "test": "jest",
+      "test-coverage": "jest --coverage",
+      "format": "prettier --write .",
+      "format-check": "prettier --check ."
+   },
+   "keywords": [
+      "actions",
+      "node",
+      "setup"
+   ],
+   "author": "GitHub",
+   "license": "MIT",
+   "dependencies": {
+      "@actions/core": "^1.2.6",
+      "@actions/exec": "^1.0.0",
+      "@actions/io": "^1.1.2",
+      "@kubernetes/client-node": "^0.16.0",
+      "js-yaml": "^4.1.0"
+   },
+   "devDependencies": {
+      "@types/jest": "^28.1.2",
+      "@types/js-yaml": "^4.0.4",
+      "@types/node": "^16.0.0",
+      "jest": "^28.1.1",
+      "prettier": "2.7.1",
+      "ts-jest": "^28.0.5",
+      "typescript": "4.7.4"
+   }
 }
