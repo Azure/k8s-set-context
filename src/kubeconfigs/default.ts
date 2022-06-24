@@ -1,7 +1,8 @@
-import * as core from '@actions/core'
-import * as jsyaml from 'js-yaml'
-import {K8sSecret, parseK8sSecret} from '../types/k8sSecret'
-import {Method, parseMethod} from '../types/method'
+import * as core from "@actions/core";
+import * as jsyaml from "js-yaml";
+import { KubeConfig } from "@kubernetes/client-node";
+import { K8sSecret, parseK8sSecret } from "../types/k8sSecret";
+import { Method, parseMethod } from "../types/method";
 
 /**
  * Gets the kubeconfig based on provided method for a default Kubernetes cluster
@@ -60,25 +61,18 @@ export function createKubeconfig(
    token: string,
    clusterUrl: string
 ): string {
-   const kubeconfig = {
-      apiVersion: 'v1',
-      kind: 'Config',
-      clusters: [
-         {
-            cluster: {
-               'certificate-authority-data': certAuth,
-               server: clusterUrl
-            }
-         }
-      ],
-      users: [
-         {
-            user: {
-               token: token
-            }
-         }
-      ]
-   }
-
-   return JSON.stringify(kubeconfig)
+  const kc = new KubeConfig();
+  kc.loadFromClusterAndUser(
+    {
+      name: "default",
+      server: clusterUrl,
+      caData: certAuth,
+      skipTLSVerify: false,
+    },
+    {
+      name: "default-user",
+      token,
+    }
+  );
+  return kc.exportConfig();
 }

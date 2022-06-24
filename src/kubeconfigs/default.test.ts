@@ -8,27 +8,34 @@ describe('Default kubeconfig', () => {
       const token = 'token'
       const clusterUrl = 'clusterUrl'
 
-      const kc = createKubeconfig(certAuth, token, clusterUrl)
-      const expected = JSON.stringify({
-         apiVersion: 'v1',
-         kind: 'Config',
-         clusters: [
-            {
-               cluster: {
-                  'certificate-authority-data': certAuth,
-                  server: clusterUrl
-               }
-            }
-         ],
-         users: [
-            {
-               user: {
-                  token: token
-               }
-            }
-         ]
-      })
-
+    const kc = createKubeconfig(certAuth, token, clusterUrl);
+    const expected = JSON.stringify({
+      apiVersion: "v1",
+      kind: "Config",
+      clusters: [
+        {
+          name: "default",
+          cluster: {
+            server: clusterUrl,
+            "certificate-authority-data": certAuth,
+            "insecure-skip-tls-verify": false,
+          },
+        },
+      ],
+      users: [{ name: "default-user", user: { token } }],
+      contexts: [
+        {
+          name: "loaded-context",
+          context: {
+            cluster: "default",
+            user: "default-user",
+            name: "loaded-context",
+          },
+        },
+      ],
+      preferences: {},
+      "current-context": "loaded-context",
+    });
       expect(kc).toBe(expected)
    })
 
@@ -104,25 +111,39 @@ describe('Default kubeconfig', () => {
          process.env['INPUT_K8S-SECRET'] = k8sSecret
 
          const expectedConfig = JSON.stringify({
-            apiVersion: 'v1',
-            kind: 'Config',
+            apiVersion: "v1",
+            kind: "Config",
             clusters: [
                {
+                  name: "default",
                   cluster: {
-                     'certificate-authority-data': cert,
-                     server: k8sUrl
-                  }
-               }
+                  server: k8sUrl,
+                  "certificate-authority-data": cert,
+                  "insecure-skip-tls-verify": false,
+                  },
+               },
             ],
             users: [
                {
-                  user: {
-                     token: Buffer.from(token, 'base64').toString()
-                  }
-               }
-            ]
-         })
-         expect(getDefaultKubeconfig()).toBe(expectedConfig)
-      })
-   })
-})
+                  name: "default-user",
+                  user: { token: Buffer.from(token, "base64").toString() },
+               },
+            ],
+            contexts: [
+               {
+                  name: "loaded-context",
+                  context: {
+                  cluster: "default",
+                  user: "default-user",
+                  name: "loaded-context",
+                  },
+               },
+            ],
+            preferences: {},
+            "current-context": "loaded-context",
+            });
+
+            expect(getDefaultKubeconfig()).toBe(expectedConfig);
+         });
+      });
+   });
