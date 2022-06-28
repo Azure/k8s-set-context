@@ -1,9 +1,15 @@
 import * as core from '@actions/core'
+import * as exec from '@actions/exec'
+import * as io from '@actions/io'
 import * as fs from 'fs'
 import {KubeConfig} from '@kubernetes/client-node'
 import {getDefaultKubeconfig} from './kubeconfigs/default'
 import {getArcKubeconfig} from './kubeconfigs/arc'
 import {Cluster} from './types/cluster'
+import { exit } from 'process'
+
+const AZ_TOOL_NAME = 'az'
+const KUBELOGIN_TOOL_NAME = 'kubelogin'
 
 /**
  * Gets the kubeconfig based on Kubernetes cluster type
@@ -45,4 +51,52 @@ export function setContext(kubeconfig: string): string {
    // update kubeconfig
    kc.setCurrentContext(context)
    return kc.exportConfig()
+}
+
+export async function getAKSKubeconfig(admin: boolean, subscription: string, cmd: string[]): Promise<number> {
+   if (subscription) cmd.push('--subscription', subscription)
+   if (admin) cmd.push('--admin')
+
+   const exitCode = await exec.exec(AZ_TOOL_NAME, cmd)
+
+   return exitCode;
+}
+
+export async function azSetContext(admin: boolean, kubeconfigPath: string): Promise<number> {
+      // check az tools
+   const azPath = await io.which(AZ_TOOL_NAME, false)
+   if (!azPath)
+      throw Error(
+         'Az cli tools not installed. You must install them before running this action with the aks-set-context flag.'
+      )
+   
+   const resourceGroupName: string = core.getInput('resource-group', {required: true})
+   const clusterName: string = core.getInput('cluster-name', {required: true})
+   const subscription: string = core.getInput('subscription') || ''
+
+   
+   const cmd = [
+      'aks',
+      'get-credentials',
+      '--resource-group',
+      resourceGroupName,
+      '--name',
+      clusterName,
+      '-f',
+      kubeconfigPath
+   ]
+
+   const exitCode: number = await getAKSKubeconfig(admin, subscription, cmd)
+   return exitCode
+}
+
+export async function kubeLogin(exitCode: number): Promise<void>{
+   const kubeloginCmd = ['convert-kubeconfig', '-l', 'azurecli']
+
+      const kubeloginExitCode = await exec.exec(
+         KUBELOGIN_TOOL_NAME,
+         kubeloginCmd
+      )
+      if (kubeloginExitCode !== 0)
+         throw Error('kubelogin exited with error code ' + exitCode)
 }
