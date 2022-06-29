@@ -57,21 +57,18 @@ export function setContext(kubeconfig: string): string {
  * @param kubeconfigPath path to place kubeconfig
  * @returns Promise for the resulting exitCode number from running az command
  */
-export async function azSetContext(kubeconfigPath: string): Promise<number> {
+export async function azSetContext(admin: boolean, kubeconfigPath: string): Promise<number> {
       // check az tools
    const azPath = await io.which(AZ_TOOL_NAME, false)
    if (!azPath)
       throw Error(
          'Az cli tools not installed. You must install them before running this action with the aks-set-context flag.'
       )
-   
-   const adminInput: string = core.getInput('admin')
-   const admin: boolean = adminInput.toLowerCase() === 'true'
+
    const resourceGroupName: string = core.getInput('resource-group', {required: true})
    const clusterName: string = core.getInput('cluster-name', {required: true})
    const subscription: string = core.getInput('subscription') || ''
 
-   
    const cmd = [
       'aks',
       'get-credentials',
