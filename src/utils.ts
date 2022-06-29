@@ -1,7 +1,6 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as io from '@actions/io'
-import * as fs from 'fs'
 import {KubeConfig} from '@kubernetes/client-node'
 import {getDefaultKubeconfig} from './kubeconfigs/default'
 import {getArcKubeconfig} from './kubeconfigs/arc'
@@ -53,16 +52,12 @@ export function setContext(kubeconfig: string): string {
    return kc.exportConfig()
 }
 
-export async function getAKSKubeconfig(admin: boolean, subscription: string, cmd: string[]): Promise<number> {
-   if (subscription) cmd.push('--subscription', subscription)
-   if (admin) cmd.push('--admin')
-
-   const exitCode = await exec.exec(AZ_TOOL_NAME, cmd)
-
-   return exitCode;
-}
-
-export async function azSetContext(admin: boolean, kubeconfigPath: string): Promise<number> {
+/**
+ * Sets the context by pulling kubeconfig via az command
+ * @param kubeconfigPath path to place kubeconfig
+ * @returns Promise for the resulting exitCode number from running az command
+ */
+export async function azSetContext(kubeconfigPath: string): Promise<number> {
       // check az tools
    const azPath = await io.which(AZ_TOOL_NAME, false)
    if (!azPath)
@@ -70,6 +65,8 @@ export async function azSetContext(admin: boolean, kubeconfigPath: string): Prom
          'Az cli tools not installed. You must install them before running this action with the aks-set-context flag.'
       )
    
+   const adminInput: string = core.getInput('admin')
+   const admin: boolean = adminInput.toLowerCase() === 'true'
    const resourceGroupName: string = core.getInput('resource-group', {required: true})
    const clusterName: string = core.getInput('cluster-name', {required: true})
    const subscription: string = core.getInput('subscription') || ''
@@ -85,8 +82,11 @@ export async function azSetContext(admin: boolean, kubeconfigPath: string): Prom
       '-f',
       kubeconfigPath
    ]
+   if (subscription) cmd.push('--subscription', subscription)
+   if (admin) cmd.push('--admin')
 
-   const exitCode: number = await getAKSKubeconfig(admin, subscription, cmd)
+   const exitCode = await exec.exec(AZ_TOOL_NAME, cmd)
+
    return exitCode
 }
 
