@@ -9,6 +9,8 @@ import {setContext, getKubeconfig, kubeLogin, azSetContext} from './utils'
  */
 export async function run() {
    // get inputs
+   const adminInput: string = core.getInput('admin')
+   const admin: boolean = adminInput.toLowerCase() === 'true'
    const useKubeLoginInput: string = core.getInput('use-kubelogin')
    const useKubeLogin: boolean = useKubeLoginInput.toLowerCase() === 'true' && !admin
    const useAZSetContextInput: string = core.getInput('use-aks-set-context')
@@ -29,7 +31,7 @@ export async function run() {
    // get kubeconfig and update context
    
    if(useAZSetContext){
-      exitCode = await azSetContext(kubeconfigPath)
+      exitCode = await azSetContext(admin, kubeconfigPath)
       if(exitCode !== 0) throw Error('az cli exited with error code ' + exitCode)
    } else {
       const kubeconfig: string = await getKubeconfig(clusterType)
