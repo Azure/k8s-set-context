@@ -5,7 +5,6 @@ import {KubeConfig} from '@kubernetes/client-node'
 import {getDefaultKubeconfig} from './kubeconfigs/default'
 import {getArcKubeconfig} from './kubeconfigs/arc'
 import {Cluster} from './types/cluster'
-import { exit } from 'process'
 
 const AZ_TOOL_NAME = 'az'
 const KUBELOGIN_TOOL_NAME = 'kubelogin'
@@ -80,6 +79,7 @@ export async function azSetContext(admin: boolean, kubeconfigPath: string): Prom
       '-f',
       kubeconfigPath
    ]
+   
    if (subscription) cmd.push('--subscription', subscription)
    if (admin) cmd.push('--admin')
 
