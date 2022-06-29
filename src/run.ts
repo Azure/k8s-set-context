@@ -17,11 +17,6 @@ export async function run() {
    const useAZSetContext: boolean = useAZSetContextInput.toLocaleLowerCase() === 'true'
    let exitCode: number
 
-   const clusterType: Cluster | undefined = parseCluster(
-      core.getInput('cluster-type', {
-         required: true
-      })
-   )
    const runnerTempDirectory: string = process.env['RUNNER_TEMP']
    const kubeconfigPath: string = path.join(
       runnerTempDirectory,
@@ -34,6 +29,12 @@ export async function run() {
       exitCode = await azSetContext(admin, kubeconfigPath)
       if(exitCode !== 0) throw Error('az cli exited with error code ' + exitCode)
    } else {
+      const clusterType: Cluster | undefined = parseCluster(
+         core.getInput('cluster-type', {
+            required: true
+         })
+      )
+      
       const kubeconfig: string = await getKubeconfig(clusterType)
       const kubeconfigWithContext: string = setContext(kubeconfig)
       // output kubeconfig
@@ -45,8 +46,8 @@ export async function run() {
    core.debug('Setting KUBECONFIG environment variable')
    core.exportVariable('KUBECONFIG', kubeconfigPath)
 
-   if(azSetContext && useKubeLogin){
-      kubeLogin(exitCode)
+   if(useAZSetContext && useKubeLogin){
+      await kubeLogin(exitCode)
    }
 }
 
