@@ -54,7 +54,8 @@ export function setContext(kubeconfig: string): string {
 
 /**
  * Sets the context by pulling kubeconfig via az command
- * @param kubeconfigPath path to place kubeconfig
+ * @param admin Boolean for determining whether or not user is admin
+ * @param kubeconfigPath Path to place kubeconfig
  * @returns Promise for the resulting exitCode number from running az command
  */
 export async function azSetContext(admin: boolean, kubeconfigPath: string): Promise<number> {
@@ -87,6 +88,10 @@ export async function azSetContext(admin: boolean, kubeconfigPath: string): Prom
    return exitCode
 }
 
+/**
+ * Uses kubelogin to convert kubeconfig to exec credential plugin format
+ * @param exitCode ExitCode from az command execution to obtain kubeconfig
+ */
 export async function kubeLogin(exitCode: number): Promise<void>{
    const kubeloginCmd = ['convert-kubeconfig', '-l', 'azurecli']
 
