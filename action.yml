@@ -31,7 +31,14 @@ inputs:
    cluster-name:
       description: 'Azure connected cluster name'
       required: false
-
+   use-kubelogin:
+      description: 'Enables kubelogin for non-admin user scenario. Values: true or false'
+      default: 'false'
+      required: false
+   admin:
+      description: 'Get cluster admin credentials. Values: true or false'
+      default: 'false'
+      required: false
 branding:
    color: 'blue'
 runs:
