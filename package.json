@@ -28,7 +28,7 @@
       "@types/jest": "^28.1.2",
       "@types/js-yaml": "^4.0.4",
       "@types/node": "^16.0.0",
-      "@vercel/ncc": "^0.33.1",
+      "@vercel/ncc": "^0.34.0",
       "jest": "^28.1.1",
       "prettier": "2.7.1",
       "ts-jest": "^28.0.5",
