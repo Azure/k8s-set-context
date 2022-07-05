@@ -20,10 +20,8 @@ jobs:
            id: npm-build
            run: |
               npm install
-
          - name: Build
            run: npm run build
-
          - name: Set Context
            uses: ./
            with:
