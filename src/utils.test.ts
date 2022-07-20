@@ -3,9 +3,10 @@ import * as arc from './kubeconfigs/arc'
 import * as def from './kubeconfigs/default'
 import {Cluster} from './types/cluster'
 import {getKubeconfig, setContext, azSetContext} from './utils'
-import * as core from '@actions/core'
 import * as io from '@actions/io'
 import * as exec from '@actions/exec'
+import { getAzCommandError } from '../tests/util'
+import * as core from '@actions/core'
 
 describe('Utils', () => {
    describe('get kubeconfig', () => {
@@ -51,15 +52,22 @@ describe('Utils', () => {
    describe('azSetContext', ()=> {
       const resourceGroup: string = 'sample-rg'
       const clusterName: string = 'sample-cluster'
-      const subscription: string = 'subscription-example'
-      const kubeconfigPath: string = "sample-path"
       const azPath: string = 'path'
       const runnerTemp: string = 'temp'
       const date: number = 1644272184664
       const AZ_TOOL_NAME: string = 'az'
-      // GitHub testrunner was timing out so needed to up the timeout limit
-      const extendedTimeout = 17500
-   
+      const kubeconfigPath:string = `${runnerTemp}/kubeconfig_${date}`
+      const cmd: string[] = [
+         'aks',
+         'get-credentials',
+         '--resource-group',
+         resourceGroup,
+         '--name',
+         clusterName,
+         '-f',
+         kubeconfigPath
+      ]
+         
       it('throws error when Az cli tools are not installed', async () => {
          
          jest
@@ -68,10 +76,10 @@ describe('Utils', () => {
             if(tool === AZ_TOOL_NAME) return ""
             return ""
          })
-         expect(await azSetContext(true, kubeconfigPath)).toThrowError
+         await expect(azSetContext(true, kubeconfigPath)).rejects.toThrowError(getAzCommandError())
       })
    
-      it('gets the kubeconfig and sets the context', async () => {
+      it('gets the kubeconfig via az command', async () => {
          jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
             if (inputName == 'resource-group') return resourceGroup
             if (inputName == 'cluster-name') return clusterName
@@ -82,98 +90,14 @@ describe('Utils', () => {
          jest.spyOn(Date, 'now').mockImplementation(() => date)
          jest.spyOn(exec, 'exec').mockImplementation(async () => 0)
          jest.spyOn(fs, 'chmodSync').mockImplementation()
-         jest.spyOn(core, 'exportVariable').mockImplementation()
          jest.spyOn(core, 'debug').mockImplementation()
    
-         const kubeconfigPath:string = `${runnerTemp}/kubeconfig_${date}`
+         
          await expect(azSetContext(true, kubeconfigPath)).resolves.not.toThrowError()
    
-         expect(exec.exec).toBeCalledWith('az', [
-            'aks',
-            'get-credentials',
-            '--resource-group',
-            resourceGroup,
-            '--name',
-            clusterName,
-            '-f',
-            kubeconfigPath
-         ])
-         expect(fs.chmodSync).toBeCalledWith(kubeconfigPath, '600')
-         expect(core.exportVariable).toBeCalledWith('KUBECONFIG', kubeconfigPath)
-      })
-   
-      it('gets the kubeconfig and sets the context with subscription', async () => {
-         
-         jest.spyOn(core, 'getInput').mockImplementation((inputName: string) => {
-            if (inputName == 'resource-group') return resourceGroup
-            if (inputName == 'cluster-name') return clusterName
-            if (inputName == 'subscription') return subscription
-            return ''
-         })
-         
-         jest.spyOn(io, 'which').mockImplementation(async () => azPath)
-         process.env['RUNNER_TEMP'] = runnerTemp
-         jest.spyOn(Date, 'now').mockImplementation(() => date)
-         jest.spyOn(exec, 'exec').mockImplementation(async () => 0)
-         jest.spyOn(fs, 'chmodSync').mockImplementation()
-         jest.spyOn(core, 'exportVariable').mockImplementation()
-         jest.spyOn(core, 'debug').mockImplementation()
-   
-         const kubeconfigPath = `${runnerTemp}/kubeconfig_${date}`
-         await expect(azSetContext(true, kubeconfigPath)).resolves.not.toThrowError()
-   
-         expect(exec.exec).toBeCalledWith('az', [
-            'aks',
-            'get-credentials',
-            '--resource-group',
-            resourceGroup,
-            '--name',
-            clusterName,
-            '-f',
-            kubeconfigPath,
-            '--subscription',
-            subscription
-         ])
-         expect(fs.chmodSync).toBeCalledWith(kubeconfigPath, '600')
-         expect(core.exportVariable).toBeCalledWith('KUBECONFIG', kubeconfigPath)
-      
-      })
-   
-      it('gets the kubeconfig and sets the context as a non admin user', async () => {
-         jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
-            if (inputName == 'resource-group') return resourceGroup
-            if (inputName == 'cluster-name') return clusterName
-            if (inputName == 'admin') return 'false'
-            if (inputName == 'use-kubelogin') return 'true'
-            return ""
-         })
-         jest.spyOn(io, 'which').mockImplementation(async () => azPath)
-         process.env['RUNNER_TEMP'] = runnerTemp
-         jest.spyOn(Date, 'now').mockImplementation(() => date)
-         jest.spyOn(exec, 'exec').mockImplementation(async () => 0)
-         jest.spyOn(fs, 'chmodSync').mockImplementation()
-         jest.spyOn(core, 'exportVariable').mockImplementation()
-         jest.spyOn(core, 'debug').mockImplementation()
-   
-         const kubeconfigPath = `${runnerTemp}/kubeconfig_${date}`
-         await expect(azSetContext(false, kubeconfigPath)).resolves.not.toThrowError()
-         expect(exec.exec).toHaveBeenNthCalledWith(1, 'az', [
-            'aks',
-            'get-credentials',
-            '--resource-group',
-            resourceGroup,
-            '--name',
-            clusterName,
-            '-f',
-            kubeconfigPath
-         ])
-         expect(exec.exec).toHaveBeenNthCalledWith(2, 'kubelogin', [
-            'convert-kubeconfig',
-            '-l',
-            'azurecli'
-         ])
-         expect(fs.chmodSync).toBeCalledWith(kubeconfigPath, '600')
-         expect(core.exportVariable).toBeCalledWith('KUBECONFIG', kubeconfigPath)
+         expect(exec.exec).toBeCalledWith(
+            expect.stringContaining(AZ_TOOL_NAME),
+            expect.arrayContaining(cmd))
       })
    
    })
