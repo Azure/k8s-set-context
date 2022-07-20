@@ -62,7 +62,7 @@ export async function azSetContext(admin: boolean, kubeconfigPath: string): Prom
    const azPath = await io.which(AZ_TOOL_NAME, false)
    if (!azPath)
       throw Error(
-         'Az cli tools not installed. You must install them before running this action with the aks-set-context flag.'
+         'Az cli tools not installed. You must install them before running this action with the aks-set-context flag'
       )
 
    const resourceGroupName: string = core.getInput('resource-group', {required: true})
