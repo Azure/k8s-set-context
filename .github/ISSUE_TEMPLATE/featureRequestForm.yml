@@ -1,7 +1,7 @@
 name: Feature Request
 description: File a Feature Request form, we will respond to this thread with any questions.
 title: 'Feature Request: '
-labels: ['Feature', 'Functionality']
+labels: ['Feature']
 assignees:
    - azure/aks-atlanta
 body:
@@ -10,30 +10,5 @@ body:
      attributes:
         label: feature request
         description: also tell us the example functionality and links to relevant docs
-        placeholder: tell us more!
      validations:
         required: true
-   - type: input
-     id: version
-     attributes:
-        label: version
-        description: what action version are you running?
-        placeholder: mention the action version
-     validations:
-        required: true
-   - type: input
-     id: runner
-     attributes:
-        label: runner
-        description: what runner are you using?
-        placeholder: mention the runner(self-hosted, operating system)
-     validations:
-        required: true
-   - type: checkboxes
-     id: terms
-     attributes:
-        label: code of Conduct
-        description: by submitting this issue, you agree to follow our [Code of Conduct]()
-        options:
-           - label: I agree to follow this project's Code of Conduct
-             required: true
