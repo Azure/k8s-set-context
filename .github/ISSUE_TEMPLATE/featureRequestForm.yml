@@ -2,8 +2,7 @@ name: Feature Request
 description: File a Feature Request form, we will respond to this thread with any questions.
 title: 'Feature Request: '
 labels: ['Feature']
-assignees:
-   - azure/aks-atlanta
+assignees: '@Azure/aks-atlanta'
 body:
    - type: input
      id: feature request

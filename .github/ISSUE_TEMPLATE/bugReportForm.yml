@@ -2,8 +2,7 @@ name: Bug Report
 description: File a bug report, we will respond to this thread with any questions.
 title: 'Bug: '
 labels: ['bug', 'triage']
-assignees:
-   - Azure/aks-atlanta
+assignees: '@Azure/aks-atlanta'
 body:
    - type: input
      id: what-happened
