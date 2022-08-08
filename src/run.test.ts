@@ -5,7 +5,6 @@ import * as utils from './utils'
 import * as core from '@actions/core'
 import * as io from '@actions/io'
 import * as exec from '@actions/exec'
-import { util } from 'prettier'
 
 describe('Run', () => {
    it('throws error without cluster type', async () => {
