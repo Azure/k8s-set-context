@@ -5,7 +5,7 @@ import {Cluster} from './types/cluster'
 import {getKubeconfig, setContext, azSetContext} from './utils'
 import * as io from '@actions/io'
 import * as exec from '@actions/exec'
-import { getAzCommandError } from '../tests/util'
+import {getAzCommandError} from '../tests/util'
 import * as core from '@actions/core'
 
 describe('Utils', () => {
@@ -49,14 +49,14 @@ describe('Utils', () => {
       })
    })
 
-   describe('azSetContext', ()=> {
+   describe('azSetContext', () => {
       const resourceGroup: string = 'sample-rg'
       const clusterName: string = 'sample-cluster'
       const azPath: string = 'path'
       const runnerTemp: string = 'temp'
       const date: number = 1644272184664
       const AZ_TOOL_NAME: string = 'az'
-      const kubeconfigPath:string = `${runnerTemp}/kubeconfig_${date}`
+      const kubeconfigPath: string = `${runnerTemp}/kubeconfig_${date}`
       const cmd: string[] = [
          'aks',
          'get-credentials',
@@ -67,46 +67,49 @@ describe('Utils', () => {
          '-f',
          kubeconfigPath
       ]
-         
+
       it('throws error when Az cli tools are not installed', async () => {
-         
-         jest.spyOn(core, 'getInput').mockImplementation((inputName: string) => {
-            if (inputName == 'resource-group') return resourceGroup
-            if (inputName == 'cluster-name') return clusterName
-            if (inputName == 'use-az-set-context') return 'true'
-            if (inputName == 'admin') return 'false'
+         jest
+            .spyOn(core, 'getInput')
+            .mockImplementation((inputName: string) => {
+               if (inputName == 'resource-group') return resourceGroup
+               if (inputName == 'cluster-name') return clusterName
+               if (inputName == 'use-az-set-context') return 'true'
+               if (inputName == 'admin') return 'false'
+               return ''
+            })
+         jest.spyOn(io, 'which').mockImplementation(async (tool, check) => {
+            if (tool === AZ_TOOL_NAME) return ''
             return ''
          })
-         jest
-            .spyOn(io, 'which')
-            .mockImplementation(async (tool, check) => {
-            if(tool === AZ_TOOL_NAME) return ""
-            return ""
-         })
-         await expect(azSetContext(true, kubeconfigPath)).rejects.toThrowError(getAzCommandError())
+         await expect(azSetContext(true, kubeconfigPath)).rejects.toThrowError(
+            getAzCommandError()
+         )
       })
-   
+
       it('gets the kubeconfig via az command', async () => {
-         jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
-            if (inputName == 'resource-group') return resourceGroup
-            if (inputName == 'cluster-name') return clusterName
-            return ""
-         })
+         jest
+            .spyOn(core, 'getInput')
+            .mockImplementation((inputName, options) => {
+               if (inputName == 'resource-group') return resourceGroup
+               if (inputName == 'cluster-name') return clusterName
+               return ''
+            })
          jest.spyOn(io, 'which').mockImplementation(async () => azPath)
          process.env['RUNNER_TEMP'] = runnerTemp
          jest.spyOn(Date, 'now').mockImplementation(() => date)
          jest.spyOn(exec, 'exec').mockImplementation(async () => 0)
          jest.spyOn(fs, 'chmodSync').mockImplementation()
          jest.spyOn(core, 'debug').mockImplementation()
-   
-         
-         await expect(azSetContext(true, kubeconfigPath)).resolves.not.toThrowError()
-   
+
+         await expect(
+            azSetContext(true, kubeconfigPath)
+         ).resolves.not.toThrowError()
+
          expect(exec.exec).toBeCalledWith(
             expect.stringContaining(AZ_TOOL_NAME),
-            expect.arrayContaining(cmd))
+            expect.arrayContaining(cmd)
+         )
       })
-   
    })
 })
-
