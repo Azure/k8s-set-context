@@ -12,9 +12,11 @@ export async function run() {
    const adminInput: string = core.getInput('admin')
    const admin: boolean = adminInput.toLowerCase() === 'true'
    const useKubeLoginInput: string = core.getInput('use-kubelogin')
-   const useKubeLogin: boolean = useKubeLoginInput.toLowerCase() === 'true' && !admin
+   const useKubeLogin: boolean =
+      useKubeLoginInput.toLowerCase() === 'true' && !admin
    const useAZSetContextInput: string = core.getInput('use-az-set-context')
-   const useAZSetContext: boolean = useAZSetContextInput.toLocaleLowerCase() === 'true'
+   const useAZSetContext: boolean =
+      useAZSetContextInput.toLocaleLowerCase() === 'true'
    let exitCode: number
 
    const runnerTempDirectory: string = process.env['RUNNER_TEMP']
@@ -24,29 +26,30 @@ export async function run() {
    )
 
    // get kubeconfig and update context
-   
-   if(useAZSetContext){
+
+   if (useAZSetContext) {
       exitCode = await azSetContext(admin, kubeconfigPath)
-      if(exitCode !== 0) throw Error('az cli exited with error code ' + exitCode)
+      if (exitCode !== 0)
+         throw Error('az cli exited with error code ' + exitCode)
    } else {
       const clusterType: Cluster | undefined = parseCluster(
          core.getInput('cluster-type', {
             required: true
          })
       )
-      
+
       const kubeconfig: string = await getKubeconfig(clusterType)
       const kubeconfigWithContext: string = setContext(kubeconfig)
       // output kubeconfig
       core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`)
       fs.writeFileSync(kubeconfigPath, kubeconfigWithContext)
    }
-   
+
    fs.chmodSync(kubeconfigPath, '600')
    core.debug('Setting KUBECONFIG environment variable')
    core.exportVariable('KUBECONFIG', kubeconfigPath)
 
-   if(useAZSetContext && useKubeLogin){
+   if (useAZSetContext && useKubeLogin) {
       await kubeLogin(exitCode)
    }
 }

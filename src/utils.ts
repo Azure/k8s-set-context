@@ -55,7 +55,10 @@ export function setContext(kubeconfig: string): string {
  * @param kubeconfigPath Path to place kubeconfig
  * @returns Promise for the resulting exitCode number from running az command
  */
-export async function azSetContext(admin: boolean, kubeconfigPath: string): Promise<number> {
+export async function azSetContext(
+   admin: boolean,
+   kubeconfigPath: string
+): Promise<number> {
    const AZ_TOOL_NAME = 'az'
    const AZ_USER_AGENT_ENV = 'AZURE_HTTP_USER_AGENT'
    const AZ_USER_AGENT_ENV_PS = 'AZUREPS_HOST_ENVIRONMENT'
@@ -65,11 +68,18 @@ export async function azSetContext(admin: boolean, kubeconfigPath: string): Prom
    try {
       // set az user agent
       core.exportVariable(AZ_USER_AGENT_ENV, getUserAgent(originalAzUserAgent))
-      core.exportVariable(AZ_USER_AGENT_ENV_PS, getUserAgent(originalAzUserAgentPs))
+      core.exportVariable(
+         AZ_USER_AGENT_ENV_PS,
+         getUserAgent(originalAzUserAgentPs)
+      )
 
       // get inputs
-      const resourceGroupName: string = core.getInput('resource-group', {required: true})
-      const clusterName: string = core.getInput('cluster-name', {required: true})
+      const resourceGroupName: string = core.getInput('resource-group', {
+         required: true
+      })
+      const clusterName: string = core.getInput('cluster-name', {
+         required: true
+      })
       const subscription: string = core.getInput('subscription') || ''
       const cmd = [
          'aks',
@@ -95,8 +105,7 @@ export async function azSetContext(admin: boolean, kubeconfigPath: string): Prom
       const exitCode = await exec.exec(AZ_TOOL_NAME, cmd)
 
       return exitCode
-   }
-   catch (e) {
+   } catch (e) {
       throw e
    } finally {
       core.exportVariable(AZ_USER_AGENT_ENV, originalAzUserAgent)
@@ -108,16 +117,13 @@ export async function azSetContext(admin: boolean, kubeconfigPath: string): Prom
  * Uses kubelogin to convert kubeconfig to exec credential plugin format
  * @param exitCode ExitCode from az command execution to obtain kubeconfig
  */
-export async function kubeLogin(exitCode: number): Promise<void>{
+export async function kubeLogin(exitCode: number): Promise<void> {
    const KUBELOGIN_TOOL_NAME = 'kubelogin'
    const kubeloginCmd = ['convert-kubeconfig', '-l', 'azurecli']
 
-      const kubeloginExitCode = await exec.exec(
-         KUBELOGIN_TOOL_NAME,
-         kubeloginCmd
-      )
-      if (kubeloginExitCode !== 0)
-         throw Error('kubelogin exited with error code ' + exitCode)
+   const kubeloginExitCode = await exec.exec(KUBELOGIN_TOOL_NAME, kubeloginCmd)
+   if (kubeloginExitCode !== 0)
+      throw Error('kubelogin exited with error code ' + exitCode)
 }
 
 function getUserAgent(prevUserAgent: string): string {
