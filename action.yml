@@ -39,6 +39,10 @@ inputs:
       description: 'Get cluster admin credentials. Values: true or false'
       default: 'false'
       required: false
+   use-az-set-context:
+      description: 'Use az commands to get kubeconfig and set context. Values: true or false'
+      default: 'false'
+      required: false
 branding:
    color: 'blue'
 runs:
