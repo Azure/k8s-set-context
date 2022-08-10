@@ -32,15 +32,15 @@ inputs:
       description: 'Azure connected cluster name'
       required: false
    use-kubelogin:
-      description: 'Enables kubelogin for non-admin user scenario. Values: true or false'
+      description: 'Enables kubelogin for non-admin user scenario. Acceptable values: true or false'
       default: 'false'
       required: false
    admin:
-      description: 'Get cluster admin credentials. Values: true or false'
+      description: 'Get cluster admin credentials. Acceptable values: true or false'
       default: 'false'
       required: false
    use-az-set-context:
-      description: 'Use az commands to get kubeconfig and set context. Values: true or false'
+      description: 'Use az commands to get kubeconfig and set context. Acceptable values: true or false'
       default: 'false'
       required: false
 branding:
