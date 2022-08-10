@@ -13,7 +13,7 @@ export async function run() {
    const admin: boolean = adminInput.toLowerCase() === 'true'
    const useKubeLoginInput: string = core.getInput('use-kubelogin')
    const useKubeLogin: boolean =
-      useKubeLoginInput.toLowerCase() === 'true' && !admin
+      useKubeLoginInput.toLowerCase() === useKubeLoginInput.toLowerCase() && !admin
    const useAZSetContextInput: string = core.getInput('use-az-set-context')
    const useAZSetContext: boolean =
       useAZSetContextInput.toLocaleLowerCase() === 'true'
