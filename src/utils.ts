@@ -1,13 +1,11 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as io from '@actions/io'
+import * as crypto from 'crypto'
 import {KubeConfig} from '@kubernetes/client-node'
 import {getDefaultKubeconfig} from './kubeconfigs/default'
 import {getArcKubeconfig} from './kubeconfigs/arc'
 import {Cluster} from './types/cluster'
-
-const AZ_TOOL_NAME = 'az'
-const KUBELOGIN_TOOL_NAME = 'kubelogin'
 
 /**
  * Gets the kubeconfig based on Kubernetes cluster type
@@ -58,34 +56,52 @@ export function setContext(kubeconfig: string): string {
  * @returns Promise for the resulting exitCode number from running az command
  */
 export async function azSetContext(admin: boolean, kubeconfigPath: string): Promise<number> {
+   const AZ_TOOL_NAME = 'az'
+   const AZ_USER_AGENT_ENV = 'AZURE_HTTP_USER_AGENT'
+   const AZ_USER_AGENT_ENV_PS = 'AZUREPS_HOST_ENVIRONMENT'
+   const originalAzUserAgent = process.env[AZ_USER_AGENT_ENV] || ''
+   const originalAzUserAgentPs = process.env[AZ_USER_AGENT_ENV_PS] || ''
+
+   try {
+      // set az user agent
+      core.exportVariable(AZ_USER_AGENT_ENV, getUserAgent(originalAzUserAgent))
+      core.exportVariable(AZ_USER_AGENT_ENV_PS, getUserAgent(originalAzUserAgentPs))
+
+      // get inputs
+      const resourceGroupName: string = core.getInput('resource-group', {required: true})
+      const clusterName: string = core.getInput('cluster-name', {required: true})
+      const subscription: string = core.getInput('subscription') || ''
+      const cmd = [
+         'aks',
+         'get-credentials',
+         '--resource-group',
+         resourceGroupName,
+         '--name',
+         clusterName,
+         '-f',
+         kubeconfigPath
+      ]
+
       // check az tools
-   const azPath = await io.which(AZ_TOOL_NAME, false)
-   if (!azPath)
-      throw Error(
-         'Az cli tools not installed. You must install them before running this action with the aks-set-context flag'
-      )
+      const azPath = await io.which(AZ_TOOL_NAME, false)
+      if (!azPath)
+         throw Error(
+            'Az cli tools not installed. You must install them before running this action with the aks-set-context flag'
+         )
 
-   const resourceGroupName: string = core.getInput('resource-group', {required: true})
-   const clusterName: string = core.getInput('cluster-name', {required: true})
-   const subscription: string = core.getInput('subscription') || ''
+      if (subscription) cmd.push('--subscription', subscription)
+      if (admin) cmd.push('--admin')
 
-   const cmd = [
-      'aks',
-      'get-credentials',
-      '--resource-group',
-      resourceGroupName,
-      '--name',
-      clusterName,
-      '-f',
-      kubeconfigPath
-   ]
-   
-   if (subscription) cmd.push('--subscription', subscription)
-   if (admin) cmd.push('--admin')
+      const exitCode = await exec.exec(AZ_TOOL_NAME, cmd)
 
-   const exitCode = await exec.exec(AZ_TOOL_NAME, cmd)
-
-   return exitCode
+      return exitCode
+   }
+   catch (e) {
+      throw e
+   } finally {
+      core.exportVariable(AZ_USER_AGENT_ENV, originalAzUserAgent)
+      core.exportVariable(AZ_USER_AGENT_ENV_PS, originalAzUserAgentPs)
+   }
 }
 
 /**
@@ -93,6 +109,7 @@ export async function azSetContext(admin: boolean, kubeconfigPath: string): Prom
  * @param exitCode ExitCode from az command execution to obtain kubeconfig
  */
 export async function kubeLogin(exitCode: number): Promise<void>{
+   const KUBELOGIN_TOOL_NAME = 'kubelogin'
    const kubeloginCmd = ['convert-kubeconfig', '-l', 'azurecli']
 
       const kubeloginExitCode = await exec.exec(
@@ -101,4 +118,16 @@ export async function kubeLogin(exitCode: number): Promise<void>{
       )
       if (kubeloginExitCode !== 0)
          throw Error('kubelogin exited with error code ' + exitCode)
+}
+
+function getUserAgent(prevUserAgent: string): string {
+   const ACTION_NAME = 'Azure/k8s-set-context'
+   const actionName = process.env.GITHUB_ACTION_REPOSITORY || ACTION_NAME
+   const runRepo = process.env.GITHUB_REPOSITORY || ''
+   const runRepoHash = crypto.createHash('sha256').update(runRepo).digest('hex')
+   const runId = process.env.GITHUB_RUN_ID
+   const newUserAgent = `GitHubActions/${actionName}(${runRepoHash}; ${runId})`
+
+   if (prevUserAgent) return `${prevUserAgent}+${newUserAgent}`
+   return newUserAgent
 }

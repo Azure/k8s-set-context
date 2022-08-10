@@ -71,9 +71,10 @@ describe('Run', () => {
          jest.spyOn(fs, 'writeFileSync').mockImplementation()
          jest.spyOn(core, 'exportVariable').mockImplementation()
          jest.spyOn(core, 'debug').mockImplementation()
-         jest.spyOn(utils, 'azSetContext').mockImplementation()
-
+         jest.spyOn(utils, 'azSetContext')
+         
          await expect(run())
+         await expect(io.which).toHaveBeenCalledWith(AZ_TOOL_NAME, false)
          await expect(exec.exec).toHaveBeenCalledWith(AZ_TOOL_NAME, cmd)
          await expect(utils.azSetContext).toHaveBeenCalledWith(false, kubeconfigPath)
 
@@ -100,7 +101,7 @@ describe('Run', () => {
          jest.spyOn(fs, 'writeFileSync').mockImplementation()
          jest.spyOn(core, 'exportVariable').mockImplementation()
          jest.spyOn(core, 'debug').mockImplementation()
-         jest.spyOn(utils, 'azSetContext').mockImplementation()
+         jest.spyOn(utils, 'azSetContext')
 
          await expect(run())
          await expect(utils.azSetContext).toHaveBeenCalledWith(true, kubeconfigPath)
