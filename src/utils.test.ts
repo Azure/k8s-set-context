@@ -70,6 +70,13 @@ describe('Utils', () => {
          
       it('throws error when Az cli tools are not installed', async () => {
          
+         jest.spyOn(core, 'getInput').mockImplementation((inputName: string) => {
+            if (inputName == 'resource-group') return resourceGroup
+            if (inputName == 'cluster-name') return clusterName
+            if (inputName == 'use-az-set-context') return 'true'
+            if (inputName == 'admin') return 'false'
+            return ''
+         })
          jest
             .spyOn(io, 'which')
             .mockImplementation(async (tool, check) => {
