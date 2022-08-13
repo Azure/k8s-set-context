@@ -5,32 +5,62 @@ import * as utils from './utils'
 import * as core from '@actions/core'
 import * as io from '@actions/io'
 import * as exec from '@actions/exec'
+import * as path from 'path'
 
 describe('Run', () => {
-   it('throws error without cluster type', async () => {
-      process.env['RUNNER_TEMP'] = '/sample/path'
-      await expect(run()).rejects.toThrow(getRequiredInputError('cluster-type'))
+      
+   describe('Cluster tests', () => {
+      const resourceGroup: string = 'sample-rg'
+      const runnerTemp: string = 'temp'
+
+
+      it('throws error without cluster type', async () => {
+         process.env['RUNNER_TEMP'] = runnerTemp
+
+         jest
+            .spyOn(core, 'getInput')
+            .mockImplementation((inputName: string) => {
+               if (inputName == 'resource-group') return resourceGroup
+               if (inputName == 'use-az-set-context') return 'false'
+               return ''
+            })
+         jest.spyOn(fs, 'chmodSync').mockImplementation()
+         jest.spyOn(fs, 'writeFileSync').mockImplementation()
+
+         await expect(run()).rejects.toThrow(getRequiredInputError('cluster-type'))
+      })
+      it('writes kubeconfig and sets context', async () => {
+         const clusterName: string = 'sample-cluster'
+         jest
+               .spyOn(core, 'getInput')
+               .mockImplementation((inputName: string) => {
+                  if (inputName == 'resource-group') return resourceGroup
+                  if (inputName == 'cluster-name') return clusterName
+                  if (inputName == 'subscription') return ''
+                  if (inputName == 'use-az-set-context') return 'false'
+                  if (inputName == 'admin') return 'true'
+                  return ''
+               })
+         const kubeconfig = 'kubeconfig'
+   
+         process.env['INPUT_CLUSTER-TYPE'] = 'default'
+         process.env['RUNNER_TEMP'] = '/sample/path'
+   
+         jest
+            .spyOn(utils, 'getKubeconfig')
+            .mockImplementation(async () => kubeconfig)
+         jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
+         jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
+         jest.spyOn(utils, 'setContext').mockImplementation(() => kubeconfig)
+   
+         expect(await run())
+         expect(utils.getKubeconfig).toHaveBeenCalled()
+         expect(fs.writeFileSync).toHaveBeenCalled()
+         expect(fs.chmodSync).toHaveBeenCalled()
+         expect(utils.setContext).toHaveBeenCalled()
+      })
    })
-
-   it('writes kubeconfig and sets context', async () => {
-      const kubeconfig = 'kubeconfig'
-
-      process.env['INPUT_CLUSTER-TYPE'] = 'default'
-      process.env['RUNNER_TEMP'] = '/sample/path'
-
-      jest
-         .spyOn(utils, 'getKubeconfig')
-         .mockImplementation(async () => kubeconfig)
-      jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
-      jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
-      jest.spyOn(utils, 'setContext').mockImplementation(() => kubeconfig)
-
-      expect(await run())
-      expect(utils.getKubeconfig).toHaveBeenCalled()
-      expect(fs.writeFileSync).toHaveBeenCalled()
-      expect(fs.chmodSync).toHaveBeenCalled()
-      expect(utils.setContext).toHaveBeenCalled()
-   })
+      
 
    describe('azSetContext', () => {
       const resourceGroup: string = 'sample-rg'
@@ -40,7 +70,6 @@ describe('Run', () => {
       const runnerTemp: string = 'temp'
       const date: number = 1644272184664
       const kubeconfigPath = `${runnerTemp}/kubeconfig_${date}`
-      const useAZSetContext = 'true'
       const AZ_TOOL_NAME: string = 'az'
       const cmd: string[] = [
          'aks',
@@ -53,19 +82,7 @@ describe('Run', () => {
          kubeconfigPath
       ]
 
-      it('gets the kubeconfig and sets the context as a non admin user', async () => {
-         process.env['RUNNER_TEMP'] = runnerTemp
-
-         jest
-            .spyOn(core, 'getInput')
-            .mockImplementation((inputName: string) => {
-               if (inputName == 'resource-group') return resourceGroup
-               if (inputName == 'cluster-name') return clusterName
-               if (inputName == 'use-az-set-context') return 'true'
-               if (inputName == 'admin') return 'false'
-               return ''
-            })
-
+      beforeEach(() => {
          jest.spyOn(io, 'which').mockImplementation(async () => azPath)
          jest.spyOn(Date, 'now').mockImplementation(() => date)
          jest.spyOn(exec, 'exec').mockImplementation(async () => 0)
@@ -74,13 +91,30 @@ describe('Run', () => {
          jest.spyOn(core, 'exportVariable').mockImplementation()
          jest.spyOn(core, 'debug').mockImplementation()
          jest.spyOn(utils, 'azSetContext')
+      })
+      it('gets the kubeconfig and sets the context as a non admin user', async () => {
+         process.env['RUNNER_TEMP'] = runnerTemp
+
+         jest
+            .spyOn(core, 'getInput')
+            .mockImplementation((inputName: string) => {
+               if (inputName == 'admin') return 'false'
+               if (inputName == 'subscription') return ''
+               if (inputName == 'cluster-name') return clusterName
+               if (inputName == 'resource-group') return resourceGroup
+               if (inputName == 'use-az-set-context') return 'true'
+               return ''
+            })
 
          await expect(run())
          await expect(io.which).toHaveBeenCalledWith(AZ_TOOL_NAME, false)
          await expect(exec.exec).toHaveBeenCalledWith(AZ_TOOL_NAME, cmd)
          await expect(utils.azSetContext).toHaveBeenCalledWith(
             false,
-            kubeconfigPath
+            kubeconfigPath,
+            resourceGroup,
+            clusterName,
+            ''
          )
 
          expect(fs.chmodSync).toBeCalledWith(kubeconfigPath, '600')
@@ -98,24 +132,19 @@ describe('Run', () => {
             .mockImplementation((inputName: string) => {
                if (inputName == 'resource-group') return resourceGroup
                if (inputName == 'cluster-name') return clusterName
+               if (inputName == 'subscription') return ''
                if (inputName == 'use-az-set-context') return 'true'
                if (inputName == 'admin') return 'true'
                return ''
             })
 
-         jest.spyOn(io, 'which').mockImplementation(async () => azPath)
-         jest.spyOn(Date, 'now').mockImplementation(() => date)
-         jest.spyOn(exec, 'exec').mockImplementation(async () => 0)
-         jest.spyOn(fs, 'chmodSync').mockImplementation()
-         jest.spyOn(fs, 'writeFileSync').mockImplementation()
-         jest.spyOn(core, 'exportVariable').mockImplementation()
-         jest.spyOn(core, 'debug').mockImplementation()
-         jest.spyOn(utils, 'azSetContext')
-
          await expect(run())
          await expect(utils.azSetContext).toHaveBeenCalledWith(
             true,
-            kubeconfigPath
+            kubeconfigPath,
+            resourceGroup,
+            clusterName,
+            ''
          )
          await expect(exec.exec).toHaveBeenCalledWith(
             AZ_TOOL_NAME,
@@ -140,18 +169,9 @@ describe('Run', () => {
                if (inputName == 'resource-group') return resourceGroup
                if (inputName == 'cluster-name') return clusterName
                if (inputName == 'subscription') return subscription
-               if (inputName == 'use-az-set-context') return useAZSetContext
+               if (inputName == 'use-az-set-context') return 'true'
                return ''
             })
-
-         jest.spyOn(io, 'which').mockImplementation(async () => azPath)
-         jest.spyOn(Date, 'now').mockImplementation(() => date)
-         jest.spyOn(exec, 'exec').mockImplementation(async () => 0)
-         jest.spyOn(fs, 'chmodSync').mockImplementation()
-         jest.spyOn(fs, 'writeFileSync').mockImplementation()
-         jest.spyOn(core, 'exportVariable').mockImplementation()
-         jest.spyOn(core, 'debug').mockImplementation()
-         jest.spyOn(utils, 'azSetContext')
 
          await expect(run()).resolves
          await expect(exec.exec).toHaveBeenCalledWith(
@@ -160,7 +180,10 @@ describe('Run', () => {
          )
          await expect(utils.azSetContext).toHaveBeenCalledWith(
             false,
-            kubeconfigPath
+            kubeconfigPath,
+            resourceGroup,
+            clusterName,
+            subscription
          )
 
          expect(core.getInput).toBeCalled()
@@ -182,15 +205,6 @@ describe('Run', () => {
                return ''
             })
 
-         jest.spyOn(io, 'which').mockImplementation(async () => azPath)
-         jest.spyOn(Date, 'now').mockImplementation(() => date)
-         jest.spyOn(exec, 'exec').mockImplementation(async () => 0)
-         jest.spyOn(fs, 'chmodSync').mockImplementation()
-         jest.spyOn(fs, 'writeFileSync').mockImplementation()
-         jest.spyOn(core, 'exportVariable').mockImplementation()
-         jest.spyOn(core, 'debug').mockImplementation()
-         jest.spyOn(utils, 'azSetContext')
-
          await expect(run())
          await expect(exec.exec).toHaveBeenCalledWith(
             AZ_TOOL_NAME,
@@ -198,7 +212,10 @@ describe('Run', () => {
          )
          await expect(utils.azSetContext).toHaveBeenCalledWith(
             true,
-            kubeconfigPath
+            kubeconfigPath,
+            resourceGroup,
+            clusterName,
+            subscription
          )
 
          expect(fs.chmodSync).toBeCalledWith(kubeconfigPath, '600')
@@ -216,27 +233,23 @@ describe('Run', () => {
             .mockImplementation((inputName: string) => {
                if (inputName == 'resource-group') return resourceGroup
                if (inputName == 'cluster-name') return clusterName
+               if (inputName == 'subscription') return ''
                if (inputName == 'use-az-set-context') return 'true'
                if (inputName == 'use-kubelogin') return 'true'
                if (inputName == 'admin') return 'false'
                return ''
             })
 
-         jest.spyOn(io, 'which').mockImplementation(async () => azPath)
-         jest.spyOn(Date, 'now').mockImplementation(() => date)
-         jest.spyOn(exec, 'exec').mockImplementation(async () => 0)
-         jest.spyOn(fs, 'chmodSync').mockImplementation()
-         jest.spyOn(fs, 'writeFileSync').mockImplementation()
-         jest.spyOn(core, 'exportVariable').mockImplementation()
-         jest.spyOn(core, 'debug').mockImplementation()
-         jest.spyOn(utils, 'azSetContext')
          jest.spyOn(utils, 'kubeLogin')
 
          await expect(run())
          await expect(exec.exec).toHaveBeenCalledWith(AZ_TOOL_NAME, cmd)
          await expect(utils.azSetContext).toHaveBeenCalledWith(
             false,
-            kubeconfigPath
+            kubeconfigPath,
+            resourceGroup,
+            clusterName,
+            ''
          )
          await expect(utils.kubeLogin).toHaveBeenCalledWith(0)
 

@@ -57,7 +57,10 @@ export function setContext(kubeconfig: string): string {
  */
 export async function azSetContext(
    admin: boolean,
-   kubeconfigPath: string
+   kubeconfigPath: string,
+   resourceGroupName: string,
+   clusterName: string,
+   subscription: string
 ): Promise<number> {
    const AZ_TOOL_NAME = 'az'
    const AZ_USER_AGENT_ENV = 'AZURE_HTTP_USER_AGENT'
@@ -73,14 +76,6 @@ export async function azSetContext(
          getUserAgent(originalAzUserAgentPs)
       )
 
-      // get inputs
-      const resourceGroupName: string = core.getInput('resource-group', {
-         required: true
-      })
-      const clusterName: string = core.getInput('cluster-name', {
-         required: true
-      })
-      const subscription: string = core.getInput('subscription') || ''
       const cmd = [
          'aks',
          'get-credentials',
@@ -99,7 +94,7 @@ export async function azSetContext(
             'Az cli tools not installed. You must install them before running this action with the aks-set-context flag'
          )
 
-      if (subscription) cmd.push('--subscription', subscription)
+      if (subscription.length > 0) cmd.push('--subscription', subscription)
       if (admin) cmd.push('--admin')
 
       const exitCode = await exec.exec(AZ_TOOL_NAME, cmd)
