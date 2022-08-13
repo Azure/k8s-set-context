@@ -7,28 +7,43 @@ import {setContext, getKubeconfig, kubeLogin, azSetContext} from './utils'
 /**
  * Sets the Kubernetes context based on supplied action inputs
  */
+
 export async function run() {
-   // get inputs
    const adminInput: string = core.getInput('admin')
    const admin: boolean = adminInput.toLowerCase() === 'true'
    const useKubeLoginInput: string = core.getInput('use-kubelogin')
    const useKubeLogin: boolean =
-      useKubeLoginInput.toLowerCase() === useKubeLoginInput.toLowerCase() && !admin
+      useKubeLoginInput.toLowerCase() === useKubeLoginInput.toLowerCase() &&
+      !admin
    const useAZSetContextInput: string = core.getInput('use-az-set-context')
    const useAZSetContext: boolean =
       useAZSetContextInput.toLocaleLowerCase() === 'true'
-   let exitCode: number
-
+   const resourceGroupName: string = core.getInput('resource-group', {
+      required: true
+   })
+   const clusterName: string = core.getInput('cluster-name', {
+      required: true
+   })
+   
    const runnerTempDirectory: string = process.env['RUNNER_TEMP']
    const kubeconfigPath: string = path.join(
       runnerTempDirectory,
       `kubeconfig_${Date.now()}`
    )
 
+   let exitCode: number
    // get kubeconfig and update context
 
    if (useAZSetContext) {
-      exitCode = await azSetContext(admin, kubeconfigPath)
+      const subscription: string = core.getInput('subscription') || ''
+      
+      exitCode = await azSetContext(
+         admin,
+         kubeconfigPath,
+         resourceGroupName,
+         clusterName,
+         subscription
+      )
       if (exitCode !== 0)
          throw Error('az cli exited with error code ' + exitCode)
    } else {

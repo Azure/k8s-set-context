@@ -52,6 +52,7 @@ describe('Utils', () => {
    describe('azSetContext', () => {
       const resourceGroup: string = 'sample-rg'
       const clusterName: string = 'sample-cluster'
+      const subscription: string = 'subscription-example'
       const azPath: string = 'path'
       const runnerTemp: string = 'temp'
       const date: number = 1644272184664
@@ -74,6 +75,7 @@ describe('Utils', () => {
             .mockImplementation((inputName: string) => {
                if (inputName == 'resource-group') return resourceGroup
                if (inputName == 'cluster-name') return clusterName
+               if (inputName == 'subscription') return subscription
                if (inputName == 'use-az-set-context') return 'true'
                if (inputName == 'admin') return 'false'
                return ''
@@ -82,7 +84,7 @@ describe('Utils', () => {
             if (tool === AZ_TOOL_NAME) return ''
             return ''
          })
-         await expect(azSetContext(true, kubeconfigPath)).rejects.toThrowError(
+         await expect(azSetContext(true, kubeconfigPath, resourceGroup, clusterName, subscription)).rejects.toThrowError(
             getAzCommandError()
          )
       })
@@ -103,7 +105,7 @@ describe('Utils', () => {
          jest.spyOn(core, 'debug').mockImplementation()
 
          await expect(
-            azSetContext(true, kubeconfigPath)
+            azSetContext(true, kubeconfigPath, resourceGroup, clusterName, subscription)
          ).resolves.not.toThrowError()
 
          expect(exec.exec).toBeCalledWith(
