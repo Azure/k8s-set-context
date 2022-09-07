@@ -22,6 +22,7 @@ describe('Run', () => {
             .mockImplementation((inputName: string) => {
                if (inputName == 'resource-group') return resourceGroup
                if (inputName == 'use-az-set-context') return 'false'
+               if (inputName == 'cluster-type') return ''
                return ''
             })
          jest.spyOn(fs, 'chmodSync').mockImplementation()
