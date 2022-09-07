@@ -115,12 +115,11 @@ export async function kubeLogin(exitCode: number): Promise<void> {
    const KUBELOGIN_TOOL_NAME = 'kubelogin'
    const KUBELOGIN_CMD = ['convert-kubeconfig', '-l', 'azurecli']
 
-   const kubeloginExitCode = await exec.exec(KUBELOGIN_TOOL_NAME, KUBELOGIN_CMD)
-   if (kubeloginExitCode !== 0)
+   if ((await exec.exec(KUBELOGIN_TOOL_NAME, KUBELOGIN_CMD)) !== 0)
       throw Error('kubelogin exited with error code ' + exitCode)
 }
 
-export async function setKubeconfigPath(kubeconfigPath:string) {
+export async function setKubeconfigPath(kubeconfigPath: string) {
    fs.chmodSync(kubeconfigPath, '600')
    core.debug('Setting KUBECONFIG environment variable')
    core.exportVariable('KUBECONFIG', kubeconfigPath)

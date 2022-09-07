@@ -7,40 +7,40 @@ import * as io from '@actions/io'
 import * as exec from '@actions/exec'
 
 describe('Run', () => {
-      
    describe('Cluster tests', () => {
       const resourceGroup: string = 'sample-rg'
       const runnerTemp: string = 'temp'
 
-
       it('throws error without cluster type', async () => {
          process.env['RUNNER_TEMP'] = runnerTemp
-         await expect(run()).rejects.toThrow(getRequiredInputError('cluster-type'))
+         await expect(run()).rejects.toThrow(
+            getRequiredInputError('cluster-type')
+         )
       })
       it('writes kubeconfig and sets context', async () => {
          const clusterName: string = 'sample-cluster'
          jest
-               .spyOn(core, 'getInput')
-               .mockImplementation((inputName: string) => {
-                  if (inputName == 'resource-group') return resourceGroup
-                  if (inputName == 'cluster-name') return clusterName
-                  if (inputName == 'subscription') return ''
-                  if (inputName == 'use-az-set-context') return 'false'
-                  if (inputName == 'admin') return 'true'
-                  return ''
-               })
+            .spyOn(core, 'getInput')
+            .mockImplementation((inputName: string) => {
+               if (inputName == 'resource-group') return resourceGroup
+               if (inputName == 'cluster-name') return clusterName
+               if (inputName == 'subscription') return ''
+               if (inputName == 'use-az-set-context') return 'false'
+               if (inputName == 'admin') return 'true'
+               return ''
+            })
          const kubeconfig = 'kubeconfig'
-   
+
          process.env['INPUT_CLUSTER-TYPE'] = 'default'
          process.env['RUNNER_TEMP'] = '/sample/path'
-   
+
          jest
             .spyOn(utils, 'getKubeconfig')
             .mockImplementation(async () => kubeconfig)
          jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
          jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
          jest.spyOn(utils, 'setContext').mockImplementation(() => kubeconfig)
-   
+
          expect(await run())
          expect(utils.getKubeconfig).toHaveBeenCalled()
          expect(fs.writeFileSync).toHaveBeenCalled()
@@ -48,7 +48,6 @@ describe('Run', () => {
          expect(utils.setContext).toHaveBeenCalled()
       })
    })
-      
 
    describe('azSetContext', () => {
       const resourceGroup: string = 'sample-rg'

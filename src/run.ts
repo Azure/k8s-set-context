@@ -2,7 +2,13 @@ import * as core from '@actions/core'
 import * as path from 'path'
 import * as fs from 'fs'
 import {Cluster, parseCluster} from './types/cluster'
-import {setContext, getKubeconfig, kubeLogin, azSetContext, setKubeconfigPath} from './utils'
+import {
+   setContext,
+   getKubeconfig,
+   kubeLogin,
+   azSetContext,
+   setKubeconfigPath
+} from './utils'
 
 /**
  * Sets the Kubernetes context based on supplied action inputs
@@ -16,7 +22,8 @@ export async function run() {
       useKubeLoginInput.toLowerCase() === useKubeLoginInput.toLowerCase() &&
       !admin
    const useAZSetContextInput: string = core.getInput('use-az-set-context')
-   const useAZSetContext: boolean = useAZSetContextInput.toLocaleLowerCase() === 'true'
+   const useAZSetContext: boolean =
+      useAZSetContextInput.toLocaleLowerCase() === 'true'
    const runnerTempDirectory: string = process.env['RUNNER_TEMP']
    const kubeconfigPath: string = path.join(
       runnerTempDirectory,
@@ -31,21 +38,21 @@ export async function run() {
       const resourceGroupName: string = core.getInput('resource-group', {
          required: true
       })
-      
-      const exitCode:number = await azSetContext(
+
+      const exitCode: number = await azSetContext(
          admin,
          kubeconfigPath,
          resourceGroupName,
          clusterName,
          subscription
       )
-      
+
       if (exitCode !== 0)
          throw Error('az cli exited with error code ' + exitCode)
       setKubeconfigPath(kubeconfigPath)
       if (useKubeLogin) {
-            await kubeLogin(exitCode)
-         }
+         await kubeLogin(exitCode)
+      }
    } else {
       const clusterType: Cluster | undefined = parseCluster(
          core.getInput('cluster-type', {
