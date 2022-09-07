@@ -93,7 +93,7 @@ describe('Run', () => {
                if (inputName == 'use-az-set-context') return 'true'
                return ''
             })
-
+         jest.spyOn(utils, 'setKubeconfigPath')
          await expect(run())
          await expect(io.which).toHaveBeenCalledWith(AZ_TOOL_NAME, false)
          await expect(exec.exec).toHaveBeenCalledWith(AZ_TOOL_NAME, cmd)
@@ -105,7 +105,7 @@ describe('Run', () => {
             ''
          )
 
-         expect(fs.chmodSync).toBeCalledWith(kubeconfigPath, '600')
+         expect(utils.setKubeconfigPath).toBeCalledWith(kubeconfigPath)
          expect(core.exportVariable).toBeCalledWith(
             'KUBECONFIG',
             kubeconfigPath
