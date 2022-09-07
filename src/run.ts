@@ -16,26 +16,24 @@ export async function run() {
       useKubeLoginInput.toLowerCase() === useKubeLoginInput.toLowerCase() &&
       !admin
    const useAZSetContextInput: string = core.getInput('use-az-set-context')
-   const useAZSetContext: boolean =
-      useAZSetContextInput.toLocaleLowerCase() === 'true'
-   const resourceGroupName: string = core.getInput('resource-group', {
-      required: true
-   })
-   const clusterName: string = core.getInput('cluster-name', {
-      required: true
-   })
-   
+   const useAZSetContext: boolean = useAZSetContextInput.toLocaleLowerCase() === 'true'
    const runnerTempDirectory: string = process.env['RUNNER_TEMP']
    const kubeconfigPath: string = path.join(
       runnerTempDirectory,
       `kubeconfig_${Date.now()}`
    )
-
    let exitCode: number
+
    // get kubeconfig and update context
 
    if (useAZSetContext) {
       const subscription: string = core.getInput('subscription') || ''
+      const clusterName: string = core.getInput('cluster-name', {
+         required: true
+      })
+      const resourceGroupName: string = core.getInput('resource-group', {
+         required: true
+      })
       
       exitCode = await azSetContext(
          admin,

@@ -5,7 +5,6 @@ import * as utils from './utils'
 import * as core from '@actions/core'
 import * as io from '@actions/io'
 import * as exec from '@actions/exec'
-import * as path from 'path'
 
 describe('Run', () => {
       
@@ -16,18 +15,6 @@ describe('Run', () => {
 
       it('throws error without cluster type', async () => {
          process.env['RUNNER_TEMP'] = runnerTemp
-
-         jest
-            .spyOn(core, 'getInput')
-            .mockImplementation((inputName: string) => {
-               if (inputName == 'resource-group') return resourceGroup
-               if (inputName == 'use-az-set-context') return 'false'
-               if (inputName == 'cluster-type') return ''
-               return ''
-            })
-         jest.spyOn(fs, 'chmodSync').mockImplementation()
-         jest.spyOn(fs, 'writeFileSync').mockImplementation()
-
          await expect(run()).rejects.toThrow(getRequiredInputError('cluster-type'))
       })
       it('writes kubeconfig and sets context', async () => {
