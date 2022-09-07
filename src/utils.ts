@@ -98,9 +98,7 @@ export async function azSetContext(
       if (subscription.length > 0) cmd.push('--subscription', subscription)
       if (admin) cmd.push('--admin')
 
-      const exitCode = await exec.exec(AZ_TOOL_NAME, cmd)
-
-      return exitCode
+      return await exec.exec(AZ_TOOL_NAME, cmd)
    } catch (e) {
       throw e
    } finally {
@@ -115,9 +113,9 @@ export async function azSetContext(
  */
 export async function kubeLogin(exitCode: number): Promise<void> {
    const KUBELOGIN_TOOL_NAME = 'kubelogin'
-   const kubeloginCmd = ['convert-kubeconfig', '-l', 'azurecli']
+   const KUBELOGIN_CMD = ['convert-kubeconfig', '-l', 'azurecli']
 
-   const kubeloginExitCode = await exec.exec(KUBELOGIN_TOOL_NAME, kubeloginCmd)
+   const kubeloginExitCode = await exec.exec(KUBELOGIN_TOOL_NAME, KUBELOGIN_CMD)
    if (kubeloginExitCode !== 0)
       throw Error('kubelogin exited with error code ' + exitCode)
 }

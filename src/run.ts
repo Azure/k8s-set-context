@@ -22,7 +22,6 @@ export async function run() {
       runnerTempDirectory,
       `kubeconfig_${Date.now()}`
    )
-   let exitCode: number
 
    if (useAZSetContext) {
       const subscription: string = core.getInput('subscription') || ''
@@ -33,13 +32,14 @@ export async function run() {
          required: true
       })
       
-      exitCode = await azSetContext(
+      const exitCode:number = await azSetContext(
          admin,
          kubeconfigPath,
          resourceGroupName,
          clusterName,
          subscription
       )
+      
       if (exitCode !== 0)
          throw Error('az cli exited with error code ' + exitCode)
       setKubeconfigPath(kubeconfigPath)
