@@ -115,17 +115,25 @@ export async function kubeLogin(exitCode: number): Promise<void> {
    const KUBELOGIN_TOOL_NAME = 'kubelogin'
    const KUBELOGIN_CMD = ['convert-kubeconfig', '-l', 'azurecli']
 
-   const kubeloginExitCode = await exec.exec(KUBELOGIN_TOOL_NAME, KUBELOGIN_CMD)
-   if (kubeloginExitCode !== 0)
+   if ((await exec.exec(KUBELOGIN_TOOL_NAME, KUBELOGIN_CMD)) !== 0)
       throw Error('kubelogin exited with error code ' + exitCode)
 }
 
+/**
+ * Takes a kubeconfig path and exports the value to a variable accessible by other actions: KUBECONFIG
+ * @param kubeconfigPath 
+ */
 export async function setKubeconfigPath(kubeconfigPath: string) {
    fs.chmodSync(kubeconfigPath, '600')
    core.debug('Setting KUBECONFIG environment variable')
    core.exportVariable('KUBECONFIG', kubeconfigPath)
 }
 
+/**
+ * Creates a new UserAgent and returns it. If given a previous UserAgent it appends the new one and returns it.
+ * @param prevUserAgent 
+ * @returns 
+ */
 function getUserAgent(prevUserAgent: string): string {
    const ACTION_NAME = 'Azure/k8s-set-context'
    const actionName = process.env.GITHUB_ACTION_REPOSITORY || ACTION_NAME
