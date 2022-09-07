@@ -115,7 +115,8 @@ export async function kubeLogin(exitCode: number): Promise<void> {
    const KUBELOGIN_TOOL_NAME = 'kubelogin'
    const KUBELOGIN_CMD = ['convert-kubeconfig', '-l', 'azurecli']
 
-   if ((await exec.exec(KUBELOGIN_TOOL_NAME, KUBELOGIN_CMD)) !== 0)
+   const kubeloginExitCode = await exec.exec(KUBELOGIN_TOOL_NAME, KUBELOGIN_CMD)
+   if (kubeloginExitCode !== 0)
       throw Error('kubelogin exited with error code ' + exitCode)
 }
 
