@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import * as path from 'path'
 import * as fs from 'fs'
 import {Cluster, parseCluster} from './types/cluster'
-import {setContext, getKubeconfig, kubeLogin, azSetContext} from './utils'
+import {setContext, getKubeconfig, kubeLogin, azSetContext, setKubeconfigPath} from './utils'
 
 /**
  * Sets the Kubernetes context based on supplied action inputs
@@ -24,8 +24,6 @@ export async function run() {
    )
    let exitCode: number
 
-   // get kubeconfig and update context
-
    if (useAZSetContext) {
       const subscription: string = core.getInput('subscription') || ''
       const clusterName: string = core.getInput('cluster-name', {
@@ -44,6 +42,10 @@ export async function run() {
       )
       if (exitCode !== 0)
          throw Error('az cli exited with error code ' + exitCode)
+      setKubeconfigPath(kubeconfigPath)
+      if (useKubeLogin) {
+            await kubeLogin(exitCode)
+         }
    } else {
       const clusterType: Cluster | undefined = parseCluster(
          core.getInput('cluster-type', {
@@ -56,14 +58,7 @@ export async function run() {
       // output kubeconfig
       core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`)
       fs.writeFileSync(kubeconfigPath, kubeconfigWithContext)
-   }
-
-   fs.chmodSync(kubeconfigPath, '600')
-   core.debug('Setting KUBECONFIG environment variable')
-   core.exportVariable('KUBECONFIG', kubeconfigPath)
-
-   if (useAZSetContext && useKubeLogin) {
-      await kubeLogin(exitCode)
+      setKubeconfigPath(kubeconfigPath)
    }
 }
 

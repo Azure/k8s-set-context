@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as io from '@actions/io'
 import * as crypto from 'crypto'
+import * as fs from 'fs'
 import {KubeConfig} from '@kubernetes/client-node'
 import {getDefaultKubeconfig} from './kubeconfigs/default'
 import {getArcKubeconfig} from './kubeconfigs/arc'
@@ -119,6 +120,12 @@ export async function kubeLogin(exitCode: number): Promise<void> {
    const kubeloginExitCode = await exec.exec(KUBELOGIN_TOOL_NAME, kubeloginCmd)
    if (kubeloginExitCode !== 0)
       throw Error('kubelogin exited with error code ' + exitCode)
+}
+
+export async function setKubeconfigPath(kubeconfigPath:string) {
+   fs.chmodSync(kubeconfigPath, '600')
+   core.debug('Setting KUBECONFIG environment variable')
+   core.exportVariable('KUBECONFIG', kubeconfigPath)
 }
 
 function getUserAgent(prevUserAgent: string): string {
