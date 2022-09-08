@@ -8,7 +8,7 @@ It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/m
 
 Using the `use-az-set-context` flag will override all other methods of obtaining the kubeconfig. If the user is not an admin they are required to use kubelogin to successfully use this Action via az cli approach. The required inputs are listed below:
 
-### Action inputs
+### AZ CLI Action Inputs
 
 <table>
   <thead>
