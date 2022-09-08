@@ -4,11 +4,11 @@ This action can be used to set cluster context before other actions like [`azure
 
 It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/master) in your workflow before using this action when using the `service-account` or `service-principal` methods or when getting the kubeconfig via az cli commands when using `use-az-set-context` and `use-kubelogin`.
 
-## AZ CLI Approaches
+## az cli Approaches
 
 Using the `use-az-set-context` flag will override all other methods of obtaining the kubeconfig. If the user is not an admin they are required to use kubelogin to successfully use this Action via az cli approach. The required inputs are listed below:
 
-### AZ CLI Action Inputs
+### az cli Action Inputs
 
 <table>
   <thead>
@@ -52,7 +52,7 @@ Using the `use-az-set-context` flag will override all other methods of obtaining
   </tr>
 </table>
 
-## Admin AZ CLI Examples
+## Admin az cli Examples
 ### OIDC Authentication (recommended)
 
 ```yaml
@@ -83,7 +83,7 @@ Using the `use-az-set-context` flag will override all other methods of obtaining
      cluster-name: '<cluster name>'
 ```
 
-### Non-Admin AZ CLI Users
+### Non-Admin az cli Users
 `kubelogin` is at the core of the non-admin user scenario when using `use-az-set-context`. For more information on `kubelogin`, refer to the documentation [here](https://github.com/Azure/kubelogin). 
 
 Non-Admin users will have to install kubelogin to use this Action succesfully. To set up `kubelogin` you may use the following:
