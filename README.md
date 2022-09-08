@@ -37,20 +37,51 @@ Using the `use-az-set-context` flag will override all other methods of obtaining
   <tr>
     <td><code>subscription</code></td>
     <td>Subscription tied to AKS cluster</td>
-    <td>Yes</td>
+    <td>No</td>
   </tr>
   <tr>
     <td><code>admin</code></td>
-    <td>Get cluster admin credentials. Values: true or false</td>
-    <td>Yes</td>
+    <td>Get cluster admin credentials. </br>Values: true or false</td>
+    <td>No</td>
   </tr>
   <tr>
     <td><code>use-kubelogin</code></td>
-    <td>Allows non-admin users to use the Action via kubelogin</td>
+    <td>Allows non-admin users to use the Action via kubelogin</br>Values: true or false</td>
     <td>Admins: No
         </br>Non-Admins: Yes</td>
   </tr>
 </table>
+
+## Admin AZ CLI Examples
+### OIDC Authentication (recommended)
+
+```yaml
+- uses: azure/login@v1
+  with:
+     client-id: ${{ secrets.AZURE_CLIENT_ID }}
+     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+- uses: azure/aks-set-context@v3
+  with:
+     use-az-set-context: 'true'
+     resource-group: '<resource group name>'
+     cluster-name: '<cluster name>'
+```
+
+### Service Principal Authentication
+
+```yaml
+- uses: azure/login@v1
+  with:
+     creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+- uses: azure/aks-set-context@v3
+  with:
+     use-az-set-context: 'true'
+     resource-group: '<resource group name>'
+     cluster-name: '<cluster name>'
+```
 
 ### Non-Admin AZ CLI Users
 `kubelogin` is at the core of the non-admin user scenario when using `use-az-set-context`. For more information on `kubelogin`, refer to the documentation [here](https://github.com/Azure/kubelogin). 
@@ -65,6 +96,39 @@ Non-Admin users will have to install kubelogin to use this Action succesfully. T
           kubelogin --version
 ```
 
+### Non-Admin User Example
+
+If you are executing this Action as a non-admin user, you need to toggle the optional `use-kubelogin` Action input to `true` for it to work.
+
+```yaml
+- uses: azure/login@v1
+  with:
+     client-id: ${{ secrets.AZURE_CLIENT_ID }}
+     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+- uses: azure/aks-set-context@v3
+  with:
+     use-az-set-context: 'true'
+     resource-group: '<resource group name>'
+     cluster-name: '<cluster name>'
+     admin: 'false'
+     use-kubelogin: 'true'
+```
+
+```yaml
+- uses: azure/login@v1
+  with:
+     creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+- uses: azure/aks-set-context@v3
+  with:
+     use-az-set-context: 'true'
+     resource-group: '<resource group name>'
+     cluster-name: '<cluster name>'
+     admin: 'false'
+     use-kubelogin: 'true'
+```
 
 ## Other Approaches
 There are three other approaches for specifying the deployment target:
@@ -84,6 +148,7 @@ Refer to the [action metadata file](./action.yml) for details about inputs. Note
 ```yaml
 - uses: azure/k8s-set-context@v2
   with:
+     use-az-set-context: 'false'
      method: kubeconfig
      kubeconfig: <your kubeconfig>
      context: <context name> # current-context from kubeconfig is used as default
@@ -115,6 +180,7 @@ Please refer to documentation on fetching [kubeconfig for any generic K8s cluste
 ```yaml
 - uses: azure/k8s-set-context@v2
   with:
+     use-az-set-context: 'false'
      method: service-account
      k8s-url: <URL of the cluster's API server>
      k8s-secret: <secret associated with the service account>
@@ -139,6 +205,7 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 ```yaml
 - uses: azure/k8s-set-context@v2
   with:
+     use-az-set-context: 'false'
      method: service-account
      cluster-type: arc
      cluster-name: <cluster-name>
@@ -151,6 +218,7 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 ```yaml
 - uses: azure/k8s-set-context@v2
   with:
+     use-az-set-context: 'false'
      method: service-principal
      cluster-type: arc
      cluster-name: <cluster-name>
