@@ -4,11 +4,11 @@ inputs:
    # Please ensure you have used azure/login in the workflow before this action
    cluster-type:
       description: 'Acceptable values: generic or arc'
-      required: true
+      required: false
       default: 'generic'
    method:
       description: 'Acceptable values: kubeconfig or service-account or service-principal'
-      required: true
+      required: false
       default: 'kubeconfig'
    kubeconfig:
       description: 'Contents of kubeconfig file'
@@ -42,7 +42,7 @@ inputs:
    use-az-set-context:
       description: 'Use az commands to get kubeconfig and set context. Acceptable values: true or false'
       default: 'false'
-      required: false
+      required: true
 branding:
    color: 'blue'
 runs:

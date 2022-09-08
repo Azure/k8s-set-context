@@ -4,9 +4,9 @@ This action can be used to set cluster context before other actions like [`azure
 
 It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/master) in your workflow before using this action when using the `service-account` or `service-principal` methods or when getting the kubeconfig via az cli commands when using `use-az-set-context` and `use-kubelogin`.
 
-# AZ CLI Approaches
+## AZ CLI Approaches
 
-Using the `use-az-set-context` flag will override all other methods of obtaining the kubeconfig. The required inputs to successfully use this method are listed below:
+Using the `use-az-set-context` flag will override all other methods of obtaining the kubeconfig. If the user is not an admin they are required to use kubelogin to successfully use this Action via az cli approach. The required inputs are listed below:
 
 ### Action inputs
 
@@ -66,20 +66,18 @@ Non-Admin users will have to install kubelogin to use this Action succesfully. T
 ```
 
 
-# Other Approaches
+## Other Approaches
 There are three other approaches for specifying the deployment target:
 
 -  Kubeconfig file provided as input to the action
 -  Service account approach where the secret associated with the service account is provided as input to the action
 -  Service principal approach (only applicable for arc cluster) where service principal provided with 'creds' is used as input to action
 
-To use any of these approaches the `use-az-set-context` flag must not be used
+ To use any of these approaches the `use-az-set-context` flag must not be set to false.
 
 In all these approaches it is recommended to store these contents (kubeconfig file content or secret content) in a [secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets/).
 
 Refer to the [action metadata file](./action.yml) for details about inputs. Note that different inputs are required for different method and cluster types. Use the below examples as a reference.
-
-## Example usage
 
 ### Kubeconfig approach
 
