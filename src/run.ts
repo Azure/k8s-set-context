@@ -50,7 +50,7 @@ export async function run() {
       if (exitCode !== 0)
          throw Error('az cli exited with error code ' + exitCode)
       setKubeconfigPath(kubeconfigPath)
-      if (useKubeLogin) {
+      if (useKubeLogin && !admin) {
          await kubeLogin(exitCode)
       }
    } else {

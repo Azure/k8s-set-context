@@ -2,13 +2,78 @@
 
 This action can be used to set cluster context before other actions like [`azure/k8s-deploy`](https://github.com/Azure/k8s-deploy/tree/master) and [`azure/k8s-create-secret`](https://github.com/Azure/k8s-create-secret/tree/master). It should also be used before `kubectl` commands (in script) are run subsequently in the workflow.
 
-It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/master) in your workflow before using this action when using the `service-account` or `service-principal` methods.
+It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/master) in your workflow before using this action when using the `service-account` or `service-principal` methods or when getting the kubeconfig via az cli commands when using `use-az-set-context` and `use-kubelogin`.
 
-There are three approaches for specifying the deployment target:
+# AZ CLI Approaches
+
+Using the `use-az-set-context` flag will override all other methods of obtaining the kubeconfig. The required inputs to successfully use this method are listed below:
+
+### Action inputs
+
+<table>
+  <thead>
+    <tr>
+      <th>Action inputs</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+
+  <tr>
+    <td><code>use-az-set-context</code></td>
+    <td>Resource group containing the AKS cluster</td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+    <td><code>resource-group</code></td>
+    <td>Resource group containing the AKS cluster</td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+    <td><code>cluster-name</code>
+    <td>Name of the AKS cluster</td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+    <td><code>subscription</code></td>
+    <td>Subscription tied to AKS cluster</td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+    <td><code>admin</code></td>
+    <td>Get cluster admin credentials. Values: true or false</td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+    <td><code>use-kubelogin</code></td>
+    <td>Allows non-admin users to use the Action via kubelogin</td>
+    <td>Admins: No
+        </br>Non-Admins: Yes</td>
+  </tr>
+</table>
+
+### Non-Admin AZ CLI Users
+`kubelogin` is at the core of the non-admin user scenario when using `use-az-set-context`. For more information on `kubelogin`, refer to the documentation [here](https://github.com/Azure/kubelogin). 
+
+Non-Admin users will have to install kubelogin to use this Action succesfully. To set up `kubelogin` you may use the following:
+```yaml
+- name: Set up kubelogin for non-interactive login
+        run: |
+          curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.9/kubelogin-linux-amd64.zip
+          sudo unzip -j kubelogin-linux-amd64.zip -d /usr/local/bin
+          rm -f kubelogin-linux-amd64.zip
+          kubelogin --version
+```
+
+
+# Other Approaches
+There are three other approaches for specifying the deployment target:
 
 -  Kubeconfig file provided as input to the action
 -  Service account approach where the secret associated with the service account is provided as input to the action
 -  Service principal approach (only applicable for arc cluster) where service principal provided with 'creds' is used as input to action
+
+To use any of these approaches the `use-az-set-context` flag must not be used
 
 In all these approaches it is recommended to store these contents (kubeconfig file content or secret content) in a [secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets/).
 
