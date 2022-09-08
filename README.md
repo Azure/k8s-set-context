@@ -4,7 +4,7 @@ This action can be used to set cluster context before other actions like [`azure
 
 It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/master) in your workflow before using this action when using the `service-account` or `service-principal` methods or when getting the kubeconfig via az cli commands when using `use-az-set-context` and `use-kubelogin`.
 
-## az cli Approaches
+# az cli Approaches
 
 Using the `use-az-set-context` flag will override all other methods of obtaining the kubeconfig. If the user is not an admin they are required to use kubelogin to successfully use this Action via az cli approach. Refer to the [action metadata file](./action.yml) for details about inputs.
 
@@ -86,7 +86,7 @@ If you are executing this Action using az cli as a non-admin user, you need to t
      use-kubelogin: 'true'
 ```
 
-## Other Approaches
+# Other Approaches
 There are three other approaches for specifying the deployment target:
 
 -  Kubeconfig file provided as input to the action
