@@ -121,7 +121,7 @@ export async function kubeLogin(exitCode: number): Promise<void> {
 
 /**
  * Takes a kubeconfig path and exports the value to a variable accessible by other actions: KUBECONFIG
- * @param kubeconfigPath 
+ * @param kubeconfigPath
  */
 export async function setKubeconfigPath(kubeconfigPath: string) {
    fs.chmodSync(kubeconfigPath, '600')
@@ -131,8 +131,8 @@ export async function setKubeconfigPath(kubeconfigPath: string) {
 
 /**
  * Creates a new UserAgent and returns it. If given a previous UserAgent it appends the new one and returns it.
- * @param prevUserAgent 
- * @returns 
+ * @param prevUserAgent
+ * @returns
  */
 function getUserAgent(prevUserAgent: string): string {
    const ACTION_NAME = 'Azure/k8s-set-context'

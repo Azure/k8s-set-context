@@ -9,6 +9,7 @@ It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/m
 Using the `use-az-set-context` flag will override all other methods of obtaining the kubeconfig. If the user is not an admin they are required to use kubelogin to successfully use this Action via the az cli approach. Refer to the [action metadata file](./action.yml) for details about inputs.
 
 ### az cli Admin Examples
+
 #### OIDC Authentication (recommended)
 
 ```yaml
@@ -40,9 +41,11 @@ Using the `use-az-set-context` flag will override all other methods of obtaining
 ```
 
 ### Non-Admin az cli Users
-`kubelogin` is at the core of the non-admin user scenario when using az cli. For more information on `kubelogin`, refer to the documentation [here](https://github.com/Azure/kubelogin). 
+
+`kubelogin` is at the core of the non-admin user scenario when using az cli. For more information on `kubelogin`, refer to the documentation [here](https://github.com/Azure/kubelogin).
 
 Non-Admin users will have to install kubelogin to use this Action succesfully via this approach. To set up `kubelogin` you may use the following:
+
 ```yaml
 - name: Set up kubelogin for non-interactive login
         run: |
@@ -56,7 +59,8 @@ Non-Admin users will have to install kubelogin to use this Action succesfully vi
 
 If you are executing this Action using az cli as a non-admin user, you need to toggle the optional `use-kubelogin` Action input to `true` for it to work.
 
-#### OIDC Authentication 
+#### OIDC Authentication
+
 ```yaml
 - uses: azure/login@v1
   with:
@@ -72,7 +76,9 @@ If you are executing this Action using az cli as a non-admin user, you need to t
      admin: 'false'
      use-kubelogin: 'true'
 ```
+
 #### Service Principal Authentication
+
 ```yaml
 - uses: azure/login@v1
   with:
@@ -88,13 +94,14 @@ If you are executing this Action using az cli as a non-admin user, you need to t
 ```
 
 # Other Approaches
+
 There are three other approaches for specifying the deployment target:
 
 -  Kubeconfig file provided as input to the action
 -  Service account approach where the secret associated with the service account is provided as input to the action
 -  Service principal approach (only applicable for arc cluster) where service principal provided with 'creds' is used as input to action
 
- To use any of these approaches the `use-az-set-context` flag must not be set to false.
+To use any of these approaches the `use-az-set-context` flag must not be set to false.
 
 In all these approaches it is recommended to store these contents (kubeconfig file content or secret content) in a [secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets/).
 

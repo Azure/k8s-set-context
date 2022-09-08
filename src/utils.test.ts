@@ -84,9 +84,15 @@ describe('Utils', () => {
             if (tool === AZ_TOOL_NAME) return ''
             return ''
          })
-         await expect(azSetContext(true, kubeconfigPath, resourceGroup, clusterName, subscription)).rejects.toThrowError(
-            getAzCommandError()
-         )
+         await expect(
+            azSetContext(
+               true,
+               kubeconfigPath,
+               resourceGroup,
+               clusterName,
+               subscription
+            )
+         ).rejects.toThrowError(getAzCommandError())
       })
 
       it('gets the kubeconfig via az command', async () => {
@@ -105,7 +111,13 @@ describe('Utils', () => {
          jest.spyOn(core, 'debug').mockImplementation()
 
          await expect(
-            azSetContext(true, kubeconfigPath, resourceGroup, clusterName, subscription)
+            azSetContext(
+               true,
+               kubeconfigPath,
+               resourceGroup,
+               clusterName,
+               subscription
+            )
          ).resolves.not.toThrowError()
 
          expect(exec.exec).toBeCalledWith(
