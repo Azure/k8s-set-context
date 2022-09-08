@@ -9,7 +9,7 @@ It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/m
 Using the `use-az-set-context` flag will override all other methods of obtaining the kubeconfig. If the user is not an admin they are required to use kubelogin to successfully use this Action via the az cli approach. Refer to the [action metadata file](./action.yml) for details about inputs.
 
 ## az cli Admin Examples
-### OIDC Authentication (recommended)
+#### OIDC Authentication (recommended)
 
 ```yaml
 - uses: azure/login@v1
@@ -25,7 +25,7 @@ Using the `use-az-set-context` flag will override all other methods of obtaining
      cluster-name: '<cluster name>'
 ```
 
-### Service Principal Authentication
+#### Service Principal Authentication
 
 ```yaml
 - uses: azure/login@v1
@@ -39,7 +39,7 @@ Using the `use-az-set-context` flag will override all other methods of obtaining
      cluster-name: '<cluster name>'
 ```
 
-### Non-Admin az cli Users
+## Non-Admin az cli Users
 `kubelogin` is at the core of the non-admin user scenario when using az cli. For more information on `kubelogin`, refer to the documentation [here](https://github.com/Azure/kubelogin). 
 
 Non-Admin users will have to install kubelogin to use this Action succesfully via this approach. To set up `kubelogin` you may use the following:
@@ -56,7 +56,7 @@ Non-Admin users will have to install kubelogin to use this Action succesfully vi
 
 If you are executing this Action using az cli as a non-admin user, you need to toggle the optional `use-kubelogin` Action input to `true` for it to work.
 
-### OIDC Authentication 
+#### OIDC Authentication 
 ```yaml
 - uses: azure/login@v1
   with:
@@ -72,7 +72,7 @@ If you are executing this Action using az cli as a non-admin user, you need to t
      admin: 'false'
      use-kubelogin: 'true'
 ```
-### Service Principal Authentication
+#### Service Principal Authentication
 ```yaml
 - uses: azure/login@v1
   with:
