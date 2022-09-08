@@ -6,53 +6,9 @@ It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/m
 
 ## az cli Approaches
 
-Using the `use-az-set-context` flag will override all other methods of obtaining the kubeconfig. If the user is not an admin they are required to use kubelogin to successfully use this Action via az cli approach. The required inputs are listed below:
+Using the `use-az-set-context` flag will override all other methods of obtaining the kubeconfig. If the user is not an admin they are required to use kubelogin to successfully use this Action via az cli approach. Refer to the [action metadata file](./action.yml) for details about inputs.
 
-### az cli Action Inputs
-
-<table>
-  <thead>
-    <tr>
-      <th>Action inputs</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-
-  <tr>
-    <td><code>use-az-set-context</code></td>
-    <td>Resource group containing the AKS cluster</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td><code>resource-group</code></td>
-    <td>Resource group containing the AKS cluster</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td><code>cluster-name</code>
-    <td>Name of the AKS cluster</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td><code>subscription</code></td>
-    <td>Subscription tied to AKS cluster</td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td><code>admin</code></td>
-    <td>Get cluster admin credentials. </br>Values: true or false</td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td><code>use-kubelogin</code></td>
-    <td>Allows non-admin users to use the Action via kubelogin</br>Values: true or false</td>
-    <td>Admins: No
-        </br>Non-Admins: Yes</td>
-  </tr>
-</table>
-
-## Admin az cli Examples
+## az cli Admin Examples
 ### OIDC Authentication (recommended)
 
 ```yaml
@@ -96,9 +52,9 @@ Non-Admin users will have to install kubelogin to use this Action succesfully. T
           kubelogin --version
 ```
 
-### Non-Admin User Example
+### az cli Non-Admin Example
 
-If you are executing this Action as a non-admin user, you need to toggle the optional `use-kubelogin` Action input to `true` for it to work.
+If you are executing this Action using az cli as a non-admin user, you need to toggle the optional `use-kubelogin` Action input to `true` for it to work.
 
 ```yaml
 - uses: azure/login@v1
