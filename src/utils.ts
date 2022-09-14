@@ -111,12 +111,13 @@ export async function azSetContext(
  * Uses kubelogin to convert kubeconfig to exec credential plugin format
  * @param exitCode ExitCode from az command execution to obtain kubeconfig
  */
-export async function kubeLogin(exitCode: number): Promise<void> {
+export async function kubeLogin(): Promise<void> {
    const KUBELOGIN_TOOL_NAME = 'kubelogin'
    const KUBELOGIN_CMD = ['convert-kubeconfig', '-l', 'azurecli']
+   const KUBELOGIN_EXIT_CODE = await exec.exec(KUBELOGIN_TOOL_NAME, KUBELOGIN_CMD)
 
-   if ((await exec.exec(KUBELOGIN_TOOL_NAME, KUBELOGIN_CMD)) !== 0)
-      throw Error('kubelogin exited with error code ' + exitCode)
+   if (KUBELOGIN_EXIT_CODE !== 0)
+      throw Error('kubelogin exited with error code ' + KUBELOGIN_EXIT_CODE)
 }
 
 /**
