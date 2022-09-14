@@ -131,7 +131,9 @@ describe('Utils', () => {
       it('gets the kubeconfig via az command', async () => {
          jest.spyOn(exec, 'exec').mockImplementation(async () => 1)
 
-         await expect(kubeLogin()).rejects.toThrowError('kubelogin exited with error code 1')
+         await expect(kubeLogin()).rejects.toThrowError(
+            'kubelogin exited with error code 1'
+         )
          expect(exec.exec).toBeCalledWith(
             expect.stringContaining(KUBELOGIN_TOOL_NAME),
             expect.arrayContaining(KUBELOGIN_CMD)
