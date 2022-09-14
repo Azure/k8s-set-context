@@ -51,7 +51,7 @@ export async function run() {
          throw Error('az cli exited with error code ' + exitCode)
       setKubeconfigPath(kubeconfigPath)
       if (useKubeLogin && !admin) {
-         await kubeLogin(exitCode)
+         await kubeLogin()
       }
    } else {
       const clusterType: Cluster | undefined = parseCluster(

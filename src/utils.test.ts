@@ -2,7 +2,7 @@ import fs from 'fs'
 import * as arc from './kubeconfigs/arc'
 import * as def from './kubeconfigs/default'
 import {Cluster} from './types/cluster'
-import {getKubeconfig, setContext, azSetContext} from './utils'
+import {getKubeconfig, setContext, azSetContext, kubeLogin} from './utils'
 import * as io from '@actions/io'
 import * as exec from '@actions/exec'
 import {getAzCommandError} from '../tests/util'
@@ -68,6 +68,8 @@ describe('Utils', () => {
          '-f',
          kubeconfigPath
       ]
+      const KUBELOGIN_TOOL_NAME = 'kubelogin'
+      const KUBELOGIN_CMD = ['convert-kubeconfig', '-l', 'azurecli']
 
       it('throws error when Az cli tools are not installed', async () => {
          jest
@@ -123,6 +125,16 @@ describe('Utils', () => {
          expect(exec.exec).toBeCalledWith(
             expect.stringContaining(AZ_TOOL_NAME),
             expect.arrayContaining(cmd)
+         )
+      })
+
+      it('gets the kubeconfig via az command', async () => {
+         jest.spyOn(exec, 'exec').mockImplementation(async () => 1)
+
+         await expect(kubeLogin()).rejects.toThrowError('kubelogin exited with error code 1')
+         expect(exec.exec).toBeCalledWith(
+            expect.stringContaining(KUBELOGIN_TOOL_NAME),
+            expect.arrayContaining(KUBELOGIN_CMD)
          )
       })
    })

@@ -238,7 +238,7 @@ describe('Run', () => {
             clusterName,
             ''
          )
-         await expect(utils.kubeLogin).toHaveBeenCalledWith(0)
+         await expect(utils.kubeLogin).toHaveBeenCalled()
 
          expect(fs.chmodSync).toBeCalledWith(kubeconfigPath, '600')
          expect(core.exportVariable).toBeCalledWith(
