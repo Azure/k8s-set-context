@@ -146,7 +146,7 @@ describe('Run', () => {
       })
 
       it('gets the kubeconfig and sets the context as a non-admin user with a subscription', async () => {
-         let subCmd: string[] = ['--subscription', subscription]
+         const subCmd: string[] = ['--subscription', subscription]
 
          process.env['RUNNER_TEMP'] = runnerTemp
 
@@ -177,7 +177,7 @@ describe('Run', () => {
       })
 
       it('gets the kubeconfig and sets the context as an admin user with a subscription', async () => {
-         let subAdmCmd: string[] = ['--subscription', subscription, '--admin']
+         const subAdmCmd: string[] = ['--subscription', subscription, '--admin']
 
          process.env['RUNNER_TEMP'] = runnerTemp
 

@@ -1,11 +1,9 @@
 import * as core from '@actions/core'
-import * as exec from '@actions/exec'
-import * as io from '@actions/io'
-import * as crypto from 'crypto'
 import * as fs from 'fs'
 import {KubeConfig} from '@kubernetes/client-node'
 import {getDefaultKubeconfig} from './kubeconfigs/default'
 import {getArcKubeconfig} from './kubeconfigs/arc'
+import {getAKSKubeconfig} from './kubeconfigs/aks'
 import {Cluster} from './types/cluster'
 
 /**
@@ -19,6 +17,9 @@ export async function getKubeconfig(
    switch (type) {
       case Cluster.ARC: {
          return await getArcKubeconfig()
+      }
+      case Cluster.AKS: {
+         return await getAKSKubeconfig()
       }
       case undefined: {
          core.warning('Cluster type not recognized. Defaulting to generic.')
@@ -51,79 +52,6 @@ export function setContext(kubeconfig: string): string {
 }
 
 /**
- * Sets the context by pulling kubeconfig via az command
- * @param admin Boolean for determining whether or not user is admin
- * @param kubeconfigPath Path to place kubeconfig
- * @returns Promise for the resulting exitCode number from running az command
- */
-export async function azSetContext(
-   admin: boolean,
-   kubeconfigPath: string,
-   resourceGroupName: string,
-   clusterName: string,
-   subscription: string
-): Promise<number> {
-   const AZ_TOOL_NAME = 'az'
-   const AZ_USER_AGENT_ENV = 'AZURE_HTTP_USER_AGENT'
-   const AZ_USER_AGENT_ENV_PS = 'AZUREPS_HOST_ENVIRONMENT'
-   const originalAzUserAgent = process.env[AZ_USER_AGENT_ENV] || ''
-   const originalAzUserAgentPs = process.env[AZ_USER_AGENT_ENV_PS] || ''
-
-   try {
-      // set az user agent
-      core.exportVariable(AZ_USER_AGENT_ENV, getUserAgent(originalAzUserAgent))
-      core.exportVariable(
-         AZ_USER_AGENT_ENV_PS,
-         getUserAgent(originalAzUserAgentPs)
-      )
-
-      const cmd = [
-         'aks',
-         'get-credentials',
-         '--resource-group',
-         resourceGroupName,
-         '--name',
-         clusterName,
-         '-f',
-         kubeconfigPath
-      ]
-
-      // check az tools
-      const azPath = await io.which(AZ_TOOL_NAME, false)
-      if (!azPath)
-         throw Error(
-            'Az cli tools not installed. You must install them before running this action with the aks-set-context flag'
-         )
-
-      if (subscription.length > 0) cmd.push('--subscription', subscription)
-      if (admin) cmd.push('--admin')
-
-      return await exec.exec(AZ_TOOL_NAME, cmd)
-   } catch (e) {
-      throw e
-   } finally {
-      core.exportVariable(AZ_USER_AGENT_ENV, originalAzUserAgent)
-      core.exportVariable(AZ_USER_AGENT_ENV_PS, originalAzUserAgentPs)
-   }
-}
-
-/**
- * Uses kubelogin to convert kubeconfig to exec credential plugin format
- * @param exitCode ExitCode from az command execution to obtain kubeconfig
- */
-export async function kubeLogin(): Promise<void> {
-   const KUBELOGIN_TOOL_NAME = 'kubelogin'
-   const KUBELOGIN_CMD = ['convert-kubeconfig', '-l', 'azurecli']
-   const KUBELOGIN_EXIT_CODE = await exec.exec(
-      KUBELOGIN_TOOL_NAME,
-      KUBELOGIN_CMD
-   )
-
-   if (KUBELOGIN_EXIT_CODE !== 0)
-      throw Error('kubelogin exited with error code ' + KUBELOGIN_EXIT_CODE)
-}
-
-/**
  * Takes a kubeconfig path and exports the value to a variable accessible by other actions: KUBECONFIG
  * @param kubeconfigPath
  */
@@ -131,21 +59,4 @@ export async function setKubeconfigPath(kubeconfigPath: string) {
    fs.chmodSync(kubeconfigPath, '600')
    core.debug('Setting KUBECONFIG environment variable')
    core.exportVariable('KUBECONFIG', kubeconfigPath)
-}
-
-/**
- * Creates a new UserAgent and returns it. If given a previous UserAgent it appends the new one and returns it.
- * @param prevUserAgent
- * @returns
- */
-function getUserAgent(prevUserAgent: string): string {
-   const ACTION_NAME = 'Azure/k8s-set-context'
-   const actionName = process.env.GITHUB_ACTION_REPOSITORY || ACTION_NAME
-   const runRepo = process.env.GITHUB_REPOSITORY || ''
-   const runRepoHash = crypto.createHash('sha256').update(runRepo).digest('hex')
-   const runId = process.env.GITHUB_RUN_ID
-   const newUserAgent = `GitHubActions/${actionName}(${runRepoHash}; ${runId})`
-
-   if (prevUserAgent) return `${prevUserAgent}+${newUserAgent}`
-   return newUserAgent
 }
