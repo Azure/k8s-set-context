@@ -1,6 +1,7 @@
 export enum Cluster {
    ARC = 'arc',
-   GENERIC = 'generic'
+   GENERIC = 'generic',
+   AKS = 'aks'
 }
 
 /**
