@@ -25,7 +25,6 @@ jobs:
          - name: Set Context
            uses: ./
            with:
-              use-az-set-context: 'false'
               method: kubeconfig
               context: exp-scratch
               kubeconfig: |

@@ -4,11 +4,11 @@ inputs:
    # Please ensure you have used azure/login in the workflow before this action
    cluster-type:
       description: 'Acceptable values: generic, arc or aks'
-      required: false
+      required: true
       default: 'generic'
    method:
       description: 'Acceptable values: kubeconfig or service-account or service-principal'
-      required: false
+      required: true
       default: 'kubeconfig'
    kubeconfig:
       description: 'Contents of kubeconfig file'
@@ -26,15 +26,18 @@ inputs:
       description: 'Token extracted from the secret of service account (should be base 64 decoded)'
       required: false
    resource-group:
-      description: 'Azure resource group name. Required for az cli approach'
+      description: 'Azure resource group name'
       required: false
    cluster-name:
-      description: 'Azure connected cluster name. Required for az cli approach'
+      description: 'Azure connected cluster name'
+      required: false
+   subscription:
+      description: 'Subscription tied to AKS cluster'
       required: false
    admin:
       description: 'Get cluster admin credentials. Required for aks clusters. Acceptable values: true or false'
       default: 'false'
-      required: false
+      required: true
 branding:
    color: 'blue'
 runs:
