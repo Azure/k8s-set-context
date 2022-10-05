@@ -1,11 +1,12 @@
 import * as core from '@actions/core'
-import * as exec from '@actions/exec'
 import * as io from '@actions/io'
 import * as crypto from 'crypto'
 import * as path from 'path'
-import {Method, parseMethod} from '../types/method'
+import * as jsyaml from 'js-yaml'
 import {runAzKubeconfigCommandBlocking} from './azCommands'
-
+import {kubeLogin, createKubeconfig} from '../utils'
+import {Method, parseMethod} from '../types/method'
+import {K8sSecret, parseK8sSecret} from '../types/k8sSecret'
 const RUNNER_TEMP: string = process.env['RUNNER_TEMP'] || ''
 export const KUBECONFIG_LOCATION: string = path.join(
    RUNNER_TEMP,
@@ -14,7 +15,7 @@ export const KUBECONFIG_LOCATION: string = path.join(
 
 /**
  * Sets the context by pulling kubeconfig via az aks command
- * @returns Promise for the resulting exitCode number from running az command
+ * @returns Promise for the resulting kubeconfig in string form
  */
 export async function getAKSKubeconfig(): Promise<string> {
    const AZ_USER_AGENT_ENV = 'AZURE_HTTP_USER_AGENT'
@@ -27,76 +28,105 @@ export async function getAKSKubeconfig(): Promise<string> {
    const subscription: string = core.getInput('subscription') || ''
    const azPath = await io.which('az', true)
 
-   // check az tools
-   if (!azPath)
-      throw Error(
-         'Az cli tools not installed. You must install them before running this action with the aks-set-context flag'
-      )
+   const method: Method | undefined = parseMethod(
+      core.getInput('method', {required: true})
+   )
 
-   const originalAzUserAgent = process.env[AZ_USER_AGENT_ENV] || ''
-   const originalAzUserAgentPs = process.env[AZ_USER_AGENT_ENV_PS] || ''
+   switch (method) {
+      case Method.SERVICE_PRINCIPAL: {
+         // check az tools
+         if (!azPath)
+            throw Error(
+               'Az cli tools not installed. You must install them before running this action with an AKS cluster'
+            )
 
-   const cmd = [
-      'aks',
-      'get-credentials',
-      '-g',
-      resourceGroupName,
-      '-n',
-      clusterName,
-      '-f',
-      KUBECONFIG_LOCATION
-   ]
+         const originalAzUserAgent = process.env[AZ_USER_AGENT_ENV] || ''
+         const originalAzUserAgentPs = process.env[AZ_USER_AGENT_ENV_PS] || ''
 
-   let aksKubeconfig = ''
+         const cmd = [
+            'aks',
+            'get-credentials',
+            '-g',
+            resourceGroupName,
+            '-n',
+            clusterName,
+            '-f',
+            KUBECONFIG_LOCATION
+         ]
 
-   try {
-      core.exportVariable(AZ_USER_AGENT_ENV, getUserAgent(originalAzUserAgent))
-      core.exportVariable(
-         AZ_USER_AGENT_ENV_PS,
-         getUserAgent(originalAzUserAgentPs)
-      )
+         let aksKubeconfig = ''
 
-      if (admin) {
-         cmd.push('--admin')
-      } else {
-         core.warning(
-            'Service Principal method needs admin permissions to run via az aks command. Defaulting to kubelogin method'
+         try {
+            core.exportVariable(
+               AZ_USER_AGENT_ENV,
+               getUserAgent(originalAzUserAgent)
+            )
+            core.exportVariable(
+               AZ_USER_AGENT_ENV_PS,
+               getUserAgent(originalAzUserAgentPs)
+            )
+
+            if (admin) {
+               cmd.push('--admin')
+            } else {
+               core.warning(
+                  'Service Principal method needs admin permissions to run via az aks command. Defaulting to kubelogin method'
+               )
+            }
+
+            if (subscription.length > 0)
+               cmd.push('--subscription', subscription)
+
+            aksKubeconfig = await runAzKubeconfigCommandBlocking(
+               azPath,
+               cmd,
+               KUBECONFIG_LOCATION
+            )
+
+            if (!admin) {
+               kubeLogin()
+            }
+         } catch (e) {
+            throw e
+         } finally {
+            core.exportVariable(AZ_USER_AGENT_ENV_PS, originalAzUserAgentPs)
+            core.exportVariable(AZ_USER_AGENT_ENV, originalAzUserAgent)
+         }
+
+         return aksKubeconfig
+      }
+      case Method.SERVICE_ACCOUNT: {
+         const clusterUrl = core.getInput('k8s-url', {required: true})
+         core.debug(
+            'Found clusterUrl. Creating kubeconfig using certificate and token'
          )
+
+         const k8sSecret: string = core.getInput('k8s-secret', {
+            required: true
+         })
+         const parsedK8sSecret: K8sSecret = parseK8sSecret(
+            jsyaml.load(k8sSecret)
+         )
+         const certAuth: string = parsedK8sSecret.data['ca.crt']
+         const token: string = Buffer.from(
+            parsedK8sSecret.data.token,
+            'base64'
+         ).toString()
+
+         return createKubeconfig(certAuth, token, clusterUrl)
       }
-
-      if (subscription.length > 0) cmd.push('--subscription', subscription)
-
-      aksKubeconfig = await runAzKubeconfigCommandBlocking(
-         azPath,
-         cmd,
-         KUBECONFIG_LOCATION
-      )
-
-      if (!admin) {
-         kubeLogin()
-      }
-   } catch (e) {
-      throw e
-   } finally {
-      core.exportVariable(AZ_USER_AGENT_ENV_PS, originalAzUserAgentPs)
-      core.exportVariable(AZ_USER_AGENT_ENV, originalAzUserAgent)
+      case undefined:
+         core.warning('Defaulting to kubeconfig method')
+      case Method.KUBECONFIG:
+      default:
+         throw Error('Kubeconfig method not supported for AKS cluster')
    }
-
-   return aksKubeconfig
-}
-
-export async function kubeLogin(): Promise<void> {
-   const KUBELOGIN_CMD = ['convert-kubeconfig', '-l', 'azurecli']
-   const KUBELOGIN_EXIT_CODE = await exec.exec('kubelogin', KUBELOGIN_CMD)
-
-   if (KUBELOGIN_EXIT_CODE !== 0)
-      throw Error('kubelogin exited with error code ' + KUBELOGIN_EXIT_CODE)
 }
 
 /**
  * Creates a new UserAgent and returns it. If given a previous UserAgent it appends the new one and returns it.
  * @param prevUserAgent
- * @returns
+ * @returns updated user agent or a new user agent if none are provided
  */
 function getUserAgent(prevUserAgent: string): string {
    const ACTION_NAME = 'Azure/k8s-set-context'

@@ -5,6 +5,7 @@ import {getDefaultKubeconfig} from './kubeconfigs/default'
 import {getArcKubeconfig} from './kubeconfigs/arc'
 import {getAKSKubeconfig} from './kubeconfigs/aks'
 import {Cluster} from './types/cluster'
+import {exec} from '@actions/exec'
 
 /**
  * Gets the kubeconfig based on Kubernetes cluster type
@@ -59,4 +60,40 @@ export async function setKubeconfigPath(kubeconfigPath: string) {
    fs.chmodSync(kubeconfigPath, '600')
    core.debug('Setting KUBECONFIG environment variable')
    core.exportVariable('KUBECONFIG', kubeconfigPath)
+}
+
+export async function kubeLogin(): Promise<void> {
+   const KUBELOGIN_CMD = ['convert-kubeconfig', '-l', 'azurecli']
+   const KUBELOGIN_EXIT_CODE = await exec('kubelogin', KUBELOGIN_CMD)
+
+   if (KUBELOGIN_EXIT_CODE !== 0)
+      throw Error('kubelogin exited with error code ' + KUBELOGIN_EXIT_CODE)
+}
+
+/**
+ * Creates a kubeconfig and returns the string representation
+ * @param certAuth The certificate authentication of the cluster
+ * @param token The user token
+ * @param clusterUrl The server url of the cluster
+ * @returns The kubeconfig as a string
+ */
+export function createKubeconfig(
+   certAuth: string,
+   token: string,
+   clusterUrl: string
+): string {
+   const kc = new KubeConfig()
+   kc.loadFromClusterAndUser(
+      {
+         name: 'default',
+         server: clusterUrl,
+         caData: certAuth,
+         skipTLSVerify: false
+      },
+      {
+         name: 'default-user',
+         token
+      }
+   )
+   return kc.exportConfig()
 }

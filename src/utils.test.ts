@@ -2,11 +2,8 @@ import fs from 'fs'
 import * as arc from './kubeconfigs/arc'
 import * as def from './kubeconfigs/default'
 import {Cluster} from './types/cluster'
-import {getKubeconfig, setContext, azSetContext, kubeLogin} from './utils'
-import * as io from '@actions/io'
+import {getKubeconfig, setContext, kubeLogin} from './utils'
 import * as exec from '@actions/exec'
-import {getAzCommandError} from '../tests/util'
-import * as core from '@actions/core'
 
 describe('Utils', () => {
    describe('get kubeconfig', () => {
@@ -49,94 +46,12 @@ describe('Utils', () => {
       })
    })
 
-   describe('azSetContext', () => {
-      const resourceGroup: string = 'sample-rg'
-      const clusterName: string = 'sample-cluster'
-      const subscription: string = 'subscription-example'
-      const azPath: string = 'path'
-      const runnerTemp: string = 'temp'
-      const date: number = 1644272184664
-      const AZ_TOOL_NAME: string = 'az'
-      const kubeconfigPath: string = `${runnerTemp}/kubeconfig_${date}`
-      const cmd: string[] = [
-         'aks',
-         'get-credentials',
-         '--resource-group',
-         resourceGroup,
-         '--name',
-         clusterName,
-         '-f',
-         kubeconfigPath
-      ]
-      const KUBELOGIN_TOOL_NAME = 'kubelogin'
-      const KUBELOGIN_CMD = ['convert-kubeconfig', '-l', 'azurecli']
-
-      it('throws error when Az cli tools are not installed', async () => {
-         jest
-            .spyOn(core, 'getInput')
-            .mockImplementation((inputName: string) => {
-               if (inputName == 'resource-group') return resourceGroup
-               if (inputName == 'cluster-name') return clusterName
-               if (inputName == 'subscription') return subscription
-               if (inputName == 'use-az-set-context') return 'true'
-               if (inputName == 'admin') return 'false'
-               return ''
-            })
-         jest.spyOn(io, 'which').mockImplementation(async (tool, check) => {
-            if (tool === AZ_TOOL_NAME) return ''
-            return ''
-         })
-         await expect(
-            azSetContext(
-               true,
-               kubeconfigPath,
-               resourceGroup,
-               clusterName,
-               subscription
-            )
-         ).rejects.toThrowError(getAzCommandError())
-      })
-
-      it('gets the kubeconfig via az command', async () => {
-         jest
-            .spyOn(core, 'getInput')
-            .mockImplementation((inputName, options) => {
-               if (inputName == 'resource-group') return resourceGroup
-               if (inputName == 'cluster-name') return clusterName
-               return ''
-            })
-         jest.spyOn(io, 'which').mockImplementation(async () => azPath)
-         process.env['RUNNER_TEMP'] = runnerTemp
-         jest.spyOn(Date, 'now').mockImplementation(() => date)
-         jest.spyOn(exec, 'exec').mockImplementation(async () => 0)
-         jest.spyOn(fs, 'chmodSync').mockImplementation()
-         jest.spyOn(core, 'debug').mockImplementation()
-
-         await expect(
-            azSetContext(
-               true,
-               kubeconfigPath,
-               resourceGroup,
-               clusterName,
-               subscription
-            )
-         ).resolves.not.toThrowError()
-
-         expect(exec.exec).toBeCalledWith(
-            expect.stringContaining(AZ_TOOL_NAME),
-            expect.arrayContaining(cmd)
-         )
-      })
-
-      it('gets the kubeconfig via az command', async () => {
+   describe('kubeLogin', () => {
+      test('It throws an Error when KUBELOGIN_EXIT_CODE is not 0', async () => {
          jest.spyOn(exec, 'exec').mockImplementation(async () => 1)
 
-         await expect(kubeLogin()).rejects.toThrowError(
+         expect(await kubeLogin).rejects.toThrowError(
             'kubelogin exited with error code 1'
-         )
-         expect(exec.exec).toBeCalledWith(
-            expect.stringContaining(KUBELOGIN_TOOL_NAME),
-            expect.arrayContaining(KUBELOGIN_CMD)
          )
       })
    })
