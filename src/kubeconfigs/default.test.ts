@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import {getRequiredInputError} from '../../tests/util'
-import {createKubeconfig, getDefaultKubeconfig} from './default'
+import {getDefaultKubeconfig} from './default'
+import {createKubeconfig} from '../utils'
 
 describe('Default kubeconfig', () => {
    test('it creates a kubeconfig with proper format', () => {
