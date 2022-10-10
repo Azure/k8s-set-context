@@ -83,6 +83,21 @@ Please refer to documentation on fetching [kubeconfig for any generic K8s cluste
      admin: '<admin status>'
 ```
 
+#### Non-Admin AKS Cluster Users
+
+When using Service Principal authentication the status of the cluster's `admin` credentials can affect the method used to get its kubeconfig from AKS clusters. `Kubelogin` is at the core of the non-admin user scenario when using AKS clusters. For more information on `kubelogin`, refer to the documentation [here](https://github.com/Azure/kubelogin).
+
+Non-Admin users will have to install kubelogin to use this Action succesfully. To set up `kubelogin` you may use the following:
+
+```yaml
+- name: Set up kubelogin for non-interactive login
+        run: |
+          curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.20/kubelogin-linux-amd64.zip
+          sudo unzip -j kubelogin-linux-amd64.zip -d /usr/local/bin
+          rm -f kubelogin-linux-amd64.zip
+          kubelogin --version
+```
+
 ### Service Account Authentication for Non-Arc Clusters
 
 ```yaml
@@ -119,21 +134,6 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
      resource-group: <resource-group>
      admin: '<admin status>'
      token: '${{ secrets.SA_TOKEN }}'
-```
-
-#### Non-Admin AKS Cluster Users
-
-When setting a cluster's context the status of the cluster's `admin` credentials can affect the method used to get its kubeconfig from AKS clusters. Refer to the [action metadata file](./action.yml) for details about inputs. `kubelogin` is at the core of the non-admin user scenario when using AKS clusters. For more information on `kubelogin`, refer to the documentation [here](https://github.com/Azure/kubelogin).
-
-Non-Admin users will have to install kubelogin to use this Action succesfully. To set up `kubelogin` you may use the following:
-
-```yaml
-- name: Set up kubelogin for non-interactive login
-        run: |
-          curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.9/kubelogin-linux-amd64.zip
-          sudo unzip -j kubelogin-linux-amd64.zip -d /usr/local/bin
-          rm -f kubelogin-linux-amd64.zip
-          kubelogin --version
 ```
 
 ## Contributing
