@@ -23,7 +23,7 @@ jobs:
          - name: Build
            run: npm run build
          - name: Set Context
-           uses: aamgayle/k8s-set-context@v1
+           uses: asgayle/k8s-set-context@v1
            with:
               method: kubeconfig
               context: exp-scratch
