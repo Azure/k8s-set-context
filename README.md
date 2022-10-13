@@ -39,7 +39,9 @@ There are three types of clusters you can specify as deployment targets:
 
 In all these approaches it is recommended to store these contents (kubeconfig file content or secret content) in a [secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets/).
 
-Refer to the [action metadata file](./action.yml) for details about inputs. Use the below examples as a reference.
+Refer to the [action metadata file](./action.yml) for details about inputs.
+
+Use the below examples as a reference on how to access your cluster using the different authentication methods available to it.
 
 ### Kubeconfigs
 
