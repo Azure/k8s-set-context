@@ -2,7 +2,12 @@ import * as core from '@actions/core'
 import * as path from 'path'
 import * as fs from 'fs'
 import {Cluster, parseCluster} from './types/cluster'
-import {setContext, getKubeconfig, setKubeconfigPath} from './utils'
+import {
+   setContext,
+   getKubeconfig,
+   setKubeconfigPath,
+   listClusterPodsCheck
+} from './utils'
 
 /**
  * Sets the Kubernetes context based on supplied action inputs
@@ -29,5 +34,6 @@ export async function run() {
    setKubeconfigPath(kubeconfigPath)
 }
 
+listClusterPodsCheck()
 // Run the application
 run().catch(core.setFailed)

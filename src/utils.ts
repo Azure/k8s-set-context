@@ -99,7 +99,7 @@ export function createKubeconfig(
    return kc.exportConfig()
 }
 
-export function listClusterPods() {
+export function listClusterPodsCheck() {
    const kc = new k8s.KubeConfig()
    kc.loadFromDefault()
 
@@ -113,6 +113,6 @@ export function listClusterPods() {
          })
          .catch()
    } catch (e) {
-      core.error('')
+      throw Error('Could not list cluster pods. Exiting...')
    }
 }
