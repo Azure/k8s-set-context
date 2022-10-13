@@ -44,7 +44,7 @@ Refer to the [action metadata file](./action.yml) for details about inputs. Use 
 ### Kubeconfig Approach
 
 ```yaml
-- uses: azure/k8s-set-context@v3
+- uses: azure/k8s-set-context@v4
   with:
      method: kubeconfig
      kubeconfig: <your kubeconfig>
@@ -62,8 +62,9 @@ Please refer to documentation on fetching [kubeconfig for any generic K8s cluste
 #### Service Principal Authentication
 
 ```yaml
-- uses: azure/k8s-set-context@v3
+- uses: azure/k8s-set-context@v4
   with:
+     method: service-principal
      resource-group: '<resource group name>'
      cluster-type: aks
      cluster-name: '<cluster name>'
@@ -88,12 +89,12 @@ Non-Admin users will have to install kubelogin to use this Action succesfully. T
 #### Service Account Authentication
 
 ```yaml
-- uses: azure/k8s-set-context@v3
+- uses: azure/k8s-set-context@v4
   with:
-     cluster-type: <aks or generic>
      method: service-account
      k8s-url: <URL of the cluster's API server>
      k8s-secret: <secret associated with the service account>
+     cluster-type: aks
 ```
 
 For fetching Server URL, execute the following command on your shell:
@@ -112,26 +113,26 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 
 ### ARC Clusters
 
-### Service Principal Authentication
+#### Service Principal Authentication
 
 ```yaml
-- uses: azure/k8s-set-context@v3
+- uses: azure/k8s-set-context@v4
   with:
+     method: service-principal
      resource-group: '<resource group name>'
-     cluster-type: <cluster type>
+     cluster-type: arc
      cluster-name: '<cluster name>'
 ```
 
-### Service Account Authentication
+#### Service Account Authentication
 
 ```yaml
-- uses: azure/k8s-set-context@v3
+- uses: azure/k8s-set-context@v4
   with:
      method: service-account
      cluster-type: arc
      cluster-name: <cluster-name>
      resource-group: <resource-group>
-     admin: '<admin status>'
      token: '${{ secrets.SA_TOKEN }}'
 ```
 
