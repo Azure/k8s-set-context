@@ -41,7 +41,7 @@ In all these approaches it is recommended to store these contents (kubeconfig fi
 
 Refer to the [action metadata file](./action.yml) for details about inputs. Use the below examples as a reference.
 
-### Kubeconfig Approach
+### Kubeconfigs
 
 ```yaml
 - uses: azure/k8s-set-context@v4
@@ -57,7 +57,7 @@ You will need to fetch a kubeconfig file onto your local development machine so 
 
 Please refer to documentation on fetching [kubeconfig for any generic K8s cluster](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/)
 
-### Azure Kubernetes Service
+### AKS Clusters
 
 #### Service Principal Authentication
 
