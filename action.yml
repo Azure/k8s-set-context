@@ -36,8 +36,7 @@ inputs:
       required: false
    admin:
       description: 'Get cluster admin credentials. Required for aks clusters. Acceptable values: true or false'
-      default: 'false'
-      required: true
+      required: false
 branding:
    color: 'blue'
 runs:

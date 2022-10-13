@@ -11,15 +11,7 @@ It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/m
 
 For more information on Azure Login refer [here](<https://github.com/marketplace/actions/azure-login#:~:text=GitHub%20Action%20for,in%20step%20(i)>) and use the examples below as a reference
 
-#### Azure Login via creds
-
-```yaml
-- uses: azure/login@v1
-  with:
-     creds: ${{ secrets.AZURE_CREDENTIALS }}
-```
-
-#### Azure Login via OIDC
+#### Azure Login via OIDC (Recommended)
 
 ```yaml
 - uses: azure/login@v1
@@ -27,6 +19,14 @@ For more information on Azure Login refer [here](<https://github.com/marketplace
      client-id: ${{ secrets.AZURE_CLIENT_ID }}
      tenant-id: ${{ secrets.AZURE_TENANT_ID }}
      subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+```
+
+#### Azure Login via creds
+
+```yaml
+- uses: azure/login@v1
+  with:
+     creds: ${{ secrets.AZURE_CREDENTIALS }}
 ```
 
 ## Deployment Target Approaches
@@ -53,37 +53,24 @@ Refer to the [action metadata file](./action.yml) for details about inputs. Use 
 
 **Please note** that the input requires the _contents_ of the kubeconfig file, and not its path.
 
-Following are the ways to fetch kubeconfig file onto your local development machine so that the same can be used in the action input shown above.
-
-#### Fetch a kubeconfig from AKS cluster
-
-```bash
-az aks get-credentials --name
-                       --resource-group
-                       [--admin]
-                       [--file]
-                       [--overwrite-existing]
-                       [--subscription]
-```
-
-Further details can be found in [az aks get-credentials documentation](https://docs.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az-aks-get-credentials).
-
-#### Generic Kubernetes cluster
+You will need to fetch a kubeconfig file onto your local development machine so that the same can be used in the action input shown above.
 
 Please refer to documentation on fetching [kubeconfig for any generic K8s cluster](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/)
 
-### Service Principal Authentication
+### Azure Kubernetes Service
+
+#### Service Principal Authentication
 
 ```yaml
 - uses: azure/k8s-set-context@v3
   with:
      resource-group: '<resource group name>'
-     cluster-type: <cluster type>
+     cluster-type: aks
      cluster-name: '<cluster name>'
      admin: '<admin status>'
 ```
 
-#### Non-Admin AKS Cluster Users
+##### Non-Admin AKS Users
 
 When using Service Principal authentication the status of the cluster's `admin` credentials can affect the method used to get its kubeconfig from AKS clusters. `Kubelogin` is at the core of the non-admin user scenario when using AKS clusters. For more information on `kubelogin`, refer to the documentation [here](https://github.com/Azure/kubelogin).
 
@@ -98,7 +85,7 @@ Non-Admin users will have to install kubelogin to use this Action succesfully. T
           kubelogin --version
 ```
 
-### Service Account Authentication for Non-Arc Clusters
+#### Service Account Authentication
 
 ```yaml
 - uses: azure/k8s-set-context@v3
@@ -123,7 +110,19 @@ kubectl get serviceAccounts <service-account-name> -n <namespace> -o 'jsonpath={
 kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 ```
 
-### Service Account Authentication for arc cluster
+### ARC Clusters
+
+### Service Principal Authentication
+
+```yaml
+- uses: azure/k8s-set-context@v3
+  with:
+     resource-group: '<resource group name>'
+     cluster-type: <cluster type>
+     cluster-name: '<cluster name>'
+```
+
+### Service Account Authentication
 
 ```yaml
 - uses: azure/k8s-set-context@v3
