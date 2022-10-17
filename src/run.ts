@@ -32,8 +32,8 @@ export async function run() {
    core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`)
    fs.writeFileSync(kubeconfigPath, kubeconfigWithContext)
    setKubeconfigPath(kubeconfigPath)
+   listClusterPodsCheck()
 }
 
-listClusterPodsCheck()
 // Run the application
 run().catch(core.setFailed)
