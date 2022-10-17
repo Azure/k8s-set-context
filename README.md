@@ -124,7 +124,7 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 
 ## ARC Clusters
 
-ARC Cluster Service Principal Authentication also requires Azure Login. Use the [AKS Azure Login](https://github.com/aamgayle/k8s-set-context/edit/test2br/README.md#azure-login) section as reference for it.
+ARC Cluster Service Principal Authentication also requires Azure Login. Use the [AKS Azure Login](https://github.com/Azure/k8s-set-context/#azure-login) section as reference for it.
 
 #### ARC Cluster Service Principal Example
 
@@ -169,7 +169,7 @@ Please refer to documentation on fetching [kubeconfig for any generic K8s cluste
 
 #### Generic Cluster Service Account Authentication
 
-Generic clusters and AKS clusters Service Account Authentication methods have similar requirements. Refer to the [AKS Service Account Authentication](https://github.com/aamgayle/k8s-set-context/edit/test2br/README.md#service-account-authentication) section for examples and inputs.
+Generic clusters and AKS clusters Service Account Authentication methods have similar requirements. Refer to the [AKS Service Account Authentication](https://github.com/k8s-set-context#service-account-authentication) section for examples and inputs.
 
 ## Contributing
 
