@@ -124,9 +124,9 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 
 ## ARC Clusters
 
-ARC Cluster Service Principal Authentication also requires Azure Login. Use the [AKS Azure Login](https://github.com/Azure/k8s-set-context/#azure-login) section as reference for it.
-
 #### ARC Cluster Service Principal Example
+
+ARC Cluster Service Principal Authentication also requires Azure Login. Use the [AKS Azure Login](https://github.com/Azure/k8s-set-context/#azure-login) section as reference for it.
 
 ```yaml
 - uses: azure/k8s-set-context@v4
