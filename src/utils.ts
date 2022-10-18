@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as fs from 'fs'
+import * as k8s from '@kubernetes/client-node'
 import {KubeConfig} from '@kubernetes/client-node'
 import {getDefaultKubeconfig} from './kubeconfigs/default'
 import {getArcKubeconfig} from './kubeconfigs/arc'
@@ -96,4 +97,22 @@ export function createKubeconfig(
       }
    )
    return kc.exportConfig()
+}
+
+export function listClusterPodsCheck() {
+   const kc = new k8s.KubeConfig()
+   kc.loadFromDefault()
+
+   const k8sApi = kc.makeApiClient(k8s.CoreV1Api)
+
+   try {
+      k8sApi
+         .listNamespacedPod('default')
+         .then((res) => {
+            console.log(res.body)
+         })
+         .catch()
+   } catch (e) {
+      throw Error('Could not list cluster pods. Exiting...')
+   }
 }
