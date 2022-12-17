@@ -3,7 +3,7 @@ description: 'Set the context of a target Kubernetes cluster and export the kube
 inputs:
    # Please ensure you have used azure/login in the workflow before this action
    cluster-type:
-      description: 'Acceptable values: generic or arc'
+      description: 'Acceptable values: generic, arc or aks'
       required: true
       default: 'generic'
    method:
@@ -31,7 +31,12 @@ inputs:
    cluster-name:
       description: 'Azure connected cluster name'
       required: false
-
+   subscription:
+      description: 'Subscription tied to AKS cluster'
+      required: false
+   admin:
+      description: 'Get cluster admin credentials. Required for aks clusters. Acceptable values: true or false'
+      required: false
 branding:
    color: 'blue'
 runs:

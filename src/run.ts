@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import * as path from 'path'
 import * as fs from 'fs'
 import {Cluster, parseCluster} from './types/cluster'
-import {setContext, getKubeconfig} from './utils'
+import {setContext, getKubeconfig, setKubeconfigPath} from './utils'
 
 /**
  * Sets the Kubernetes context based on supplied action inputs
@@ -20,16 +20,13 @@ export async function run() {
       `kubeconfig_${Date.now()}`
    )
 
-   // get kubeconfig and update context
    const kubeconfig: string = await getKubeconfig(clusterType)
    const kubeconfigWithContext: string = setContext(kubeconfig)
 
    // output kubeconfig
    core.debug(`Writing kubeconfig contents to ${kubeconfigPath}`)
    fs.writeFileSync(kubeconfigPath, kubeconfigWithContext)
-   fs.chmodSync(kubeconfigPath, '600')
-   core.debug('Setting KUBECONFIG environment variable')
-   core.exportVariable('KUBECONFIG', kubeconfigPath)
+   setKubeconfigPath(kubeconfigPath)
 }
 
 // Run the application

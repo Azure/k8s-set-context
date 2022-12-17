@@ -2,7 +2,8 @@ import fs from 'fs'
 import * as arc from './kubeconfigs/arc'
 import * as def from './kubeconfigs/default'
 import {Cluster} from './types/cluster'
-import {getKubeconfig, setContext} from './utils'
+import {getKubeconfig, setContext, kubeLogin} from './utils'
+import * as exec from '@actions/exec'
 
 describe('Utils', () => {
    describe('get kubeconfig', () => {
@@ -42,6 +43,16 @@ describe('Utils', () => {
          )
 
          expect(received).toMatchObject(expectedKc)
+      })
+   })
+
+   describe('kubeLogin', () => {
+      test('It throws an Error when KUBELOGIN_EXIT_CODE is not 0', async () => {
+         jest.spyOn(exec, 'exec').mockImplementation(async () => 1)
+
+         expect(await kubeLogin).rejects.toThrowError(
+            'kubelogin exited with error code 1'
+         )
       })
    })
 })
