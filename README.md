@@ -19,7 +19,7 @@ Refer to the [action metadata file](./action.yml) for details about inputs. Note
 ### Kubeconfig approach
 
 ```yaml
-- uses: azure/k8s-set-context@v2
+- uses: azure/k8s-set-context@v3
   with:
      method: kubeconfig
      kubeconfig: <your kubeconfig>
@@ -50,7 +50,7 @@ Please refer to documentation on fetching [kubeconfig for any generic K8s cluste
 ### Service account approach
 
 ```yaml
-- uses: azure/k8s-set-context@v2
+- uses: azure/k8s-set-context@v3
   with:
      method: service-account
      k8s-url: <URL of the cluster's API server>
@@ -74,7 +74,7 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 ### Service account approach for arc cluster
 
 ```yaml
-- uses: azure/k8s-set-context@v2
+- uses: azure/k8s-set-context@v3
   with:
      method: service-account
      cluster-type: arc
@@ -86,7 +86,7 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
 ### Service principal approach for arc cluster
 
 ```yaml
-- uses: azure/k8s-set-context@v2
+- uses: azure/k8s-set-context@v3
   with:
      method: service-principal
      cluster-type: arc
