@@ -1,5 +1,5 @@
 import {getRequiredInputError} from '../tests/util'
-import {run} from './run'
+import {run} from './action'
 import fs from 'fs'
 import * as utils from './utils'
 
