@@ -6,9 +6,9 @@ It is a requirement to use [`azure/login`](https://github.com/Azure/login/tree/m
 
 There are three approaches for specifying the deployment target:
 
--  Kubeconfig file provided as input to the action
--  Service account approach where the secret associated with the service account is provided as input to the action
--  Service principal approach (only applicable for arc cluster) where service principal provided with 'creds' is used as input to action
+- Kubeconfig file provided as input to the action
+- Service account approach where the secret associated with the service account is provided as input to the action
+- Service principal approach (only applicable for arc cluster) where service principal provided with 'creds' is used as input to action
 
 In all these approaches it is recommended to store these contents (kubeconfig file content or secret content) in a [secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets/).
 
