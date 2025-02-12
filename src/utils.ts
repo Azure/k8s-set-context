@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
-import * as fs from 'fs'
-import {KubeConfig} from '@kubernetes/client-node'
 import {getDefaultKubeconfig} from './kubeconfigs/default'
 import {getArcKubeconfig} from './kubeconfigs/arc'
 import {Cluster} from './types/cluster'
+import { KubeConfig } from '@kubernetes/client-node'
+
 
 /**
  * Gets the kubeconfig based on Kubernetes cluster type
@@ -39,7 +39,7 @@ export function setContext(kubeconfig: string): string {
    }
 
    // load current kubeconfig
-   const kc = new KubeConfig()
+   const kc: KubeConfig = new KubeConfig()
    kc.loadFromString(kubeconfig)
 
    // update kubeconfig

@@ -8,7 +8,11 @@ module.exports = {
    transform: {
       '^.+\\.ts$': 'ts-jest'
    },
-   verbose: true,
+   transformIgnorePatterns: ['/node_modules/(?!@kubernetes/client-node/)'],
+   moduleNameMapper: {
+      '^@kubernetes/client-node$':
+         '<rootDir>/node_modules/@kubernetes/client-node/dist/index.d.ts'
+   },
    coverageThreshold: {
       global: {
          branches: 0,
@@ -16,5 +20,6 @@ module.exports = {
          lines: 22,
          statements: 22
       }
-   }
+   },
+   verbose: true
 }
