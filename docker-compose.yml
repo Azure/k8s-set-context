@@ -1,0 +1,11 @@
+services:
+   app:
+      build:
+         dockerfile_inline: |
+            FROM node:alpine
+            WORKDIR /app
+            COPY . .
+            RUN npm i
+      volumes:
+         -  /app/node_modules
+         - .:/app
