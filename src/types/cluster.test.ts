@@ -1,4 +1,5 @@
 import {Cluster, parseCluster} from './cluster'
+import {expect, describe, test} from 'vitest'
 
 describe('Cluster type', () => {
    test('it has required values', () => {
