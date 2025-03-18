@@ -1,4 +1,5 @@
 import {Method, parseMethod} from './method'
+import {expect, describe, test} from 'vitest'
 
 describe('Method type', () => {
    test('it has required values', () => {

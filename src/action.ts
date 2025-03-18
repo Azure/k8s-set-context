@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import * as path from 'path'
-import * as fs from 'fs'
+import fs from 'fs'
 import {Cluster, parseCluster} from './types/cluster'
 import {setContext, getKubeconfig} from './utils'
 
