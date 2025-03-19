@@ -101,6 +101,15 @@ describe('Default kubeconfig', () => {
          )
       })
 
+      test('it responds with error if k8s-secret is not in yaml format', () => {
+         process.env['INPUT_K8S-URL'] = 'url'
+         process.env['INPUT_K8S-SECRET'] = 'simple string'
+
+         expect(() => getDefaultKubeconfig()).toThrow(
+            'k8s-secret is a string, when it should be YAML'
+         )
+      })
+
       test('it gets kubeconfig through service-account', () => {
          const k8sUrl = 'https://testing-dns-4za.hfp.earth.azmk8s.io:443'
          const token = 'ZXlKaGJHY2lPcUpTVXpJMU5pSX='
