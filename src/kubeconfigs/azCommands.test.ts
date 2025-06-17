@@ -9,6 +9,6 @@ describe('Az commands', () => {
       jest.spyOn(actions, 'exec').mockImplementation(async () => 0)
 
       expect(await runAzCliCommand(path, args))
-      expect(actions.exec).toBeCalledWith(path, args, {})
+      expect(actions.exec).toHaveBeenCalledWith(path, args, {})
    })
 })
