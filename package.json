@@ -29,14 +29,14 @@
       "js-yaml": "^4.1.0"
    },
    "devDependencies": {
-      "@babel/preset-env": "^7.27.2",
+      "@babel/preset-env": "^7.28.0",
       "@babel/preset-typescript": "^7.27.1",
       "@types/jest": "^30.0.0",
       "@types/js-yaml": "^4.0.9",
-      "@types/node": "^24.0.7",
+      "@types/node": "^24.0.10",
       "@vercel/ncc": "^0.38.3",
-      "babel-jest": "^30.0.2",
-      "jest": "^30.0.3",
+      "babel-jest": "^30.0.4",
+      "jest": "^30.0.4",
       "prettier": "^3.6.2",
       "ts-jest": "^29.4.0",
       "typescript": "^5.8.3"
