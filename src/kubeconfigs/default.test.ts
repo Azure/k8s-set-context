@@ -68,8 +68,6 @@ describe('Default kubeconfig', () => {
          const kc = 'example kc'
          const base64Kc = Buffer.from(kc, 'utf-8').toString('base64')
 
-         process.env['INPUT_KUBECONFIG'] = base64Kc
-
          jest.spyOn(core, 'getInput').mockImplementation((name: string) => {
             if (name === 'method') return 'default'
             if (name === 'kubeconfig-encoding') return 'base64'
