@@ -13,6 +13,10 @@ inputs:
    kubeconfig:
       description: 'Contents of kubeconfig file'
       required: false
+   kubeconfig-encoding:
+      description: 'Encoding of the kubeconfig input. Accepts "plaintext" (default) or "base64".'
+      required: false
+      default: 'plaintext'
    context:
       description: 'If your kubeconfig has multiple contexts, use this field to use a specific context, otherwise the default one would be chosen'
       required: false
