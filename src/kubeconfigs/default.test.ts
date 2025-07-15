@@ -145,5 +145,14 @@ describe('Default kubeconfig', () => {
 
          expect(getDefaultKubeconfig()).toBe(expectedConfig)
       })
+
+      test('it gets default config through base64 kubeconfig input', () => {
+         const kc = 'example kc'
+         const base64Kc = Buffer.from(kc, 'utf-8').toString('base64')
+         process.env['INPUT_KUBECONFIG'] = base64Kc
+         process.env['INPUT_KUBECONFIG_ENCODING'] = 'base64'
+
+         expect(getDefaultKubeconfig()).toBe(kc)
+      })
    })
 })
