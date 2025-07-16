@@ -54,9 +54,14 @@ export function getDefaultKubeconfig(): string {
             core.getInput('kubeconfig-encoding')?.toLowerCase() ||
             ENCODING.PLAINTEXT
 
+         if (encoding !== ENCODING.BASE64 && encoding !== ENCODING.PLAINTEXT) {
+            throw new Error(
+               `Invalid kubeconfig-encoding: '${encoding}'. Must be 'plaintext' or 'base64'.`
+            )
+         }
          const kubeconfig =
             encoding === ENCODING.BASE64
-               ? Buffer.from(rawKubeconfig, ENCODING.BASE64).toString('utf-8')
+               ? Buffer.from(rawKubeconfig, 'base64').toString('utf-8')
                : rawKubeconfig
 
          return kubeconfig
