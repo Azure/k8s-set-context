@@ -44,13 +44,21 @@ export function getDefaultKubeconfig(): string {
       }
       default: {
          core.debug('Setting context using kubeconfig')
-         let kubeconfig = core.getInput('kubeconfig', {required: true})
-         const encoding = (
-            core.getInput('kubeconfig-encoding') || 'plaintext'
-         ).toLowerCase()
-         if (encoding === 'base64') {
-            kubeconfig = Buffer.from(kubeconfig, 'base64').toString('utf-8')
+         const ENCODING = {
+            BASE64: 'base64',
+            PLAINTEXT: 'plaintext'
          }
+
+         const rawKubeconfig = core.getInput('kubeconfig', {required: true})
+         const encoding =
+            core.getInput('kubeconfig-encoding')?.toLowerCase() ||
+            ENCODING.PLAINTEXT
+
+         const kubeconfig =
+            encoding === ENCODING.BASE64
+               ? Buffer.from(rawKubeconfig, ENCODING.BASE64).toString('utf-8')
+               : rawKubeconfig
+
          return kubeconfig
       }
    }
