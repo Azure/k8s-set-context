@@ -44,7 +44,27 @@ export function getDefaultKubeconfig(): string {
       }
       default: {
          core.debug('Setting context using kubeconfig')
-         return core.getInput('kubeconfig', {required: true})
+         enum Encoding {
+            Base64 = 'base64',
+            Plaintext = 'plaintext'
+         }
+
+         const rawKubeconfig = core.getInput('kubeconfig', {required: true})
+         const encoding =
+            core.getInput('kubeconfig-encoding')?.toLowerCase() ||
+            Encoding.Plaintext
+
+         if (encoding !== Encoding.Base64 && encoding !== Encoding.Plaintext) {
+            throw new Error(
+               `Invalid kubeconfig-encoding: '${encoding}'. Must be 'plaintext' or 'base64'.`
+            )
+         }
+         const kubeconfig =
+            encoding === Encoding.Base64
+               ? Buffer.from(rawKubeconfig, 'base64').toString('utf-8')
+               : rawKubeconfig
+
+         return kubeconfig
       }
    }
 }

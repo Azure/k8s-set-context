@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import * as core from '@actions/core'
 import {getRequiredInputError} from '../../tests/util'
 import {createKubeconfig, getDefaultKubeconfig} from './default'
 
@@ -61,6 +62,47 @@ describe('Default kubeconfig', () => {
          process.env['INPUT_KUBECONFIG'] = kc
 
          expect(getDefaultKubeconfig()).toBe(kc)
+      })
+
+      test('returns kubeconfig as plaintext when encoding is plaintext', () => {
+         const kc = 'example kc'
+         jest.spyOn(core, 'getInput').mockImplementation((name: string) => {
+            if (name === 'method') return 'default'
+            if (name === 'kubeconfig-encoding') return 'plaintext'
+            if (name === 'kubeconfig') return kc
+            return ''
+         })
+         expect(getDefaultKubeconfig()).toBe(kc)
+      })
+
+      test('it gets default config through base64 kubeconfig input', () => {
+         const kc = 'example kc'
+         const base64Kc = Buffer.from(kc, 'utf-8').toString('base64')
+
+         jest.spyOn(core, 'getInput').mockImplementation((name: string) => {
+            if (name === 'method') return 'default'
+            if (name === 'kubeconfig-encoding') return 'base64'
+            if (name === 'kubeconfig') return base64Kc
+            return ''
+         })
+
+         expect(getDefaultKubeconfig()).toBe(kc)
+      })
+
+      test('it throws error for unknown kubeconfig-encoding', () => {
+         const kc = 'example kc'
+         const unknownEncoding = 'foobar'
+
+         jest.spyOn(core, 'getInput').mockImplementation((name: string) => {
+            if (name === 'method') return 'default'
+            if (name === 'kubeconfig-encoding') return unknownEncoding
+            if (name === 'kubeconfig') return kc
+            return ''
+         })
+
+         expect(() => getDefaultKubeconfig()).toThrow(
+            "Invalid kubeconfig-encoding: 'foobar'. Must be 'plaintext' or 'base64'."
+         )
       })
    })
 
