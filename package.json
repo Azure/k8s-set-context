@@ -33,7 +33,7 @@
       "@babel/preset-typescript": "^7.27.1",
       "@types/jest": "^30.0.0",
       "@types/js-yaml": "^4.0.9",
-      "@types/node": "^24.0.13",
+      "@types/node": "^24.0.15",
       "@vercel/ncc": "^0.38.3",
       "babel-jest": "^30.0.4",
       "jest": "^30.0.4",
