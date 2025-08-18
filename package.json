@@ -29,11 +29,11 @@
       "js-yaml": "^4.1.0"
    },
    "devDependencies": {
-      "@babel/preset-env": "^7.28.0",
+      "@babel/preset-env": "^7.28.3",
       "@babel/preset-typescript": "^7.27.1",
       "@types/jest": "^30.0.0",
       "@types/js-yaml": "^4.0.9",
-      "@types/node": "^24.1.0",
+      "@types/node": "^24.3.0",
       "@vercel/ncc": "^0.38.3",
       "babel-jest": "^30.0.5",
       "jest": "^30.0.5",
