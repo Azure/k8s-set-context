@@ -1,10 +1,10 @@
 # Change Log
+
 ## [4.0.2] - 2025-11-13
 
-
-- #164 Adding optional kubeconfig encoding variable
+- #[164](https://github.com/Azure/k8s-set-context/pull/164) Adding optional kubeconfig encoding variable
 - Dependabot updates
-  
+
 ## [4.0.1] - 2024-09-06
 
 - #90 update dev dependencies with Typescript to 5
