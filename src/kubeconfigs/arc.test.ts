@@ -1,3 +1,5 @@
+import {beforeEach, describe, expect, it, test, vi} from 'vitest'
+import * as core from '@actions/core'
 import * as actions from '@actions/exec'
 import * as io from '@actions/io'
 import {getRequiredInputError} from '../../tests/util'
@@ -5,6 +7,12 @@ import {getArcKubeconfig, KUBECONFIG_LOCATION} from './arc'
 import * as az from './azCommands'
 
 describe('Arc kubeconfig', () => {
+   beforeEach(() => {
+      vi.restoreAllMocks()
+      vi.spyOn(core, 'warning').mockImplementation(() => {})
+      vi.spyOn(core, 'debug').mockImplementation(() => {})
+   })
+
    test('it throws error without resource group', async () => {
       await expect(getArcKubeconfig()).rejects.toThrow(
          getRequiredInputError('resource-group')
@@ -28,11 +36,11 @@ describe('Arc kubeconfig', () => {
          process.env['INPUT_RESOURCE-GROUP'] = group
          process.env['INPUT_CLUSTER-NAME'] = name
 
-         jest.spyOn(io, 'which').mockImplementation(async () => path)
-         jest.spyOn(az, 'runAzCliCommand').mockImplementation(async () => {})
-         jest
-            .spyOn(az, 'runAzKubeconfigCommandBlocking')
-            .mockImplementation(async () => kubeconfig)
+         vi.spyOn(io, 'which').mockResolvedValue(path)
+         vi.spyOn(az, 'runAzCliCommand').mockResolvedValue()
+         vi.spyOn(az, 'runAzKubeconfigCommandBlocking').mockResolvedValue(
+            kubeconfig
+         )
       })
 
       it('throws an error without method', async () => {

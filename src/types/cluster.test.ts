@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest'
 import {Cluster, parseCluster} from './cluster'
 
 describe('Cluster type', () => {
