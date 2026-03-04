@@ -11,5 +11,5 @@
          "@kubernetes/client-node": ["node_modules/@kubernetes/client-node"]
       }
    },
-   "exclude": ["node_modules", "tests", "src/**/*.test.ts"]
+   "exclude": ["node_modules", "lib"]
 }

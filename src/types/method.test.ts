@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest'
 import {Method, parseMethod} from './method'
 
 describe('Method type', () => {
