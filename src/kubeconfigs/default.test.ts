@@ -1,9 +1,22 @@
+import {afterEach, beforeEach, describe, expect, test, vi} from 'vitest'
 import * as fs from 'fs'
 import * as core from '@actions/core'
 import {getRequiredInputError} from '../../tests/util'
 import {createKubeconfig, getDefaultKubeconfig} from './default'
 
 describe('Default kubeconfig', () => {
+   const originalEnv = {...process.env}
+
+   beforeEach(() => {
+      vi.restoreAllMocks()
+      vi.spyOn(core, 'warning').mockImplementation(() => {})
+      vi.spyOn(core, 'debug').mockImplementation(() => {})
+   })
+
+   afterEach(() => {
+      process.env = {...originalEnv}
+   })
+
    test('it creates a kubeconfig with proper format', () => {
       const certAuth = 'certAuth'
       const token = 'token'
@@ -66,7 +79,7 @@ describe('Default kubeconfig', () => {
 
       test('returns kubeconfig as plaintext when encoding is plaintext', () => {
          const kc = 'example kc'
-         jest.spyOn(core, 'getInput').mockImplementation((name: string) => {
+         vi.spyOn(core, 'getInput').mockImplementation((name: string) => {
             if (name === 'method') return 'default'
             if (name === 'kubeconfig-encoding') return 'plaintext'
             if (name === 'kubeconfig') return kc
@@ -79,7 +92,7 @@ describe('Default kubeconfig', () => {
          const kc = 'example kc'
          const base64Kc = Buffer.from(kc, 'utf-8').toString('base64')
 
-         jest.spyOn(core, 'getInput').mockImplementation((name: string) => {
+         vi.spyOn(core, 'getInput').mockImplementation((name: string) => {
             if (name === 'method') return 'default'
             if (name === 'kubeconfig-encoding') return 'base64'
             if (name === 'kubeconfig') return base64Kc
@@ -93,7 +106,7 @@ describe('Default kubeconfig', () => {
          const kc = 'example kc'
          const unknownEncoding = 'foobar'
 
-         jest.spyOn(core, 'getInput').mockImplementation((name: string) => {
+         vi.spyOn(core, 'getInput').mockImplementation((name: string) => {
             if (name === 'method') return 'default'
             if (name === 'kubeconfig-encoding') return unknownEncoding
             if (name === 'kubeconfig') return kc

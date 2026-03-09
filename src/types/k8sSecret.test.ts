@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest'
 import {parseK8sSecret, K8sSecret} from './k8sSecret'
 
 describe('K8sSecret type', () => {
