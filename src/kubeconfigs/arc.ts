@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
 import * as io from '@actions/io'
-import {Method, parseMethod} from '../types/method'
+import {Method, parseMethod} from '../types/method.js'
 import * as path from 'path'
-import {runAzCliCommand, runAzKubeconfigCommandBlocking} from './azCommands'
+import {runAzCliCommand, runAzKubeconfigCommandBlocking} from './azCommands.js'
 
 const RUNNER_TEMP: string = process.env['RUNNER_TEMP'] || ''
 export const KUBECONFIG_LOCATION: string = path.join(

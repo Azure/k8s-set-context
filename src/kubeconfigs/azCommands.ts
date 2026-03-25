@@ -1,6 +1,5 @@
 import * as fs from 'fs'
-import {ExecOptions} from '@actions/exec/lib/interfaces'
-import {exec} from '@actions/exec'
+import {ExecOptions, exec} from '@actions/exec'
 import {spawn} from 'child_process'
 
 const AZ_TIMEOUT_SECONDS: number = 120

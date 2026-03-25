@@ -1,8 +1,11 @@
-import * as actions from '@actions/exec'
+import {vi, describe, test, it, expect, beforeEach} from 'vitest'
 import * as io from '@actions/io'
-import {getRequiredInputError} from '../../tests/util'
-import {getArcKubeconfig, KUBECONFIG_LOCATION} from './arc'
-import * as az from './azCommands'
+import {getRequiredInputError} from '../../tests/util.js'
+import {getArcKubeconfig, KUBECONFIG_LOCATION} from './arc.js'
+import * as az from './azCommands.js'
+
+vi.mock('@actions/io')
+vi.mock('./azCommands.js')
 
 describe('Arc kubeconfig', () => {
    test('it throws error without resource group', async () => {
@@ -28,11 +31,11 @@ describe('Arc kubeconfig', () => {
          process.env['INPUT_RESOURCE-GROUP'] = group
          process.env['INPUT_CLUSTER-NAME'] = name
 
-         jest.spyOn(io, 'which').mockImplementation(async () => path)
-         jest.spyOn(az, 'runAzCliCommand').mockImplementation(async () => {})
-         jest
-            .spyOn(az, 'runAzKubeconfigCommandBlocking')
-            .mockImplementation(async () => kubeconfig)
+         vi.mocked(io.which).mockResolvedValue(path)
+         vi.mocked(az.runAzCliCommand).mockResolvedValue(undefined)
+         vi.mocked(az.runAzKubeconfigCommandBlocking).mockResolvedValue(
+            kubeconfig
+         )
       })
 
       it('throws an error without method', async () => {

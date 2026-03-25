@@ -1,15 +1,15 @@
 {
    "compilerOptions": {
-      "baseUrl": ".",
-      "module": "ESNext", // or "NodeNext" depending on your setup
-      "moduleResolution": "node",
+      "target": "ES2022",
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext",
       "esModuleInterop": true,
       "allowSyntheticDefaultImports": true,
       "skipLibCheck": true,
-      "paths": {
-         "@actions/core": ["node_modules/@actions/core"],
-         "@kubernetes/client-node": ["node_modules/@kubernetes/client-node"]
-      }
+      "strict": true,
+      "outDir": "dist",
+      "rootDir": "src"
    },
-   "exclude": ["node_modules", "tests", "src/**/*.test.ts"]
+   "include": ["src"],
+   "exclude": ["node_modules", "src/**/*.test.ts"]
 }

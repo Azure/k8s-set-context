@@ -9,9 +9,10 @@ export enum Method {
  * @param str The method (case insensitive)
  * @returns The Method enum or undefined if it can't be parsed
  */
-export const parseMethod = (str: string): Method | undefined =>
-   Method[
-      Object.keys(Method).filter(
-         (k) => Method[k].toString().toLowerCase() === str.toLowerCase()
-      )[0] as keyof typeof Method
-   ]
+export const parseMethod = (str: string): Method | undefined => {
+   const key = Object.keys(Method).find(
+      (k) =>
+         Method[k as keyof typeof Method].toLowerCase() === str.toLowerCase()
+   ) as keyof typeof Method | undefined
+   return key !== undefined ? Method[key] : undefined
+}

@@ -1,8 +1,9 @@
-import {Method, parseMethod} from './method'
+import {describe, test, expect} from 'vitest'
+import {Method, parseMethod} from './method.js'
 
 describe('Method type', () => {
    test('it has required values', () => {
-      const vals = <any>Object.values(Method)
+      const vals = Object.values(Method) as string[]
       expect(vals.includes('kubeconfig')).toBe(true)
       expect(vals.includes('service-account')).toBe(true)
       expect(vals.includes('service-principal')).toBe(true)
