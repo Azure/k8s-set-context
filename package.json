@@ -5,7 +5,8 @@
    "main": "lib/index.js",
    "type": "module",
    "scripts": {
-      "build": "node build.mjs",
+      "build": "tsc --noEmit && esbuild src/run.ts --bundle --platform=node --target=node20 --format=esm --outfile=lib/index.js --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\"",
+      "typecheck": "tsc --noEmit",
       "test": "vitest run",
       "test-coverage": "vitest run --coverage",
       "format": "prettier --write .",
@@ -30,7 +31,6 @@
    "devDependencies": {
       "@types/js-yaml": "^4.0.9",
       "@types/node": "^25.0.9",
-      "@vitest/coverage-v8": "^4.1.1",
       "esbuild": "^0.27.4",
       "prettier": "^3.8.0",
       "typescript": "^5.9.3",
