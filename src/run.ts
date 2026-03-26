@@ -1,4 +1,4 @@
-import {run} from './action'
+import {run} from './action.js'
 import * as core from '@actions/core'
 
 // Run the application

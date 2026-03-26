@@ -1,8 +1,9 @@
-import {Cluster, parseCluster} from './cluster'
+import {describe, test, expect} from 'vitest'
+import {Cluster, parseCluster} from './cluster.js'
 
 describe('Cluster type', () => {
    test('it has required values', () => {
-      const vals = <any>Object.values(Cluster)
+      const vals = Object.values(Cluster) as string[]
       expect(vals.includes('arc')).toBe(true)
       expect(vals.includes('generic')).toBe(true)
    })

@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
 import * as jsyaml from 'js-yaml'
 import {KubeConfig} from '@kubernetes/client-node'
-import {K8sSecret, parseK8sSecret} from '../types/k8sSecret'
-import {Method, parseMethod} from '../types/method'
+import {K8sSecret, parseK8sSecret} from '../types/k8sSecret.js'
+import {Method, parseMethod} from '../types/method.js'
 
 /**
  * Gets the kubeconfig based on provided method for a default Kubernetes cluster

@@ -1,15 +1,14 @@
 {
    "compilerOptions": {
-      "baseUrl": ".",
-      "module": "ESNext", // or "NodeNext" depending on your setup
-      "moduleResolution": "node",
-      "esModuleInterop": true,
-      "allowSyntheticDefaultImports": true,
+      "target": "ES2020",
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext",
+      "rootDir": "./src",
+      "outDir": "./lib",
+      "noImplicitAny": false,
       "skipLibCheck": true,
-      "paths": {
-         "@actions/core": ["node_modules/@actions/core"],
-         "@kubernetes/client-node": ["node_modules/@kubernetes/client-node"]
-      }
+      "noEmit": true,
+      "types": ["node", "vitest/globals"]
    },
-   "exclude": ["node_modules", "tests", "src/**/*.test.ts"]
+   "exclude": ["node_modules", "**/*.test.ts", "vitest.config.ts", "tests/"]
 }

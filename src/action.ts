@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
 import * as path from 'path'
 import * as fs from 'fs'
-import {Cluster, parseCluster} from './types/cluster'
-import {setContext, getKubeconfig} from './utils'
+import {Cluster, parseCluster} from './types/cluster.js'
+import {setContext, getKubeconfig} from './utils.js'
 
 /**
  * Sets the Kubernetes context based on supplied action inputs
@@ -14,7 +14,7 @@ export async function run() {
          required: true
       })
    )
-   const runnerTempDirectory: string = process.env['RUNNER_TEMP']
+   const runnerTempDirectory: string = process.env['RUNNER_TEMP'] ?? ''
    const kubeconfigPath: string = path.join(
       runnerTempDirectory,
       `kubeconfig_${Date.now()}`

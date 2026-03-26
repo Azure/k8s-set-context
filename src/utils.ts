@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
 import * as fs from 'fs'
 import {KubeConfig} from '@kubernetes/client-node'
-import {getDefaultKubeconfig} from './kubeconfigs/default'
-import {getArcKubeconfig} from './kubeconfigs/arc'
-import {Cluster} from './types/cluster'
+import {getDefaultKubeconfig} from './kubeconfigs/default.js'
+import {getArcKubeconfig} from './kubeconfigs/arc.js'
+import {Cluster} from './types/cluster.js'
 
 /**
  * Gets the kubeconfig based on Kubernetes cluster type

@@ -1,4 +1,5 @@
-import {parseK8sSecret, K8sSecret} from './k8sSecret'
+import {describe, test, expect} from 'vitest'
+import {parseK8sSecret} from './k8sSecret.js'
 
 describe('K8sSecret type', () => {
    describe('Parsing from any', () => {
