@@ -1,6 +1,6 @@
 {
    "name": "k8s-set-context-action",
-   "version": "4.0.2",
+   "version": "5.0.0",
    "private": true,
    "main": "lib/index.js",
    "type": "module",
