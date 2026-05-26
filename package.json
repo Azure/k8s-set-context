@@ -30,10 +30,10 @@
    },
    "devDependencies": {
       "@types/js-yaml": "^4.0.9",
-      "@types/node": "^25.8.0",
+      "@types/node": "^25.9.1",
       "esbuild": "^0.28.0",
       "prettier": "^3.8.3",
       "typescript": "^6.0.3",
-      "vitest": "^4.1.6"
+      "vitest": "^4.1.7"
    }
 }
