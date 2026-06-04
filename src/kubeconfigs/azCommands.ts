@@ -36,6 +36,7 @@ export async function runAzKubeconfigCommandBlocking(
    proc.unref()
 
    await sleep(AZ_TIMEOUT_SECONDS)
+   fs.chmodSync(kubeconfigPath, 0o600)
    return fs.readFileSync(kubeconfigPath).toString()
 }
 
