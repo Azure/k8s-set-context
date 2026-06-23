@@ -1,5 +1,38 @@
 # Change Log
 
+## [5.0.1] 2026-06-23
+
+### Fixes
+
+- #252 Set kubeconfig file permissions to 600 after creation
+- #250 Remove deprecated OliverMKing release workflow, pin to SHA
+
+### Dependabot updates
+
+- #260 Bump undici from 6.24.1 to 6.27.0
+- #259 Bump the actions group with 3 updates
+- #258 Bump actions/checkout from 6.0.3 to 7.0.0 in /.github/workflows in the actions group
+- #257 Bump form-data from 4.0.5 to 4.0.6
+- #256 Bump the actions group with 2 updates
+- #255 Bump esbuild from 0.28.0 to 0.28.1
+- #254 Bump the actions group in /.github/workflows with 2 updates
+- #253 Bump the actions group with 2 updates
+- #251 Bump js-yaml from 4.1.1 to 4.2.0 in the actions group
+- #249 Bump ws from 8.20.0 to 8.21.0
+- #248 Bump the actions group in /.github/workflows with 2 updates
+- #247 Bump the actions group with 2 updates
+- #246 Bump github/codeql-action from 4.35.4 to 4.35.5 in /.github/workflows in the actions group
+- #245 Bump the actions group with 2 updates
+- #244 Bump github/codeql-action from 4.35.3 to 4.35.4 in /.github/workflows in the actions group
+- #243 Bump @types/node from 25.6.0 to 25.6.2 in the actions group
+- #242 Bump ip-address from 10.1.0 to 10.2.0
+- #240 Bump the actions group across 1 directory with 2 updates
+- #238 Bump the actions group with 2 updates
+- #237 Bump github/codeql-action from 4.35.1 to 4.35.2 in /.github/workflows in the actions group
+- #236 Bump the actions group with 2 updates
+- #235 Bump the actions group with 3 updates
+- #233 Bump the actions group across 1 directory with 2 updates
+
 ## [5.0.0] - 2026-04-07
 
 ### Features
