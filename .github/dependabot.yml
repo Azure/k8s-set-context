@@ -3,16 +3,28 @@ updates:
    - package-ecosystem: npm
      directory: /
      schedule:
-        interval: weekly
+        interval: cron
+        cronjob: '0 8 1,15 * *'
+     cooldown:
+        default-days: 7
      groups:
-        actions:
+        minor-and-patch:
            patterns:
               - '*'
+           update-types:
+              - minor
+              - patch
    - package-ecosystem: github-actions
      directory: .github/workflows
      schedule:
-        interval: weekly
+        interval: cron
+        cronjob: '0 8 1,15 * *'
+     cooldown:
+        default-days: 7
      groups:
-        actions:
+        minor-and-patch:
            patterns:
               - '*'
+           update-types:
+              - minor
+              - patch

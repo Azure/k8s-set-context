@@ -94,6 +94,27 @@ kubectl get secret <service-account-secret-name> -n <namespace> -o yaml
      resource-group: <resource-group>
 ```
 
+## Development
+
+This repository enforces a **7-day dependency freshness ("bake") period**: newly
+published npm packages are not adopted until they have been available for at
+least 7 days, giving the ecosystem time to catch broken or malicious releases.
+
+- **Dependabot** uses a 7-day `cooldown` and opens PRs on the 1st and 15th of
+  each month, grouping minor/patch updates into a single PR. Major updates are
+  still raised individually so they get their own review.
+- **`.npmrc`** sets `min-release-age=7` (days), which applies the same rule to
+  local `npm install`. This requires npm >= 11.10.0; the version bundled with
+  Node 24 (this action's runtime) satisfies that. On older npm the setting is
+  ignored, so Dependabot's `cooldown` remains the authoritative control.
+
+**Security exception:** to adopt an urgent patch that is less than 7 days old,
+install it once with the age check disabled:
+
+```sh
+npm install <pkg> --min-release-age=0
+```
+
 ## Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
