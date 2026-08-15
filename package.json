@@ -26,11 +26,11 @@
       "@actions/io": "^3.0.2",
       "@kubernetes/client-node": "^1.4.0",
       "husky": "^9.1.7",
-      "js-yaml": "^5.2.2"
+      "js-yaml": "^5.2.3"
    },
    "devDependencies": {
       "@types/js-yaml": "^4.0.9",
-      "@types/node": "^26.1.2",
+      "@types/node": "^26.2.0",
       "esbuild": "^0.28.1",
       "prettier": "^3.9.6",
       "typescript": "^7.0.2",
