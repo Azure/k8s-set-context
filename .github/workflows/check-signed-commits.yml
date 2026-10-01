@@ -9,4 +9,4 @@ permissions:
 
 jobs:
    signed:
-      uses: Azure/action-release-workflows/.github/workflows/check_signed_commits.yaml@2ff084415c5af591fd13d95ddbfc4cdb5ed2012e
+      uses: Azure/action-release-workflows/.github/workflows/check_signed_commits.yaml@a391b701462581f586d0e8a68e60b04aa47dc4a9
