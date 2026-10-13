@@ -24,7 +24,7 @@
       "@actions/core": "^3.0.1",
       "@actions/exec": "^3.0.0",
       "@actions/io": "^3.0.2",
-      "@kubernetes/client-node": "^1.4.0",
+      "@kubernetes/client-node": "^2.0.0",
       "husky": "^9.1.7",
       "js-yaml": "^5.4.2"
    },
