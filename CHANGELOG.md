@@ -1,5 +1,24 @@
 # Change Log
 
+## [5.0.2] - 2026-11-09
+
+### Security
+
+- #300 Update Undici security fixes
+- #290 Update Undici to 6.29.0
+- #273 Update Undici to 6.28.0
+
+### Changed
+
+- #288 Upgrade the Kubernetes client to 2.x
+- #298 Enable stale cleanup after 74 inactive days
+- #277 Enforce dependency freshness and check signed commits
+
+### Dependabot updates
+
+- Update js-yaml and ip-address (#267, #275, #283, #291, #301)
+- Update remaining dependency groups, build tools, and workflow actions (#262, #263, #265, #269, #270, #276, #279, #280, #282, #287, #292, #293, #294, #296, #297, #299, #303)
+
 ## [5.0.1] 2026-06-23
 
 ### Fixes
